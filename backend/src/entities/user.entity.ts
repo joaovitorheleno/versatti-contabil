@@ -1,5 +1,23 @@
-import { Entity } from "typeorm";
+import { Column, Entity } from "typeorm";
+import { CrudEntity } from "./abstract/crud-entity";
 
 @Entity('users')
-export class UserEntity {
+export class UserEntity extends CrudEntity {
+    @Column('varchar', { nullable: false })
+    name!: string;
+
+    @Column('varchar', { nullable: false, unique: true })
+    email!: string;
+
+    @Column('varchar', { nullable: false, unique: true })
+    cpf!: string;
+
+    @Column('varchar', { nullable: false, unique: true })
+    phone!: string;
+
+    @Column('varchar', { nullable: false })
+    password!: string;
+
+    @Column({ type: 'date', name: 'date_of_birth' })
+    dateOfBirth!: string;
 }
