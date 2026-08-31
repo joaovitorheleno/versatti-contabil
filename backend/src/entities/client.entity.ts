@@ -12,4 +12,7 @@ export class ClientEntity extends CrudEntity {
 
     @Column('enum', { nullable: false, name: 'tax_regime', enum: TaxRegimeEnum })
     taxRegime!: TaxRegimeEnum;
+
+    @Column('varchar', { nullable: false })
+    password!: string;
 }
