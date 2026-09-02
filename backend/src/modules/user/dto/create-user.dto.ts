@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsDate, IsDateString, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsDateString, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateUserDto {
     @IsString({ message: 'O nome deve ser uma string' })
@@ -36,13 +35,13 @@ export class CreateUserDto {
     phone!: string;
 
     @IsString({ message: 'A senha deve ser uma string' })
-    @IsNotEmpty({ message: 'A senha é obrigatório' })
+    @IsOptional({ message: 'A senha é obrigatório' })
     @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
     @ApiProperty({ 
         description: 'Senha do usuário',
         example: '123Aa'
     })
-    password!: string;
+    password?: string | undefined;
 
     @IsDateString({}, { message: 'A data de nascimento deve estar no formato YYYY-MM-DD' })
     @IsNotEmpty({ message: 'A data de nascimento é obrigatória' })

@@ -48,21 +48,22 @@ export class CreateUserService {
 
         try {
             const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
 
             const user = new UserEntity();
             user.name = name;
             user.email = cleanEmail;
             user.cpf = cleanCpf;
             user.phone = cleanPhone;
-            user.password = hashedPassword;
+
+            if(password){
+                const hashedPassword = await bcrypt.hash(password, saltRounds);
+                user.password = hashedPassword;
+            }
             
             user.dateOfBirth = dateOfBirth; 
             user.createdAt = new Date();
 
             const savedUser = await user.save();
-
-            delete (savedUser as any).password;
 
             return savedUser;
         } catch (error) {

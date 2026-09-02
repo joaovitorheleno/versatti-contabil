@@ -15,8 +15,8 @@ export class UserEntity extends CrudEntity {
     @Column('varchar', { nullable: false, unique: true })
     phone!: string;
 
-    @Column('varchar', { nullable: false })
-    password!: string;
+    @Column('varchar', { nullable: true })
+    password?: string | undefined;
 
     @Column({ type: 'date', name: 'date_of_birth' })
     dateOfBirth!: string;

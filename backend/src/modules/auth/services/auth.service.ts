@@ -21,19 +21,6 @@ export class AuthService {
         return { id: usuarioExistente.id, info: usuarioExistente.cpf };
     }
 
-    async validateClient(cnpj: string, password: string) {
-        const clienteExistente = await ClientEntity.findOne({ where: { cnpj } });
-
-        const hashParaComparar = clienteExistente?.password ?? '$2b$10$invalidHashInvalidHashInvalidHas';
-        const senhaValida = await bcrypt.compare(password, hashParaComparar);
-
-        if (!clienteExistente || !senhaValida) {
-            throw new UnauthorizedException('Cnpj ou senha inválidos');
-        }
-
-        return { id: clienteExistente.id, info: clienteExistente.cnpj };
-    }
-
     async login(user: { id: string; info: string }) {
         const payload = { sub: user.id, info: user.info };
         return { access_token: this.jwtService.sign(payload) };
