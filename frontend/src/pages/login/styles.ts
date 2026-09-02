@@ -5,11 +5,13 @@ export const LoginCardContainer = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 100vh;
 `
 
 export const ButtonContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;

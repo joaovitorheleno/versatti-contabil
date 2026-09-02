@@ -6,3 +6,11 @@ Sistema desenvolvido para a empresa Versatti Contabilidade, o propósito seria u
 - Tudo deve ser em Inglês
 - Pastas e arquivos devem ser em minúsculo e devem ser separados por '-', **exemplo: client-user.entity.ts**
 - Migrations devem ser separadas por letras maiúsculas
+
+## Paleta de Cores
+
+#16302A
+#1E3B32
+#AD8A4E
+#C9A968
+

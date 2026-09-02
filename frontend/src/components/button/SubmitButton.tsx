@@ -4,7 +4,7 @@ interface SubmitButtonProps {
     onClick?: () => void;
     children?: React.ReactNode;
     type?: 'primary' | 'default' | 'dashed' | 'text' | 'link';
-    color?: string;
+    style?: React.CSSProperties;
 }
 
 const SubmitButton = (props: SubmitButtonProps) => {
@@ -13,7 +13,7 @@ const SubmitButton = (props: SubmitButtonProps) => {
             type={props.type}
             htmlType="submit"
             onClick={props.onClick}
-            style={{ backgroundColor: props.color }}
+            style={props.style}
         >
             {props.children}
         </Button>
