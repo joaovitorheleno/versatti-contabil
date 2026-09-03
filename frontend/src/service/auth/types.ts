@@ -3,11 +3,17 @@ export type LoginType = {
   password: string;
 };
 
-export interface AuthResponse {
+export type AuthResponse = {
   access_token: string;
   user?: {
     id: string;
     cpf: string;
     name: string;
   };
+}
+
+export type SendPasswordResetParams = {
+  toEmail: string;
+  toName: string;
+  resetLink: string;
 }

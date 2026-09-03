@@ -8,8 +8,6 @@ import type { FieldType } from "../../common/types/field-input-type";
 import { useRegisterPassword } from "../../hooks/registerPassword/useRegisterPassword";
 
 const RegisterPasswordPage = () => {
-    const { cpf } = useRegisterPassword();
-
     const {
         handleCreatePassword
     } = useRegisterPassword();

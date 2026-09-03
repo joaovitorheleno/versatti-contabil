@@ -3,4 +3,5 @@ export type FieldType = {
   password?: string;
   remember?: string;
   confirmPassword?: string;
+  email?: string;
 };

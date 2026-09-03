@@ -72,6 +72,9 @@ const LoginPage = () => {
               <S.RegisterLink>
                 Primeiro acesso? <Link to="/confirmCpf">Clique aqui!</Link>
               </S.RegisterLink>
+              <S.RegisterLink>
+                Esqueceu a senha? <Link to="/recoverPassword">Recuperar senha</Link>
+              </S.RegisterLink>
             </S.ButtonContainer>
           </FormItemComponent>
         </FormComponent>

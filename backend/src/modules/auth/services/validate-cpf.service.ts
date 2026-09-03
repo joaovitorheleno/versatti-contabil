@@ -4,7 +4,7 @@ import { UserEntity } from 'src/entities/user.entity';
 
 @Injectable()
 export class ValidateCpfService {
-  async execute(cpfInput: string | { cpf: string }): Promise<ValidateCpfResponse> {
+  public async execute(cpfInput: string | { cpf: string }): Promise<ValidateCpfResponse> {
     const cpfString = typeof cpfInput === 'object' ? cpfInput?.cpf : cpfInput;
 
     if (!cpfString || typeof cpfString !== 'string') {

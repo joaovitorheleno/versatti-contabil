@@ -6,7 +6,7 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RedisModule } from '../redis/redis.module';
-import { ValidateCpfService, AuthService, CreatePasswordService } from './services';
+import { ValidateCpfService, AuthService, CreatePasswordService, RecoverPasswordService, ChangePasswordService } from './services';
 
 @Module({
   imports: [
@@ -27,7 +27,9 @@ import { ValidateCpfService, AuthService, CreatePasswordService } from './servic
     ValidateCpfService, 
     JwtStrategy, 
     JwtAuthGuard,
-    CreatePasswordService
+    CreatePasswordService,
+    RecoverPasswordService,
+    ChangePasswordService
   ],
   exports: [JwtAuthGuard],
 })
