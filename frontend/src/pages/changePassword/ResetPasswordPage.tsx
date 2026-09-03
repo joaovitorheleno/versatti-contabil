@@ -6,6 +6,7 @@ import FormItemComponent from "../../components/form/FormItemComponent";
 import type { FieldType } from "../../common/types/field-input-type";
 import { Input } from "antd";
 import useChangePassword from "../../hooks/changePassword/useChangePassword";
+import { versattiIcon } from "../../assets";
 
 const ResetPasswordPage = () => {
   const { loading, handleResetPassword } = useChangePassword();
@@ -17,6 +18,7 @@ const ResetPasswordPage = () => {
   return (
     <S.ResetPasswordPageWrapper>
       <S.ResetPasswordCardContainer>
+        {versattiIcon}
         <S.ResetPasswordTitle>Insira sua nova senha</S.ResetPasswordTitle>
         <S.ResetPasswordSubtitle></S.ResetPasswordSubtitle>
 
