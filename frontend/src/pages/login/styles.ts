@@ -11,6 +11,16 @@ const fadeInUp = keyframes`
     }
 `;
 
+export const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
 export const LoginPageWrapper = styled.div`
     min-height: 100vh;
     width: 100vw;
@@ -20,6 +30,7 @@ export const LoginPageWrapper = styled.div`
     background: linear-gradient(135deg, #f9f7f3 0%, #f1ede4 100%);
     padding: 24px;
     box-sizing: border-box;
+    animation: ${fadeInUp} 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 `;
 
 export const LoginCardContainer = styled.div`
@@ -29,7 +40,7 @@ export const LoginCardContainer = styled.div`
     border-radius: 16px;
     padding: 40px 32px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    animation: ${fadeInUp} 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    
 
     @media (max-width: 480px) {
         padding: 32px 24px;

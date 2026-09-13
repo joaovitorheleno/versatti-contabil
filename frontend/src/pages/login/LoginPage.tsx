@@ -9,6 +9,7 @@ import useLogin from "../../hooks/login/useLogin";
 import { Link } from "react-router-dom";
 import InputComponent from "../../components/input/InputComponent";
 import { maskCPF } from "../../functions/maskCpf";
+import { versattiIcon } from "../../assets";
 
 const LoginPage = () => {
   const {
@@ -23,6 +24,11 @@ const LoginPage = () => {
 
   return (
     <S.LoginPageWrapper>
+
+      <S.LogoContainer>
+        <img src={versattiIcon} style={{ height: '50vh'}}></img>
+      </S.LogoContainer>
+      
       <S.LoginCardContainer>
         <S.LoginTitle>Bem-vindo</S.LoginTitle>
         <S.LoginSubtitle>Acesse sua conta para continuar</S.LoginSubtitle>
@@ -71,6 +77,9 @@ const LoginPage = () => {
               />
               <S.RegisterLink>
                 Primeiro acesso? <Link to="/confirmCpf">Clique aqui!</Link>
+              </S.RegisterLink>
+              <S.RegisterLink>
+                Esqueceu a senha? <Link to="/recoverPassword">Recuperar senha</Link>
               </S.RegisterLink>
             </S.ButtonContainer>
           </FormItemComponent>

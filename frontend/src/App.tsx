@@ -4,14 +4,11 @@ import LoginPage from './pages/login/LoginPage';
 import RegisterPage from './pages/registerPassword/RegisterPage';
 import RegisterCpfPage from './pages/registerCpf/RegisterCpf';
 import AppTheme from './config/AppTheme';
-import { AppThemeProvider, useAppTheme } from './context/ThemeContext';
-import { FloatButton } from 'antd';
-import { SunOutlined, MoonOutlined } from '@ant-design/icons';
+import { AppThemeProvider } from './context/ThemeContext';
+import RecoverPasswordPage from './pages/recoverPassword/RecoverPasswordPage';
+import ResetPasswordPage from './pages/changePassword/ResetPasswordPage';
 
 function MainLayout() {
-  const { theme, toggleTheme } = useAppTheme();
-  const isDark = theme === 'dark';
-
   return (
     <AppTheme>
       <BrowserRouter>
@@ -19,6 +16,8 @@ function MainLayout() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/confirmCpf" element={<RegisterCpfPage />} />
+          <Route path="/recoverPassword" element={<RecoverPasswordPage />} />
+          <Route path="/resetPassword" element={<ResetPasswordPage />} />
         </Routes>
       </BrowserRouter>
     </AppTheme>

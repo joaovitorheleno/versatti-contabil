@@ -8,7 +8,7 @@ import { UserEntity } from 'src/entities/user.entity';
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-    async validateUser(cpf: string, password: string) {
+    public async validateUser(cpf: string, password: string) {
         const usuarioExistente = await UserEntity.findOne({ where: { cpf } });
 
         const hashParaComparar = usuarioExistente?.password ?? '$2b$10$invalidHashInvalidHashInvalidHas';

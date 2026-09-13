@@ -1,16 +1,13 @@
-import { Form, Input } from 'antd';
+import { Input } from 'antd';
 import type { InputProps } from 'antd';
 
-interface InputComponentProps extends InputProps {
-    labelColor?: string;
-}
-
-function InputComponent({ labelColor, ...rest }: InputComponentProps) {
-    return (
-        <Form.Item>
-            <Input {...rest} />
-        </Form.Item>
-    );
-}
+const InputComponent = ({ status, ...props }: InputProps) => {
+  return (
+    <Input 
+      status={status} 
+      {...props} 
+    />
+  );
+};
 
 export default InputComponent;

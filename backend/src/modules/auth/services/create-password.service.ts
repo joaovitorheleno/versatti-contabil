@@ -5,9 +5,13 @@ import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class CreatePasswordService {
-  async execute(password: string, cpfInput: string | { cpf: string }): Promise<ValidateCpfResponse> {
+  public async execute(password: string, cpfInput: string | { cpf: string }): Promise<ValidateCpfResponse> {
     if (!password) {
       throw new BadRequestException('Senha não fornecida.');
+    }
+
+    if(password.length < 6) {
+      throw new BadRequestException('Senha precisa ter pelo menos 6 caracteres.');
     }
 
     const cpfString = typeof cpfInput === 'object' ? cpfInput?.cpf : cpfInput;
