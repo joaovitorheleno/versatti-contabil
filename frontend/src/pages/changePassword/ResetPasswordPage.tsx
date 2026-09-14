@@ -18,7 +18,6 @@ const ResetPasswordPage = () => {
   return (
     <S.ResetPasswordPageWrapper>
       <S.ResetPasswordCardContainer>
-        {versattiIcon}
         <S.ResetPasswordTitle>Insira sua nova senha</S.ResetPasswordTitle>
         <S.ResetPasswordSubtitle></S.ResetPasswordSubtitle>
 
@@ -30,7 +29,7 @@ const ResetPasswordPage = () => {
         >
           <FormItemComponent<FieldType>
             name="password"
-            rules={[{ required: true, message: 'Por favor digite sua Nova Senha!' }]}
+            rules={[{ required: true, message: 'Por favor digite sua nova senha!' }]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder="Nova Senha" />
           </FormItemComponent>

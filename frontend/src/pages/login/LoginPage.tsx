@@ -13,7 +13,7 @@ import { versattiIcon } from "../../assets";
 
 const LoginPage = () => {
   const {
-    loading, 
+    loading,
     handleLogin
   } = useLogin();
 
@@ -24,67 +24,73 @@ const LoginPage = () => {
 
   return (
     <S.LoginPageWrapper>
+      <S.BrandPanel>
+        <S.BrandContent>
+          <img src={versattiIcon} style={{ height: '40vh', width: 'auto' }} />
+          <S.BrandTagline>
+            Sua gestão financeira,<br />sem complicação.
+          </S.BrandTagline>
+        </S.BrandContent>
+      </S.BrandPanel>
 
-      <S.LogoContainer>
-        <img src={versattiIcon} style={{ height: '50vh'}}></img>
-      </S.LogoContainer>
-      
-      <S.LoginCardContainer>
-        <S.LoginTitle>Bem-vindo</S.LoginTitle>
-        <S.LoginSubtitle>Acesse sua conta para continuar</S.LoginSubtitle>
+      <S.FormPanel>
+        <S.LoginCardContainer>
+          <S.LoginTitle>Bem-vindo</S.LoginTitle>
+          <S.LoginSubtitle>Acesse sua conta para continuar</S.LoginSubtitle>
 
-        <FormComponent
-          name="login"
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          variant="underlined"
-        >
-          <FormItemComponent<FieldType>
-            name="username"
-            rules={[{ required: true, message: 'Por favor digite seu CPF!' }]}
-            getValueFromEvent={(e) => maskCPF(e.target.value)}
-            normalize={(value) => maskCPF(value)}
+          <FormComponent
+            name="login"
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            variant="underlined"
           >
-            <InputComponent 
-              prefix={<UserOutlined />} 
-              placeholder="000.000.000-00"
-            />
-          </FormItemComponent>
-
-          <FormItemComponent<FieldType>
-            name="password"
-            rules={[{ required: true, message: 'Por favor insira sua senha!' }]}
-          >
-            <Input.Password 
-              prefix={<LockOutlined />}
-              placeholder="Senha"
-            />
-          </FormItemComponent>
-
-          <FormItemComponent>
-            <S.ButtonContainer>
-              <SubmitButton
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                children="Entrar"
-                style={{ 
-                  width: "100%", 
-                  borderColor: "#16302A", 
-                  background: "transparent",
-                  color: "#16302A", 
-                }}
+            <FormItemComponent<FieldType>
+              name="username"
+              rules={[{ required: true, message: 'Por favor digite seu CPF!' }]}
+              getValueFromEvent={(e) => maskCPF(e.target.value)}
+              normalize={(value) => maskCPF(value)}
+            >
+              <InputComponent
+                prefix={<UserOutlined />}
+                placeholder="000.000.000-00"
               />
-              <S.RegisterLink>
-                Primeiro acesso? <Link to="/confirmCpf">Clique aqui!</Link>
-              </S.RegisterLink>
-              <S.RegisterLink>
-                Esqueceu a senha? <Link to="/recoverPassword">Recuperar senha</Link>
-              </S.RegisterLink>
-            </S.ButtonContainer>
-          </FormItemComponent>
-        </FormComponent>
-      </S.LoginCardContainer>
+            </FormItemComponent>
+
+            <FormItemComponent<FieldType>
+              name="password"
+              rules={[{ required: true, message: 'Por favor insira sua senha!' }]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Senha"
+              />
+            </FormItemComponent>
+
+            <FormItemComponent>
+              <S.ButtonContainer>
+                <SubmitButton
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  children="Entrar"
+                  style={{
+                    width: "100%",
+                    border: "none",
+                    background: "#16302A",
+                    color: "#FAFAF8",
+                  }}
+                />
+                <S.RegisterLink>
+                  Primeiro acesso? <Link to="/confirmCpf">Clique aqui!</Link>
+                </S.RegisterLink>
+                <S.RegisterLink>
+                  Esqueceu a senha? <Link to="/recoverPassword">Recuperar senha</Link>
+                </S.RegisterLink>
+              </S.ButtonContainer>
+            </FormItemComponent>
+          </FormComponent>
+        </S.LoginCardContainer>
+      </S.FormPanel>
     </S.LoginPageWrapper>
   );
 };
