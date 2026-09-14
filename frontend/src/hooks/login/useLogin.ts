@@ -22,7 +22,7 @@ const useLogin = () => {
             showProgress: true,
             pauseOnHover: true,
         });
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (error: any) {
 
