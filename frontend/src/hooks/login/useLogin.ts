@@ -22,7 +22,7 @@ const useLogin = () => {
             showProgress: true,
             pauseOnHover: true,
         });
-        navigate('/');
+        navigate('/listUsers');
       }
     } catch (error: any) {
 

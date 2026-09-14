@@ -17,11 +17,11 @@ const useChangePassword = () => {
 
     const handleResetPassword = async (password: string, newPassword: string) => {
         if (!token) {
-        openErrorNotification({
-            title: 'Token inválido',
-            description: 'Token de redefinição não encontrado na URL.',
-        });
-        return;
+            openErrorNotification({
+                title: 'Token inválido',
+                description: 'Token de redefinição não encontrado na URL.',
+            });
+            return;
         }
 
         setLoading(true);

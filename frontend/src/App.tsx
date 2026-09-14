@@ -7,6 +7,7 @@ import AppTheme from './config/AppTheme';
 import { AppThemeProvider } from './context/ThemeContext';
 import RecoverPasswordPage from './pages/recoverPassword/RecoverPasswordPage';
 import ResetPasswordPage from './pages/changePassword/ResetPasswordPage';
+import ListUsersPage from './pages/listUsers/ListUsersPage';
 
 function MainLayout() {
   return (
@@ -18,6 +19,7 @@ function MainLayout() {
           <Route path="/confirmCpf" element={<RegisterCpfPage />} />
           <Route path="/recoverPassword" element={<RecoverPasswordPage />} />
           <Route path="/resetPassword" element={<ResetPasswordPage />} />
+          <Route path="/listUsers" element={<ListUsersPage/>} />
         </Routes>
       </BrowserRouter>
     </AppTheme>

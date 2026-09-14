@@ -19,6 +19,7 @@ export class UserController {
         return createdUser;
     }
 
+    @Public()
     @Get()
     @ApiOperation({ summary: 'Lista todos os usuários' })
     public async listUsers() {
