@@ -1,5 +1,6 @@
 import { Column, Entity } from "typeorm";
 import { CrudEntity } from "./abstract/crud-entity";
+import { UserRole } from "../enum/user-role.enum";
 
 @Entity('users')
 export class UserEntity extends CrudEntity {
@@ -20,4 +21,7 @@ export class UserEntity extends CrudEntity {
 
     @Column({ type: 'date', name: 'date_of_birth' })
     dateOfBirth!: string;
+
+    @Column({ type: 'enum', enum: UserRole, default: UserRole.DEFAULT })
+    role!: UserRole;
 }

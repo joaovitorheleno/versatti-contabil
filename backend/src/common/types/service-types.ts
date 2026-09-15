@@ -1,5 +1,11 @@
 export type ValidateCpfResponse = {
     id: string,
-    info: string
+    info: {
+        name: string;
+        cpf: string;
+        email: string;
+        phone: string;
+        dateOfBirth: string;
+    }
 }
 

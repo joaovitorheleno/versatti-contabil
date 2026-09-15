@@ -10,6 +10,7 @@ import {
 import { useNavigate, Outlet } from "react-router-dom";
 import * as S from "./styles";
 import Sidebar from "../../components/sidebar/SideBar";
+import { loggedUser } from "../../common/auth/logged-user";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -26,6 +27,10 @@ const AppLayout = () => {
   const userMenuItems = [
     { key: "logout", icon: <LogoutOutlined />, label: "Sair", onClick: handleLogout },
   ];
+
+  const user = loggedUser();
+
+  const userName = user?.info?.name || (user as any)?.nome || "Usuário";
 
   return (
     <Layout style={{ height: "100vh" }}>
@@ -49,7 +54,7 @@ const AppLayout = () => {
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <S.UserArea>
               <p>Olá, </p>
-              <Text strong>Admin</Text>
+              <Text strong>{userName}</Text>
             </S.UserArea>
           </Dropdown>
         </Header>

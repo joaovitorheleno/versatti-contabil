@@ -11,6 +11,8 @@ import { versattiIcon, versattiLogo, versattiLogoTransparente } from "../../asse
 
 const { Sider } = Layout;
 
+const SIDEBAR_GREEN = "#14342b"; // verde-floresta escuro, combina com o mint do logo
+
 const menuItems = [
   { key: "/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
   { key: "/users", icon: <TeamOutlined />, label: "Usuários" },
@@ -34,7 +36,7 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
       onCollapse={onCollapse}
       trigger={null}
       width={240}
-      style={{ background: "#0f172a" }}
+      style={{ background: SIDEBAR_GREEN }}
     >
       <S.Logo>{collapsed ? <img src={versattiIcon}></img> : <img src={versattiLogoTransparente} height={50}></img>}</S.Logo>
 
@@ -44,7 +46,7 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
         selectedKeys={[location.pathname]}
         items={menuItems}
         onClick={({ key }) => navigate(key)}
-        style={{ background: "#0f172a" }}
+        style={{ background: SIDEBAR_GREEN }}
       />
     </Sider>
   );

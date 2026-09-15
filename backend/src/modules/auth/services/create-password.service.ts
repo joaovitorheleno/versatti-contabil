@@ -37,6 +37,15 @@ export class CreatePasswordService {
     user.password = hashedPassword;
     await user.save();
 
-    return { id: user.id, info: user.cpf };
+    return { 
+      id: user.id, 
+      info: {
+        name: user.name,
+        cpf: user.cpf,
+        email: user.email,
+        phone: user.phone,
+        dateOfBirth: user.dateOfBirth
+      } 
+    };
   }
 }

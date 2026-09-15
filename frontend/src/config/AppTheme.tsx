@@ -1,15 +1,17 @@
 import { ConfigProvider } from 'antd';
 
+const SIDEBAR_GREEN = "#14342b";
+
 const AppTheme = ({ children }: { children: React.ReactNode }) => (
     <ConfigProvider
         theme={{
             token: {
-                colorPrimary: '#16302A',
-                colorPrimaryHover: '#16302A',
-                colorPrimaryActive: '#16302A',
+            colorPrimary: SIDEBAR_GREEN,
+            colorPrimaryHover: "#1e4d3c",
+            colorPrimaryActive: "#0d2620",
             },
         }}
-    >
+        >
         {children}
     </ConfigProvider>
 );

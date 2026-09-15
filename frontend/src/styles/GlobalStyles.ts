@@ -26,7 +26,6 @@ export const GlobalStyle = createGlobalStyle`
     letter-spacing: 0.2px;
   }
 
-  /* remove bordas padrão do antd */
   .ant-layout,
   .ant-layout-sider,
   .ant-layout-header,

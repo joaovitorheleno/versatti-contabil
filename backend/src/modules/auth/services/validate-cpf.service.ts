@@ -23,6 +23,15 @@ export class ValidateCpfService {
       throw new BadRequestException('CPF já cadastrado');
     }
 
-    return { id: usuarioExistente.id, info: usuarioExistente.cpf };
+    return { 
+      id: usuarioExistente.id, 
+      info: {
+        name: usuarioExistente.name,
+        cpf: usuarioExistente.cpf,
+        phone: usuarioExistente.phone,
+        email: usuarioExistente.email,
+        dateOfBirth: usuarioExistente.dateOfBirth
+      }
+    };
   }
 }

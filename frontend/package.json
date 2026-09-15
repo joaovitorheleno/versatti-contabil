@@ -13,6 +13,7 @@
     "@ant-design/icons": "^6.3.4",
     "@emailjs/browser": "^4.4.1",
     "axios": "^1.19.0",
+    "jwt-decode": "^4.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",
