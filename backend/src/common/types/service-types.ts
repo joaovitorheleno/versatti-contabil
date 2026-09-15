@@ -1,3 +1,5 @@
+import { UserRole } from "src/enum/user-role.enum";
+
 export type ValidateCpfResponse = {
     id: string,
     info: {
@@ -6,6 +8,7 @@ export type ValidateCpfResponse = {
         email: string;
         phone: string;
         dateOfBirth: string;
+        role: UserRole;
     }
 }
 

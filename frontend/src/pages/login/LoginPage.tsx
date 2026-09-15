@@ -28,7 +28,7 @@ const LoginPage = () => {
         <S.BrandContent>
           <img src={versattiIcon} style={{ height: '40vh', width: 'auto' }} />
           <S.BrandTagline>
-            Sua gestão financeira,<br />sem complicação.
+            Sua gestão financeira,<br />contabil e pessoal,<br />sem complicação.
           </S.BrandTagline>
         </S.BrandContent>
       </S.BrandPanel>

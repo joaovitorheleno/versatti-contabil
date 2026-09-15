@@ -3,7 +3,7 @@ import { getToken } from "../../config/token/getToken";
 import { BASE_URL } from "../../config/url/baseUrl";
 import type { CreateUserType, ListUserResponse } from "./types";
 
-export const createUser = async (user: CreateUserType): Promise<any> => {
+export const createUser = async (user: CreateUserType): Promise<CreateUserType> => {
     const token = getToken();
 
     try{

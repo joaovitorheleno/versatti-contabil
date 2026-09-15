@@ -4,7 +4,7 @@ export type CreateUserType = {
     password?: string | undefined
     cpf: string;
     phone: string;
-    dateOfBirth: string;
+    dateOfBirth?: string | undefined;
 }
 
 export type ListUserResponse = {

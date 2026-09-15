@@ -44,7 +44,8 @@ export class CreatePasswordService {
         cpf: user.cpf,
         email: user.email,
         phone: user.phone,
-        dateOfBirth: user.dateOfBirth
+        dateOfBirth: user.dateOfBirth,
+        role: user.role
       } 
     };
   }

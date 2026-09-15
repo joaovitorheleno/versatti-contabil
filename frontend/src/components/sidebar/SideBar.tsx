@@ -7,11 +7,11 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as S from "./styles";
-import { versattiIcon, versattiLogo, versattiLogoTransparente } from "../../assets";
+import { versattiIcon, versattiLogoTransparente } from "../../assets";
 
 const { Sider } = Layout;
 
-const SIDEBAR_GREEN = "#14342b"; // verde-floresta escuro, combina com o mint do logo
+const SIDEBAR_GREEN = "#14342b";
 
 const menuItems = [
   { key: "/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },

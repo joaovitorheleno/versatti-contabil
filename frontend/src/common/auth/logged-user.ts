@@ -1,16 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-
-interface UserPayload {
-  id: string;
-  info: {
-    name: string;
-    email: string;
-    cpf: string;
-    phone: string;
-    dateOfBirth: string;
-  };
-  exp: number;
-}
+import type { UserPayload } from "../types/user-payload.type";
 
 export const loggedUser = (): UserPayload | null => {
     const token = localStorage.getItem('@versatti:token')
