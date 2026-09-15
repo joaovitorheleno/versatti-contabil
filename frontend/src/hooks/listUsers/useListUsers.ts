@@ -19,7 +19,6 @@ const useListUsers = () => {
 
   const navigate = useNavigate();
 
-  // Lê o token gravado no localStorage durante o login
   const token = localStorage.getItem('@versatti:token');
 
   const fetchUsers = useCallback(async () => {
@@ -43,6 +42,10 @@ const useListUsers = () => {
     }
   }, []);
 
+  const registerUser = () => {
+    navigate('/users/register')
+  }
+
   useEffect(() => {
     if (!token) {
       openErrorNotification({
@@ -60,6 +63,7 @@ const useListUsers = () => {
     loading,
     users,
     mensagem,
+    registerUser
   };
 };
 

@@ -48,7 +48,7 @@ const AppLayout = () => {
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <S.UserArea>
-              <Avatar icon={<UserOutlined />} />
+              <p>Olá, </p>
               <Text strong>Admin</Text>
             </S.UserArea>
           </Dropdown>

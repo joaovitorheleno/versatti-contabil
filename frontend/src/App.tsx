@@ -22,7 +22,7 @@ function MainLayout() {
           <Route path="/resetPassword" element={<ResetPasswordPage />} />
 
           <Route element={<AppLayout />}>
-            <Route path="/listUsers" element={<ListUsersPage />} />
+            <Route path="/users" element={<ListUsersPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

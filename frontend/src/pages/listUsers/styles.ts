@@ -1,9 +1,16 @@
-
 import styled from "styled-components";
 
 export const ListUsersContainer = styled.div`
-  max-width: 1100px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
+
+  @media (max-width: 576px) {
+    .ant-card-body {
+      padding: 12px !important;
+    }
+  }
 `;
 
 export const HeaderRow = styled.div`
@@ -11,11 +18,27 @@ export const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
+  width: 100%;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
-export const UserCell = styled.div`
+export const SearchWrapper = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+
+  @media (max-width: 576px) {
+    width: 100%;
+
+    .ant-input-affix-wrapper, 
+    input {
+      width: 100% !important;
+    }
+  }
 `;

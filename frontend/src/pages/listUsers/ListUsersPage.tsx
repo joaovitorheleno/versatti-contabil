@@ -1,28 +1,30 @@
-// src/pages/ListUsersPage/index.tsx
-import { Table, Card, Avatar, Tag, Input, Typography } from "antd";
-import { UserOutlined, SearchOutlined, TeamOutlined } from "@ant-design/icons";
+import { Table, Card, Tag, Typography } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useMemo, useState } from "react";
 import useListUsers from "../../hooks/listUsers/useListUsers";
 import * as S from "./styles";
 import InputComponent from "../../components/input/InputComponent";
+import { maskPhone } from "../../functions/maskPhone";
+import { maskCPF } from "../../functions/maskCpf";
+import { maskDate } from "../../functions/maskDate";
+import SubmitButton from "../../components/button/SubmitButton";
 
-const { Title, Text } = Typography;
-
-const formatCpf = (cpf: string) =>
-  cpf?.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+const { Text } = Typography;
 
 const ListUsersPage = () => {
-  const { loading, users, mensagem } = useListUsers();
+  const { loading, users, mensagem, registerUser } = useListUsers();
   const [search, setSearch] = useState("");
 
   const mappedUsers = useMemo(
     () =>
-      users
+      (users || [])
         .map((user: any) => ({
           id: user.id,
           name: user.name,
           email: user.email,
           cpf: user.cpf,
+          phone: user.phone,
+          dateOfBirth: user.dateOfBirth
         }))
         .filter(
           (u) =>
@@ -38,9 +40,7 @@ const ListUsersPage = () => {
       dataIndex: "name",
       key: "name",
       render: (name: string) => (
-        <S.UserCell>
           <Text strong>{name}</Text>
-        </S.UserCell>
       ),
     },
     {
@@ -53,11 +53,24 @@ const ListUsersPage = () => {
       title: "CPF",
       dataIndex: "cpf",
       key: "cpf",
+      width: 140,
       render: (cpf: string) => (
-        <Tag style={{ borderRadius: 4 }}>
-          {formatCpf(cpf)}
-        </Tag>
+        <Text>
+          {maskCPF(cpf)}
+        </Text>
       ),
+    },
+    {
+      title: "Telefone",
+      dataIndex: "phone",
+      key: "phone",
+      render: (phone: string) => <Text>{maskPhone(phone)}</Text>,
+    },
+    {
+      title: "Data de Nascimento",
+      dataIndex: "dateOfBirth",
+      key: "dateOfBirth",
+      render: (dateOfBirth: string) => <Text>{maskDate(dateOfBirth)}</Text>,
     },
   ];
 
@@ -65,24 +78,28 @@ const ListUsersPage = () => {
     <S.ListUsersContainer>
       <Card
         bordered={false}
-        style={{ borderRadius: 6, boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}
+        style={{ borderRadius: 6, width: "100%", overflow: "hidden" }}
       >
         <S.HeaderRow>
-          <div>
-            <Title level={3} style={{ marginBottom: 0 }}>
-              Usuários Cadastrados
-            </Title>
-            <Text type="secondary">{mappedUsers.length} usuário(s) encontrado(s)</Text>
-          </div>
 
-          <InputComponent
-            placeholder="Buscar por nome ou email"
-            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
-            allowClear
-            style={{ width: 280, borderRadius: 4 }}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <S.SearchWrapper>
+            <InputComponent
+              placeholder="Buscar por nome ou email"
+              prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
+              allowClear
+              style={{ borderRadius: 4, width: "100%" }}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <SubmitButton
+              htmlType="button"
+              type="primary"
+              style={{ backgroundColor: "#749c6d"}}
+              onClick={registerUser}
+            >
+              + Cadastrar Usuário
+            </SubmitButton>
+          </S.SearchWrapper>
         </S.HeaderRow>
 
         <Table
@@ -90,8 +107,9 @@ const ListUsersPage = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 8 }}
-          style={{ marginTop: 16 }}
+          pagination={{ pageSize: 8, simple: true }}
+          scroll={{ x: 500 }}
+          style={{ marginTop: 16, width: "100%" }}
         />
 
         {mensagem && <Text type="secondary">{mensagem}</Text>}
