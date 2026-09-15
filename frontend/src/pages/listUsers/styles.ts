@@ -1,12 +1,21 @@
+
 import styled from "styled-components";
 
 export const ListUsersContainer = styled.div`
-    margin: 40px;
-    text-align: center;
-`
+  max-width: 1100px;
+  margin: 0 auto;
+`;
 
-export const ColumnContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-`
+export const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+`;
+
+export const UserCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
