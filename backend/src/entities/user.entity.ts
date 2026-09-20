@@ -1,5 +1,8 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
 import { CrudEntity } from "./abstract/crud-entity";
+import { UserRole } from "../enum/user-role.enum";
+import { ClientEntity } from "./client.entity";
+import { UserClientEntity } from "./user-client.entity";
 
 @Entity('users')
 export class UserEntity extends CrudEntity {
@@ -15,9 +18,15 @@ export class UserEntity extends CrudEntity {
     @Column('varchar', { nullable: false, unique: true })
     phone!: string;
 
-    @Column('varchar', { nullable: false })
-    password!: string;
+    @Column('varchar', { nullable: true })
+    password?: string | undefined;
 
     @Column({ type: 'date', name: 'date_of_birth' })
     dateOfBirth!: string;
+
+    @Column({ type: 'enum', enum: UserRole, default: UserRole.DEFAULT })
+    role!: UserRole;
+    
+    @OneToMany(() => UserClientEntity, (userClient) => userClient.user)
+    userClients!: UserClientEntity[];
 }

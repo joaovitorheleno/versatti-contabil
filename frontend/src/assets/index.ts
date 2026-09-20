@@ -1,0 +1,6 @@
+export { default as versattiIcon } from './versatti_icon.svg'
+export { default as versattiIcon512 } from './versatti_icone_512.png'
+export { default as versattiIcon1024 } from './versatti_icone_1024.png'
+export { default as versattiLogoFundoBranco } from './versatti_logo_fundo_branco.png'
+export { default as versattiLogoTransparente } from './versatti_logo_transparente_sst.png'
+export { default as versattiLogo } from './versatti_logo.svg'

@@ -4,6 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './data-source';
 import { ClientModule } from './modules/client/client.module';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -12,7 +15,14 @@ import { UserModule } from './modules/user/user.module';
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
     ClientModule,
-    UserModule
+    UserModule,
+    AuthModule
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ]
 })
 export class AppModule {}

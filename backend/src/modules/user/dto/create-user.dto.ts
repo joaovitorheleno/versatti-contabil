@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsDate, IsDateString, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsArray, IsDateString, IsNotEmpty, IsOptional, IsString, IsUUID, MinLength } from "class-validator";
 
 export class CreateUserDto {
     @IsString({ message: 'O nome deve ser uma string' })
@@ -36,16 +35,26 @@ export class CreateUserDto {
     phone!: string;
 
     @IsString({ message: 'A senha deve ser uma string' })
-    @IsNotEmpty({ message: 'A senha é obrigatório' })
+    @IsOptional()
     @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
     @ApiProperty({ 
         description: 'Senha do usuário',
         example: '123Aa'
     })
-    password!: string;
+    password?: string;
 
     @IsDateString({}, { message: 'A data de nascimento deve estar no formato YYYY-MM-DD' })
     @IsNotEmpty({ message: 'A data de nascimento é obrigatória' })
     @ApiProperty({ example: '2005-03-04' })
     dateOfBirth!: string;
+
+    @IsArray({ message: 'O campo clientIds deve ser uma lista de IDs' })
+    @IsNotEmpty({ message: 'Deve ser informada pelo menos uma empresa ao usuário' })
+    @IsUUID('4', { each: true, message: 'Cada ID de cliente deve ser um UUID válido' })
+    @ApiProperty({
+        description: 'Lista de IDs dos clientes vinculados',
+        example: ['ce3e3576-bc2e-4d46-a387-b87953f0c232'],
+        type: [String]
+    })
+    clientIds!: string[];
 }
