@@ -1,10 +1,19 @@
-import { Module } from "@nestjs/common";
-import { CreateClientService } from "./service/create-client.service";
-import { ClientController } from "./client.controller";
-import { ListClientsService } from "./service";
+import { Module } from '@nestjs/common';
+import { ClientController } from './client.controller';
+import {
+  CreateClientService,
+  DeleteClientService,
+  EditClientService,
+  ListClientsService,
+} from './service';
 
 @Module({
   controllers: [ClientController],
-  providers: [CreateClientService, ListClientsService],
+  providers: [
+    CreateClientService,
+    ListClientsService,
+    EditClientService,
+    DeleteClientService,
+  ],
 })
 export class ClientModule {}
