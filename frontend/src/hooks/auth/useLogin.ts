@@ -25,18 +25,17 @@ const useLogin = () => {
         navigate('/users');
       }
     } catch (error: any) {
-
-      const errorMessage = error?.response?.data?.message 
-        || "CPF ou senha inválidos. Por favor verifique suas credenciais ou realize o primeiro acesso";
-      
-      if (typeof openErrorNotification === 'function') {
-        openErrorNotification({
-          title: 'Erro ao fazer login',
-          description: errorMessage,
-          showProgress: true,
-          pauseOnHover: true,
-        });
-      }
+        const errorMessage = error?.response?.data?.message 
+          || "CPF ou senha inválidos. Por favor verifique suas credenciais ou realize o primeiro acesso";
+        
+        if (typeof openErrorNotification === 'function') {
+          openErrorNotification({
+            title: 'Erro ao fazer login',
+            description: errorMessage,
+            showProgress: true,
+            pauseOnHover: true,
+          });
+        }
     } finally {
       setLoading(false);
     }

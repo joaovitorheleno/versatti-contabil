@@ -5,6 +5,7 @@ export type CreateUserType = {
     cpf: string;
     phone: string;
     dateOfBirth?: string | undefined;
+    clientIds: string[];
 }
 
 export type ListUserResponse = {

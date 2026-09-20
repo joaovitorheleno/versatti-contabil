@@ -25,7 +25,7 @@ const AppLayout = () => {
   };
 
   const userMenuItems = [
-    { key: "logout", icon: <LogoutOutlined />, label: "Sair", onClick: handleLogout },
+    { key: "logout", icon: <LogoutOutlined />, label: "Sair", onClick: handleLogout, danger: true, },
   ];
 
   const user = loggedUser();
@@ -53,7 +53,7 @@ const AppLayout = () => {
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <S.UserArea>
-              <p>Olá, </p>
+              <p>Bem vindo ao painel admnistrativo, </p>
               <Text strong>{userName}</Text>
             </S.UserArea>
           </Dropdown>

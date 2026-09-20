@@ -4,4 +4,5 @@ export type FormItemType = {
     cpf: string;
     phone: string;
     dateOfBirth: Date;
+    clientIds: string[];
 }

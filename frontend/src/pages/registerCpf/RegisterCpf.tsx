@@ -6,9 +6,8 @@ import FormComponent from "../../components/form/FormComponent";
 import FormItemComponent from "../../components/form/FormItemComponent";
 import type { FieldType } from "../../common/types/field-input-type";
 import { useNavigate, Link } from "react-router-dom";
-import useRegisterCpf from "../../hooks/registerCpf/userRegisterCpf";
 import { maskCPF } from "../../functions/maskCpf";
-import { versattiIcon } from "../../assets";
+import useRegisterCpf from "../../hooks/auth/userRegisterCpf";
 
 const RegisterCpfPage = () => {
   const navigate = useNavigate();

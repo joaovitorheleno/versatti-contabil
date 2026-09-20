@@ -5,7 +5,7 @@ import * as S from "./styles"
 import FormComponent from "../../components/form/FormComponent";
 import FormItemComponent from "../../components/form/FormItemComponent";
 import type { FieldType } from "../../common/types/field-input-type";
-import { useRegisterPassword } from "../../hooks/registerPassword/useRegisterPassword";
+import { useRegisterPassword } from "../../hooks/auth/useRegisterPassword";
 
 const RegisterPasswordPage = () => {
     const {

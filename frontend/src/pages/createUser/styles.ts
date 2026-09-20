@@ -70,10 +70,13 @@ export const FieldRow = styled.div`
 `;
 
 export const DateFieldWrapper = styled.div`
-    max-width: 260px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 
     @media (max-width: 480px) {
-        max-width: none;
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 `;
 

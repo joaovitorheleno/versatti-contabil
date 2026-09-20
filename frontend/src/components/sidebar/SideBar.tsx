@@ -4,6 +4,7 @@ import {
   DashboardOutlined,
   FileTextOutlined,
   SettingOutlined,
+  InsertRowLeftOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as S from "./styles";
@@ -16,6 +17,7 @@ const SIDEBAR_GREEN = "#14342b";
 const menuItems = [
   { key: "/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
   { key: "/users", icon: <TeamOutlined />, label: "Usuários" },
+  { key: "/clients", icon: <InsertRowLeftOutlined />, label: "Clientes" },
   { key: "/relatorios", icon: <FileTextOutlined />, label: "Relatórios" },
   { key: "/configuracoes", icon: <SettingOutlined />, label: "Configurações" },
 ];

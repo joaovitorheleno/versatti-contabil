@@ -5,7 +5,7 @@ import * as S from "./styles";
 import FormComponent from "../../components/form/FormComponent";
 import FormItemComponent from "../../components/form/FormItemComponent";
 import type { FieldType } from "../../common/types/field-input-type";
-import useLogin from "../../hooks/login/useLogin";
+import useLogin from "../../hooks/auth/useLogin";
 import { Link } from "react-router-dom";
 import InputComponent from "../../components/input/InputComponent";
 import { maskCPF } from "../../functions/maskCpf";

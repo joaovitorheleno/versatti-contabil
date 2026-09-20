@@ -1,20 +1,36 @@
-import { useNavigate } from "react-router-dom"
-import DateComponent from "../../components/date/DateComponent"
-import FormComponent from "../../components/form/FormComponent"
-import FormItemComponent from "../../components/form/FormItemComponent"
-import InputComponent from "../../components/input/InputComponent"
-import { maskCPF } from "../../functions/maskCpf"
-import { maskPhone } from "../../functions/maskPhone"
-import * as S from './styles'
-import type { FormItemType } from "./types"
-import useCreateUser from "../../hooks/createUser/useCreateUser"
+import { useNavigate } from "react-router-dom";
+import DateComponent from "../../components/date/DateComponent";
+import FormComponent from "../../components/form/FormComponent";
+import FormItemComponent from "../../components/form/FormItemComponent";
+import InputComponent from "../../components/input/InputComponent";
+import { maskCPF } from "../../functions/maskCpf";
+import { maskPhone } from "../../functions/maskPhone";
+import * as S from './styles';
+import type { FormItemType } from "./types";
+import SelectComponent, { type SelectOption } from "../../components/selectButton/SelectComponent";
+import useCreateUser from "../../hooks/users/useCreateUser";
+import useListClients from "../../hooks/clients/useListClients";
 
 const CreateUserPage = () => {
     const navigate = useNavigate();
+    const { handleCreateUser, loading } = useCreateUser();
+    const { clients } = useListClients();
 
-    const {handleCreateUser, loading} = useCreateUser();
+    const clientOptions: SelectOption[] = clients
+        .filter((client): client is typeof client & { id: string } => client.id !== undefined)
+        .map((client) => ({
+            label: client.name,
+            value: client.id,
+        }));
 
+    const onSubmit = (values: any) => {
+        const formattedValues = {
+            ...values,
+            dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : undefined,
+        };
 
+        handleCreateUser(formattedValues);
+    };
 
     return (
         <S.PageWrapper>
@@ -26,7 +42,7 @@ const CreateUserPage = () => {
             <S.FormCard>
                 <FormComponent
                     name="createUser"
-                    onFinish={handleCreateUser}
+                    onFinish={onSubmit}
                     variant="underlined"
                 >
                     <FormItemComponent<FormItemType>
@@ -84,6 +100,19 @@ const CreateUserPage = () => {
                         >
                             <DateComponent />
                         </FormItemComponent>
+
+                        <FormItemComponent<FormItemType>
+                            name="clientIds"
+                            rules={[{ required: true, message: 'Por favor selecione as empresas que o usuário pertence!' }]}
+                            layout="vertical"
+                            label="Empresas"
+                        >
+                            <SelectComponent
+                                mode="multiple"
+                                placeholder="Selecione as empresas para este usuário"
+                                options={clientOptions}
+                            />
+                        </FormItemComponent>
                     </S.DateFieldWrapper>
 
                     <S.ActionsRow>
@@ -93,7 +122,7 @@ const CreateUserPage = () => {
                 </FormComponent>
             </S.FormCard>
         </S.PageWrapper>
-    )
-}
+    );
+};
 
-export default CreateUserPage
+export default CreateUserPage;

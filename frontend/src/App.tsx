@@ -10,6 +10,8 @@ import ResetPasswordPage from './pages/changePassword/ResetPasswordPage';
 import ListUsersPage from './pages/listUsers/ListUsersPage';
 import AppLayout from './layouts/AppLayout';
 import CreateUserPage from './pages/createUser/CreateUserPage';
+import ListClientsPage from './pages/listClients/ListClientsPage';
+import CreateClientPage from './pages/createClient/CreateClientPage';
 
 function MainLayout() {
   return (
@@ -25,6 +27,9 @@ function MainLayout() {
           <Route element={<AppLayout />}>
             <Route path="/users" element={<ListUsersPage />} />
             <Route path="/users/register" element={<CreateUserPage />} />
+
+            <Route path="/clients" element={<ListClientsPage />} />
+            <Route path="/clients/register" element={<CreateClientPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -6,7 +6,7 @@ import FormItemComponent from "../../components/form/FormItemComponent";
 import type { FieldType } from "../../common/types/field-input-type";
 import { useNavigate } from "react-router-dom";
 import InputComponent from "../../components/input/InputComponent";
-import { useRecoverPassword } from "../../hooks/recoverPassword/useRecoverPassword";
+import { useRecoverPassword } from "../../hooks/auth/useRecoverPassword";
 
 const RecoverPasswordPage = () => {
   const { loading, handleForgotPassword } = useRecoverPassword();

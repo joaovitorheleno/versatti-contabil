@@ -5,4 +5,4 @@ export const maskCPF = (value: any) => {
             .replace(/(\d{3})(\d)/, "$1.$2")
             .replace(/(\d{3})(\d{1,3})$/, "$1-$2") 
             .slice(0, 14);
-    };
+};

@@ -1,7 +1,6 @@
-import { Table, Card, Typography } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Card, Typography, Button, Dropdown, type MenuProps } from "antd";
+import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { useMemo, useState } from "react";
-import useListUsers from "../../hooks/listUsers/useListUsers";
 import * as S from "./styles";
 import InputComponent from "../../components/input/InputComponent";
 import { maskPhone } from "../../functions/maskPhone";
@@ -10,6 +9,7 @@ import { maskDate } from "../../functions/maskDate";
 import SubmitButton from "../../components/button/SubmitButton";
 import { isAdmin } from "../../common/auth/user-is-admin";
 import type { ColumnsType } from "antd/es/table";
+import useListUsers from "../../hooks/users/useListUsers";
 
 const { Text } = Typography;
 
@@ -45,6 +45,26 @@ const ListUsersPage = () => {
         ),
     [users, search]
   );
+
+   const getActionMenuItems = (record: UserTableData): MenuProps["items"] => [
+    {
+      key: "edit",
+      label: <><EditOutlined /> Editar</>,
+      onClick: () => {},
+    },
+    {
+      key: "view",
+      label: <><EyeOutlined /> Visualizar</>,
+      onClick: () => {},
+    },
+    {
+      key: "delete",
+      label: <><DeleteOutlined /> Deletar</>,
+      danger: true,
+      onClick: () => {},
+    },
+  ];
+  
 
   const columns: ColumnsType<UserTableData> = [
     {
@@ -93,7 +113,20 @@ const ListUsersPage = () => {
       title: 'Ação',
       dataIndex: '',
       key: 'action',
-      render: () => <a>Delete</a>,
+      width: 80,
+      align: 'center',
+      render: (_, record) => (
+        <Dropdown
+          menu={{ items: getActionMenuItems(record) }}
+          placement="bottomRight"
+          trigger={["click"]}
+        >
+          <Button
+            type="text"
+            icon={<MoreOutlined style={{ fontSize: 18 }} />}
+          />
+        </Dropdown>
+      ),
     },
   ];
 
