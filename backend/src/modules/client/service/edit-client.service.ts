@@ -1,20 +1,20 @@
 import {
   BadRequestException,
   ConflictException,
-  NotFoundException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
-import { EditClientDto } from '../dto/edit-cliient.dto';
 import { ClientEntity } from 'src/entities/client.entity';
+import { EditClientDto } from '../dto/edit-cliient.dto';
 
 @Injectable()
 export class EditClientService {
   public async execute(
     id: string,
-    newClient: EditClientDto,
+    editClientDto: EditClientDto,
   ): Promise<ClientEntity> {
     if (!id) {
-      throw new BadRequestException('ID não encontrado.');
+      throw new BadRequestException('ID é obrigatório para atualização.');
     }
 
     const client = await ClientEntity.findOne({ where: { id } });
@@ -22,12 +22,12 @@ export class EditClientService {
       throw new NotFoundException('Cliente não encontrado.');
     }
 
-    const { name, cnpj, taxRegime } = newClient;
+    const { cnpj, zipCode, ...otherData } = editClientDto;
 
     if (cnpj !== undefined) {
       const cleanCnpj = cnpj.replace(/\D/g, '');
       if (cleanCnpj.length !== 14) {
-        throw new BadRequestException('CNPJ inválido.');
+        throw new BadRequestException('CNPJ inválido. Deve conter 14 dígitos.');
       }
 
       const existingClientWithCnpj = await ClientEntity.createQueryBuilder(
@@ -44,13 +44,11 @@ export class EditClientService {
       client.cnpj = cleanCnpj;
     }
 
-    if (name !== undefined) {
-      client.name = name;
+    if (zipCode !== undefined) {
+      client.zipCode = zipCode.replace(/\D/g, '');
     }
 
-    if (taxRegime !== undefined) {
-      client.taxRegime = taxRegime;
-    }
+    Object.assign(client, otherData);
 
     return await client.save();
   }
