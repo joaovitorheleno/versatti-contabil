@@ -8,72 +8,75 @@ export interface ClientResponse {
   name: string;
   cnpj: string;
   taxRegime: string;
+  tradeName: string;
+  stateRegistration: string;
+  municipalRegistration: string;
 }
 
 const useListClients = () => {
-    const [loading, setLoading] = useState<boolean>(false);
-    const [clients, setClients] = useState<ClientResponse[]>([]);
-    const [mensagem, setMensagem] = useState<string>("");
-    const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [clients, setClients] = useState<ClientResponse[]>([]);
+  const [mensagem, setMensagem] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const token = localStorage.getItem('@versatti:token');
+  const token = localStorage.getItem("@versatti:token");
 
-    const fetchClients = useCallback(async () => {
-        try {
-            setLoading(true);
-            setMensagem("");
+  const fetchClients = useCallback(async () => {
+    try {
+      setLoading(true);
+      setMensagem("");
 
-            const response = await listClients();
-            setClients(response);
+      const response = await listClients();
+      setClients(response);
 
-            if (Array.isArray(response) && response.length === 0) {
-                setMensagem("Nenhum cliente encontrado.");
-            }
-        } catch (e: any) {
-            openErrorNotification({
-                title: "Falha ao listar clientes",
-                description: `Não foi possível listar os clientes: ${e?.message || e}`,
-            });
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const registerClient = () => {
-        navigate('/clients/register')
+      if (Array.isArray(response) && response.length === 0) {
+        setMensagem("Nenhum cliente encontrado.");
+      }
+    } catch (e: any) {
+      openErrorNotification({
+        title: "Falha ao listar clientes",
+        description: `Não foi possível listar os clientes: ${e?.message || e}`,
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    useEffect(() => {
-        if (!token) {
-            openErrorNotification({
-                title: "Erro ao acessar",
-                description: "Token de Login expirado ou não existe, faça o login.",
-            });
-            navigate("/login");
-            return;
-        }
-    
-        fetchClients();
-    }, [token, navigate, fetchClients]);
+  }, []);
 
-    const showDrawer = () => {
-        setOpen(true);
-    };
+  const registerClient = () => {
+    navigate("/clients/register");
+  };
 
-    const closeDrawer = () => {
-        setOpen(false);
-    };
+  useEffect(() => {
+    if (!token) {
+      openErrorNotification({
+        title: "Erro ao acessar",
+        description: "Token de Login expirado ou não existe, faça o login.",
+      });
+      navigate("/login");
+      return;
+    }
 
-    return {
-        loading,
-        clients,
-        mensagem,
-        registerClient,
-        showDrawer,
-        closeDrawer
-    };
-}
+    fetchClients();
+  }, [token, navigate, fetchClients]);
+
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setOpen(false);
+  };
+
+  return {
+    loading,
+    clients,
+    mensagem,
+    registerClient,
+    showDrawer,
+    closeDrawer,
+  };
+};
 
 export default useListClients;

@@ -1,5 +1,19 @@
-import { Table, Card, Typography, Button, Dropdown, Drawer, type MenuProps } from "antd";
-import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Card,
+  Typography,
+  Button,
+  Dropdown,
+  Drawer,
+  type MenuProps,
+} from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  MoreOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { useMemo, useState } from "react";
 import * as S from "./styles";
 import InputComponent from "../../components/input/InputComponent";
@@ -16,19 +30,19 @@ interface ClientTableData {
   name: string;
   cnpj: string;
   taxRegime: string;
+  tradeName: string;
+  stateRegistration: string;
+  municipalRegistration: string;
 }
 
 const ListClientsPage = () => {
-  const { 
-    loading, 
-    clients, 
-    mensagem, 
-    registerClient,
-  } = useListClients();
-  
+  const { loading, clients, mensagem, registerClient } = useListClients();
+
   const [search, setSearch] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<ClientTableData | null>(null);
+  const [selectedClient, setSelectedClient] = useState<ClientTableData | null>(
+    null,
+  );
   const admin = isAdmin();
 
   const handleEdit = (client: ClientTableData) => {
@@ -57,29 +71,44 @@ const ListClientsPage = () => {
           name: client.name || "",
           cnpj: client.cnpj || "",
           taxRegime: client.taxRegime || "",
+          tradeName: client.tradeName || " - ",
+          stateRegistration: client.stateRegistration || " - ",
+          municipalRegistration: client.municipalRegistration || " - ",
         }))
         .filter(
           (u) =>
             u.name.toLowerCase().includes(search.toLowerCase()) ||
-            u.cnpj.toLowerCase().includes(search.toLowerCase())
+            u.cnpj.toLowerCase().includes(search.toLowerCase()),
         ),
-    [clients, search]
+    [clients, search],
   );
 
   const getActionMenuItems = (record: ClientTableData): MenuProps["items"] => [
     {
       key: "edit",
-      label: <><EditOutlined /> Editar</>,
+      label: (
+        <>
+          <EditOutlined /> Editar
+        </>
+      ),
       onClick: () => handleEdit(record),
     },
     {
       key: "view",
-      label: <><EyeOutlined /> Visualizar</>,
+      label: (
+        <>
+          <EyeOutlined /> Visualizar
+        </>
+      ),
       onClick: () => handleView(record),
     },
     {
       key: "delete",
-      label: <><DeleteOutlined /> Deletar</>,
+      label: (
+        <>
+          <DeleteOutlined /> Deletar
+        </>
+      ),
       danger: true,
       onClick: () => handleDelete(record),
     },
@@ -99,6 +128,32 @@ const ListClientsPage = () => {
       key: "cnpj",
       sorter: (a, b) => (a.cnpj || "").localeCompare(b.cnpj || ""),
       render: (cnpj: string) => <Text type="secondary">{maskCnpj(cnpj)}</Text>,
+    },
+    {
+      title: "Razão Social",
+      dataIndex: "tradeName",
+      key: "tradeName",
+      sorter: (a, b) => (a.cnpj || "").localeCompare(b.tradeName || ""),
+      render: (tradeName: string) => <Text type="secondary">{tradeName}</Text>,
+    },
+    {
+      title: "Registro Estadual",
+      dataIndex: "stateRegistration",
+      key: "stateRegistration",
+      sorter: (a, b) => (a.cnpj || "").localeCompare(b.stateRegistration || ""),
+      render: (stateRegistration: string) => (
+        <Text type="secondary">{stateRegistration}</Text>
+      ),
+    },
+    {
+      title: "Registro Municipal",
+      dataIndex: "municipalRegistration",
+      key: "municipalRegistration",
+      sorter: (a, b) =>
+        (a.cnpj || "").localeCompare(b.municipalRegistration || ""),
+      render: (municipalRegistration: string) => (
+        <Text type="secondary">{municipalRegistration}</Text>
+      ),
     },
     {
       title: "Regime Tributário",
@@ -181,9 +236,15 @@ const ListClientsPage = () => {
       >
         {selectedClient && (
           <div>
-            <p><strong>Empresa:</strong> {selectedClient.name}</p>
-            <p><strong>CNPJ:</strong> {selectedClient.cnpj}</p>
-            <p><strong>Regime Tributário:</strong> {selectedClient.taxRegime}</p>
+            <p>
+              <strong>Empresa:</strong> {selectedClient.name}
+            </p>
+            <p>
+              <strong>CNPJ:</strong> {selectedClient.cnpj}
+            </p>
+            <p>
+              <strong>Regime Tributário:</strong> {selectedClient.taxRegime}
+            </p>
             {/* Adicione o formulário de edição aqui */}
           </div>
         )}
