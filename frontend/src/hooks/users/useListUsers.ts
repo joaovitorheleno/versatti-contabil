@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { openErrorNotification } from "../../components/notification/error";
-import { inspectUser, listUsers } from "../../service/user/integration";
+import {
+  deleteUser,
+  editUser,
+  inspectUser,
+  listUsers,
+} from "../../service/user/integration";
+import { openSuccessNotification } from "../../components/notification/success";
 
 export interface UsersResponse {
-  id?: string;
+  id: string;
   name: string;
   email: string;
   cpf: string;
@@ -19,6 +25,43 @@ const useListUsers = () => {
 
   const navigate = useNavigate();
   const fetchedRef = useRef(false);
+
+  const fetchDeleteUser = useCallback(
+    async (userId: string, userName: string) => {
+      try {
+        const response = await deleteUser(userId);
+
+        if (response) {
+          openSuccessNotification({
+            title: "Usuário " + userName + " deletado com sucesso",
+            description: `O usuário foi deletado com sucesso.`,
+            pauseOnHover: true,
+          });
+        }
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        return response;
+      } catch (e: any) {
+        openErrorNotification({
+          title: "Falha ao deletar usuário",
+          description: `Não foi possível deletar o usuário: ${e?.message || e}`,
+        });
+      }
+    },
+    [],
+  );
+
+  const fetchEditUser = useCallback(
+    async (userId: string, userData: Partial<UsersResponse>) => {
+      try {
+        const response = await editUser(userId, userData);
+        return response;
+      } catch (e: any) {
+        console.error("Falha ao editar usuário:", e);
+        throw new Error(`Falha ao editar usuário: ${e?.message || e}`);
+      }
+    },
+    [],
+  );
 
   const fetchInspectUser = useCallback(async (userId: string) => {
     try {
@@ -82,6 +125,9 @@ const useListUsers = () => {
     mensagem,
     registerUser,
     fetchInspectUser,
+    fetchEditUser,
+    fetchUsers,
+    fetchDeleteUser,
   };
 };
 
