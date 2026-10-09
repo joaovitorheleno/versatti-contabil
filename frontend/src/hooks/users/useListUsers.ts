@@ -20,6 +20,17 @@ const useListUsers = () => {
   const navigate = useNavigate();
   const fetchedRef = useRef(false);
 
+  const fetchInspectUser = useCallback(async (userId: string) => {
+    try {
+      return await inspectUser(userId);
+    } catch (e: any) {
+      openErrorNotification({
+        title: "Falha ao inspecionar usuário",
+      });
+      return null;
+    }
+  }, []);
+
   const fetchUsers = useCallback(async () => {
     const token = localStorage.getItem("@versatti:token");
 
@@ -70,6 +81,7 @@ const useListUsers = () => {
     users,
     mensagem,
     registerUser,
+    fetchInspectUser,
   };
 };
 

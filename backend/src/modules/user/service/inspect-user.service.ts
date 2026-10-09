@@ -1,5 +1,3 @@
-import { ClientEntity } from 'src/entities/client.entity';
-import { UserClientEntity } from 'src/entities/user-client.entity';
 import { UserEntity } from 'src/entities/user.entity';
 
 export class InspectUserService {
@@ -8,33 +6,31 @@ export class InspectUserService {
       throw new Error('ID do usuário não fornecido');
     }
 
-    const existingUser = await UserEntity.exists({ where: { id } });
-
-    if (!existingUser) {
-      throw new Error('Usuário não encontrado');
-    }
-
-    const users = await UserEntity.createQueryBuilder('user')
+    const user = await UserEntity.createQueryBuilder('user')
       .leftJoinAndSelect('user.userClients', 'userClient')
       .leftJoinAndSelect('userClient.client', 'client')
       .where('user.id = :id', { id })
       .getOne();
 
-    const formattedUser = {
-      id: users?.id,
-      name: users?.name,
-      email: users?.email,
-      createdAt: users?.createdAt,
-      updatedAt: users?.updatedAt,
-      cpf: users?.cpf,
-      phone: users?.phone,
-      dateOfBirth: users?.dateOfBirth,
-      clients: users?.userClients?.map((userClient) => ({
-        id: userClient.client.id,
-        name: userClient.client.name,
-      })),
-    };
+    if (!user) {
+      throw new Error('Usuário não encontrado');
+    }
 
-    return formattedUser;
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      cpf: user.cpf,
+      phone: user.phone,
+      dateOfBirth: user.dateOfBirth,
+      clients: (user.userClients ?? [])
+        .filter((userClient) => userClient.client)
+        .map((userClient) => ({
+          id: userClient.client.id,
+          name: userClient.client.name,
+        })),
+    };
   }
 }
