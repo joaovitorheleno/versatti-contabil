@@ -12,6 +12,7 @@ export class EditClientService {
   public async execute(
     id: string,
     editClientDto: EditClientDto,
+    currentUserId: string,
   ): Promise<ClientEntity> {
     if (!id) {
       throw new BadRequestException('ID é obrigatório para atualização.');
@@ -22,7 +23,7 @@ export class EditClientService {
       throw new NotFoundException('Cliente não encontrado.');
     }
 
-    const { cnpj, zipCode, ...otherData } = editClientDto;
+    const { cnpj, ...otherData } = editClientDto;
 
     if (cnpj !== undefined) {
       const cleanCnpj = cnpj.replace(/\D/g, '');
@@ -44,9 +45,7 @@ export class EditClientService {
       client.cnpj = cleanCnpj;
     }
 
-    if (zipCode !== undefined) {
-      client.zipCode = zipCode.replace(/\D/g, '');
-    }
+    client.updatedBy = currentUserId;
 
     Object.assign(client, otherData);
 

@@ -1,38 +1,57 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
-import { ListUsersService, CreateUserService } from "./service";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
-
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ListUsersService,
+  CreateUserService,
+  InspectUserService,
+} from './service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto } from './dto/create-user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Usuários')
 @Controller('user')
 export class UserController {
-    constructor(
-        private readonly createUserService: CreateUserService,
-        private readonly listUsersService: ListUsersService
-    ) {}
+  constructor(
+    private readonly createUserService: CreateUserService,
+    private readonly listUsersService: ListUsersService,
+    private readonly inspectUserService: InspectUserService,
+  ) {}
 
-    @Post()
-    @ApiOperation({ summary: 'Cria um novo usuário' })
-    public async createUser(
-        @Body() userData: CreateUserDto,
-        @Req() req: any
-    ) {
-        const currentUserId = req.user?.userId || req.user?.sub;
+  @Post()
+  @ApiOperation({ summary: 'Cria um novo usuário' })
+  public async createUser(@Body() userData: CreateUserDto, @Req() req: any) {
+    const currentUserId = req.user?.userId || req.user?.sub;
 
-        if (!currentUserId) {
-            throw new BadRequestException('Usuário logado não identificado na requisição.');
-        }
-
-        return await this.createUserService.execute(userData, currentUserId);
+    if (!currentUserId) {
+      throw new BadRequestException(
+        'Usuário logado não identificado na requisição.',
+      );
     }
 
-    @Get()
-    @ApiOperation({ summary: 'Lista todos os usuários' })
-    public async listUsers() {
-        const listedUsers = await this.listUsersService.execute();
-        return listedUsers;
-    }
+    return await this.createUserService.execute(userData, currentUserId);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Lista todos os usuários' })
+  public async listUsers() {
+    const listedUsers = await this.listUsersService.execute();
+    return listedUsers;
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Inspeciona um usuário pelo ID' })
+  public async inspectUser(@Param('id') id: string) {
+    const user = await this.inspectUserService.execute(id);
+    return user;
+  }
 }

@@ -9,8 +9,19 @@ export interface ClientResponse {
   cnpj: string;
   taxRegime: string;
   tradeName: string;
-  stateRegistration: string;
-  municipalRegistration: string;
+  stateRegistration?: number | undefined;
+  municipalRegistration?: number | undefined;
+  phone: string;
+  nfeEmail?: string | undefined;
+  contactPerson?: string | undefined;
+  zipCode: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  isActive: boolean;
 }
 
 const useListClients = () => {
@@ -54,7 +65,7 @@ const useListClients = () => {
         title: "Erro ao acessar",
         description: "Token de Login expirado ou não existe, faça o login.",
       });
-      navigate("/login");
+      navigate("/");
       return;
     }
 
@@ -76,6 +87,7 @@ const useListClients = () => {
     registerClient,
     showDrawer,
     closeDrawer,
+    fetchClients,
   };
 };
 

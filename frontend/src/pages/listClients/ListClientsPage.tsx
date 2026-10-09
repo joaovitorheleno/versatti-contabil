@@ -4,8 +4,10 @@ import {
   Typography,
   Button,
   Dropdown,
-  Drawer,
+  Modal,
   type MenuProps,
+  Select,
+  Form,
 } from "antd";
 import {
   DeleteOutlined,
@@ -14,54 +16,97 @@ import {
   MoreOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as S from "./styles";
 import InputComponent from "../../components/input/InputComponent";
 import SubmitButton from "../../components/button/SubmitButton";
+import FormComponent from "../../components/form/FormComponent";
+import FormItemComponent from "../../components/form/FormItemComponent";
 import { isAdmin } from "../../common/auth/user-is-admin";
 import type { ColumnsType } from "antd/es/table";
 import useListClients from "../../hooks/clients/useListClients";
 import { maskCnpj } from "../../functions/maskCnpj";
+import ModalComponent from "../../components/modal/ModalComponent";
+import { maskPhone } from "../../functions/maskPhone";
+import useEditClient from "../../hooks/clients/useEditClient";
+import { TaxRegimeEnum } from "../../common/enum/tax-regime.enum";
+import useDeleteClient from "../../hooks/clients/useDeleteClient";
+import { maskCep } from "../../functions/maskCep";
 
 const { Text } = Typography;
 
 interface ClientTableData {
-  id: string | number;
+  id: string;
   name: string;
   cnpj: string;
   taxRegime: string;
   tradeName: string;
   stateRegistration: string;
   municipalRegistration: string;
+  phone: string;
+  nfeEmail: string;
+  contactPerson: string;
+  zipCode: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
 }
 
 const ListClientsPage = () => {
-  const { loading, clients, mensagem, registerClient } = useListClients();
+  const { loading, clients, mensagem, registerClient, fetchClients } =
+    useListClients();
+  const {
+    form,
+    isEditModalOpen,
+    handleSaveEdit,
+    handleEdit,
+    handleCloseEditModal,
+  } = useEditClient(fetchClients);
+
+  const [viewForm] = Form.useForm();
+
+  const { handleDelete } = useDeleteClient(fetchClients);
 
   const [search, setSearch] = useState("");
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
   const [selectedClient, setSelectedClient] = useState<ClientTableData | null>(
     null,
   );
+
   const admin = isAdmin();
 
-  const handleEdit = (client: ClientTableData) => {
-    setSelectedClient(client);
-    setIsDrawerOpen(true);
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedClient(null);
+    viewForm.resetFields();
   };
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setSelectedClient(null);
+  const handleViewDelete = (client: ClientTableData) => {
+    Modal.confirm({
+      title: "Excluir Empresa",
+      content: `Tem certeza que deseja excluir a empresa ${client.name}?`,
+      okText: "Sim, excluir",
+      okType: "danger",
+      cancelText: "Cancelar",
+      onOk: () => handleDelete(client),
+    });
   };
 
   const handleView = (client: ClientTableData) => {
-    console.log("Visualizar cliente:", client);
+    setSelectedClient(client);
+    setIsViewModalOpen(true);
   };
 
-  const handleDelete = (client: ClientTableData) => {
-    console.log("Deletar cliente:", client);
-  };
+  useEffect(() => {
+    if (isViewModalOpen && selectedClient) {
+      viewForm.setFieldsValue(selectedClient);
+    }
+  }, [isViewModalOpen, selectedClient, viewForm]);
 
   const mappedClients: ClientTableData[] = useMemo(
     () =>
@@ -71,9 +116,25 @@ const ListClientsPage = () => {
           name: client.name || "",
           cnpj: client.cnpj || "",
           taxRegime: client.taxRegime || "",
-          tradeName: client.tradeName || " - ",
-          stateRegistration: client.stateRegistration || " - ",
-          municipalRegistration: client.municipalRegistration || " - ",
+          tradeName: client.tradeName || "",
+          stateRegistration:
+            client.stateRegistration != null
+              ? String(client.stateRegistration)
+              : "",
+          municipalRegistration:
+            client.municipalRegistration != null
+              ? String(client.municipalRegistration)
+              : "",
+          phone: client.phone || "",
+          nfeEmail: client.nfeEmail || "",
+          contactPerson: client.contactPerson || "",
+          zipCode: client.zipCode || "",
+          street: client.street || "",
+          number: client.number || "",
+          complement: client.complement || "",
+          neighborhood: client.neighborhood || "",
+          city: client.city || "",
+          state: client.state || "",
         }))
         .filter(
           (u) =>
@@ -110,7 +171,7 @@ const ListClientsPage = () => {
         </>
       ),
       danger: true,
-      onClick: () => handleDelete(record),
+      onClick: () => handleViewDelete(record),
     },
   ];
 
@@ -133,14 +194,15 @@ const ListClientsPage = () => {
       title: "Razão Social",
       dataIndex: "tradeName",
       key: "tradeName",
-      sorter: (a, b) => (a.cnpj || "").localeCompare(b.tradeName || ""),
+      sorter: (a, b) => (a.tradeName || "").localeCompare(b.tradeName || ""),
       render: (tradeName: string) => <Text type="secondary">{tradeName}</Text>,
     },
     {
       title: "Registro Estadual",
       dataIndex: "stateRegistration",
       key: "stateRegistration",
-      sorter: (a, b) => (a.cnpj || "").localeCompare(b.stateRegistration || ""),
+      sorter: (a, b) =>
+        (a.stateRegistration || "").localeCompare(b.stateRegistration || ""),
       render: (stateRegistration: string) => (
         <Text type="secondary">{stateRegistration}</Text>
       ),
@@ -150,7 +212,9 @@ const ListClientsPage = () => {
       dataIndex: "municipalRegistration",
       key: "municipalRegistration",
       sorter: (a, b) =>
-        (a.cnpj || "").localeCompare(b.municipalRegistration || ""),
+        (a.municipalRegistration || "").localeCompare(
+          b.municipalRegistration || "",
+        ),
       render: (municipalRegistration: string) => (
         <Text type="secondary">{municipalRegistration}</Text>
       ),
@@ -227,28 +291,406 @@ const ListClientsPage = () => {
         {mensagem && <Text type="secondary">{mensagem}</Text>}
       </Card>
 
-      <Drawer
-        title="Editar Empresa"
-        placement="right"
-        width={400}
-        onClose={handleCloseDrawer}
-        open={isDrawerOpen}
+      <Modal
+        title="Detalhes da Empresa"
+        open={isViewModalOpen}
+        width={1200}
+        onCancel={handleCloseViewModal}
+        footer={[
+          <SubmitButton key="close" onClick={handleCloseViewModal}>
+            Fechar
+          </SubmitButton>,
+        ]}
+        centered
       >
         {selectedClient && (
-          <div>
-            <p>
-              <strong>Empresa:</strong> {selectedClient.name}
-            </p>
-            <p>
-              <strong>CNPJ:</strong> {selectedClient.cnpj}
-            </p>
-            <p>
-              <strong>Regime Tributário:</strong> {selectedClient.taxRegime}
-            </p>
-            {/* Adicione o formulário de edição aqui */}
-          </div>
+          <S.ScrollEditModal>
+            <S.FormCard>
+              <FormComponent
+                form={viewForm}
+                name="viewForm"
+                onFinish={() => {}}
+                variant="underlined"
+              >
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="cnpj"
+                    getValueFromEvent={(e) => {
+                      const masked = maskCnpj(e.target.value);
+                      return masked;
+                    }}
+                    normalize={(value) => maskCnpj(value)}
+                    layout="vertical"
+                    label="CNPJ"
+                  >
+                    <InputComponent
+                      maxLength={18}
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="taxRegime"
+                    getValueFromEvent={(value) => value}
+                    layout="vertical"
+                    label="Regime Tributário"
+                  >
+                    <Select disabled={true} variant="outlined">
+                      <Select value={TaxRegimeEnum.SIMPLES_NACIONAL}>
+                        Simples Nacional
+                      </Select>
+                      <Select value={TaxRegimeEnum.LUCRO_PRESUMIDO}>
+                        Lucro Presumido
+                      </Select>
+                      <Select value={TaxRegimeEnum.LUCRO_REAL}>
+                        Lucro Real
+                      </Select>
+                      <Select value={TaxRegimeEnum.MEI}>MEI</Select>
+                    </Select>
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="name"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Razão Social"
+                  >
+                    <InputComponent
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="tradeName"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Nome Fantasia"
+                  >
+                    <InputComponent
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="stateRegistration"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Inscrição Estadual"
+                  >
+                    <InputComponent
+                      disabled={true}
+                      variant="filled"
+                      allowClear
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="municipalRegistration"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Inscrição Municipal"
+                  >
+                    <InputComponent
+                      disabled={true}
+                      variant="filled"
+                      allowClear
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="phone"
+                    getValueFromEvent={(e) => {
+                      const masked = maskPhone(e.target.value);
+                      return masked;
+                    }}
+                    normalize={(value) => maskPhone(value)}
+                    layout="vertical"
+                    label="Telefone"
+                  >
+                    <InputComponent
+                      maxLength={15}
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="contactPerson"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Pessoa de Contato"
+                  >
+                    <InputComponent
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <FormItemComponent
+                  name="nfeEmail"
+                  getValueFromEvent={(e) => e.target.value}
+                  layout="vertical"
+                  label="E-mail para NF-e"
+                >
+                  <InputComponent allowClear disabled={true} variant="filled" />
+                </FormItemComponent>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="zipCode"
+                    getValueFromEvent={(e) => {
+                      const masked = maskCep(e.target.value);
+                      return masked;
+                    }}
+                    normalize={(value) => maskCep(value)}
+                    layout="vertical"
+                    label="CEP"
+                  >
+                    <InputComponent
+                      maxLength={9}
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="street"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Rua / Logradouro"
+                  >
+                    <InputComponent
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="number"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Número"
+                  >
+                    <InputComponent
+                      disabled={true}
+                      variant="filled"
+                      allowClear
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="complement"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Complemento"
+                  >
+                    <InputComponent
+                      disabled={true}
+                      variant="filled"
+                      allowClear
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="neighborhood"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Bairro"
+                  >
+                    <InputComponent
+                      disabled={true}
+                      variant="filled"
+                      allowClear
+                    />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="city"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Cidade"
+                  >
+                    <InputComponent
+                      allowClear
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="state"
+                    getValueFromEvent={(e) => e.target.value}
+                    layout="vertical"
+                    label="Estado (UF)"
+                  >
+                    <InputComponent
+                      allowClear
+                      maxLength={2}
+                      disabled={true}
+                      variant="filled"
+                    />
+                  </FormItemComponent>
+                </S.FieldRow>
+              </FormComponent>
+            </S.FormCard>
+          </S.ScrollEditModal>
         )}
-      </Drawer>
+      </Modal>
+
+      <ModalComponent
+        title="Editar Empresa"
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onConfirm={() => form.submit()}
+        width={600}
+        okText="Salvar alterações"
+        okButtonProps={{ style: { width: "100%", backgroundColor: "#16302A" } }}
+        hideCancelButton={true}
+      >
+        <S.ScrollEditModal>
+          <FormComponent
+            form={form}
+            name="editClientForm"
+            onFinish={handleSaveEdit}
+            layout="vertical"
+            style={{ marginTop: 16 }}
+          >
+            <FormItemComponent
+              name="name"
+              label="Razão Social / Nome"
+              rules={[{ required: true, message: "Insira o nome" }]}
+            >
+              <InputComponent
+                variant="underlined"
+                placeholder="Nome da empresa"
+                allowClear
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="cnpj"
+              label="CNPJ"
+              rules={[{ required: true, message: "Insira o CNPJ" }]}
+            >
+              <InputComponent placeholder="00.000.000/0000-00" disabled />
+            </FormItemComponent>
+
+            <FormItemComponent name="tradeName" label="Nome Fantasia">
+              <InputComponent
+                variant="underlined"
+                placeholder="Nome Fantasia"
+                allowClear
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="taxRegime"
+              label="Regime Tributário"
+              rules={[{ required: true }]}
+            >
+              <Select variant="outlined" placeholder="Regime Tributário">
+                <Select value={TaxRegimeEnum.SIMPLES_NACIONAL}>
+                  Simples Nacional
+                </Select>
+                <Select value={TaxRegimeEnum.LUCRO_PRESUMIDO}>
+                  Lucro Presumido
+                </Select>
+                <Select value={TaxRegimeEnum.LUCRO_REAL}>Lucro Real</Select>
+                <Select value={TaxRegimeEnum.MEI}>MEI</Select>
+              </Select>
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="stateRegistration"
+              label="Inscrição Estadual"
+            >
+              <InputComponent
+                variant="underlined"
+                placeholder="Inscrição Estadual"
+                allowClear
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="municipalRegistration"
+              rules={[
+                { required: true, message: "Preencha o registro municipal" },
+              ]}
+              label="Inscrição Municipal"
+            >
+              <InputComponent
+                variant="underlined"
+                placeholder="Inscrição Municipal"
+                allowClear
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="phone"
+              rules={[
+                { required: true, message: "Preencha o telefone de contato" },
+              ]}
+              getValueFromEvent={(e) => {
+                const masked = maskPhone(e.target.value);
+                return masked;
+              }}
+              normalize={(value) => maskPhone(value)}
+              layout="vertical"
+              label="Telefone"
+            >
+              <InputComponent
+                placeholder="Ex: (31) 9 9999-9999"
+                maxLength={16}
+                allowClear
+                variant="underlined"
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="nfeEmail"
+              layout="vertical"
+              label="Email NF-e"
+            >
+              <InputComponent
+                variant="underlined"
+                placeholder="Ex: joaoteste@gmail.com"
+                allowClear
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="contactPerson"
+              layout="vertical"
+              label="Pessoa Responsável"
+            >
+              <InputComponent variant="underlined" allowClear />
+            </FormItemComponent>
+          </FormComponent>
+        </S.ScrollEditModal>
+      </ModalComponent>
     </S.ListClientsContainer>
   );
 };

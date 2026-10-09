@@ -44,7 +44,7 @@ const useChangePassword = () => {
                 description: 'Sua senha foi redefinida com sucesso. Faça login para continuar.',
             });
 
-            navigate('/login');
+            navigate('/');
             } catch (error: any) {
                 openErrorNotification({
                     title: 'Erro ao alterar senha',

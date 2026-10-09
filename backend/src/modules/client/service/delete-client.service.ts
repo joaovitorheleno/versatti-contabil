@@ -18,6 +18,7 @@ export class DeleteClientService {
 
       existingClient.deletedBy = userId;
 
+      existingClient.save();
       const deletedClient = await existingClient.softRemove();
 
       return deletedClient;

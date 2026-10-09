@@ -18,7 +18,7 @@ function MainLayout() {
     <AppTheme>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/confirmCpf" element={<RegisterCpfPage />} />
           <Route path="/recoverPassword" element={<RecoverPasswordPage />} />

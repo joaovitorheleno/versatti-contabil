@@ -58,7 +58,7 @@ export const useRegisterPassword = () => {
                     pauseOnHover: true,
                 })
 
-                navigate('/login', { replace: true });
+                navigate('/', { replace: true });
             }
         } catch (error: any) {
             openErrorNotification({

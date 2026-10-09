@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import type { FormClientType } from "../../pages/createClient/types";
 import { createClient } from "../../service/client/integration";
 import { openErrorNotification } from "../../components/notification/error";
-import type { CreateClientResponse } from "../../service/client/types";
+import { openSuccessNotification } from "../../components/notification/success";
+import type { ClientsResponse } from "../../service/client/types";
 
 const useCreateClient = () => {
   const navigate = useNavigate();
@@ -96,7 +97,7 @@ const useCreateClient = () => {
 
   const onSubmit = async (values: FormClientType) => {
     try {
-      const formattedValues: CreateClientResponse = {
+      const formattedValues: ClientsResponse = {
         ...values,
         taxRegime: values.taxRegime,
         cnpj: values.cnpj ? values.cnpj.replace(/\D/g, "") : "",
@@ -114,6 +115,9 @@ const useCreateClient = () => {
       const response = await createClient(formattedValues);
 
       if (response) {
+        openSuccessNotification({
+          title: "Cliente criado com sucesso!",
+        });
         navigate("/clients");
       }
     } catch (error: any) {

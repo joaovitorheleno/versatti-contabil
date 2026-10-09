@@ -11,7 +11,7 @@ export class ClientEntity extends CrudEntity {
   @Column('varchar', { name: 'trade_name', nullable: true })
   tradeName?: string;
 
-  @Column('varchar', { nullable: false, unique: true, length: 14 })
+  @Column('varchar', { nullable: false, length: 14 })
   cnpj!: string;
 
   @Column('enum', { nullable: false, name: 'tax_regime', enum: TaxRegimeEnum })

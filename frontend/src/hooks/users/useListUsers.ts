@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { openErrorNotification } from "../../components/notification/error";
-import { listUsers } from "../../service/user/integration";
+import { inspectUser, listUsers } from "../../service/user/integration";
 
 export interface UsersResponse {
   id?: string;
@@ -18,10 +18,20 @@ const useListUsers = () => {
   const [mensagem, setMensagem] = useState<string>("");
 
   const navigate = useNavigate();
-
-  const token = localStorage.getItem('@versatti:token');
+  const fetchedRef = useRef(false);
 
   const fetchUsers = useCallback(async () => {
+    const token = localStorage.getItem("@versatti:token");
+
+    if (!token) {
+      openErrorNotification({
+        title: "Erro ao acessar",
+        description: "Token de Login expirado ou não existe, faça o login.",
+      });
+      navigate("/");
+      return;
+    }
+
     try {
       setLoading(true);
       setMensagem("");
@@ -29,7 +39,9 @@ const useListUsers = () => {
       const response = await listUsers();
       setUsers(response);
 
-      if (Array.isArray(response) && response.length === 0) {
+      if (Array.isArray(response) && response.length > 0 && response[0].id) {
+        await inspectUser("0a96c03c-07b4-4696-9b7e-493ec461968e");
+      } else if (Array.isArray(response) && response.length === 0) {
         setMensagem("Nenhum usuário encontrado.");
       }
     } catch (e: any) {
@@ -40,30 +52,24 @@ const useListUsers = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [navigate]);
 
   const registerUser = () => {
-    navigate('/users/register')
-  }
+    navigate("/users/register");
+  };
 
   useEffect(() => {
-    if (!token) {
-      openErrorNotification({
-        title: "Erro ao acessar",
-        description: "Token de Login expirado ou não existe, faça o login.",
-      });
-      navigate("/login");
-      return;
-    }
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
 
     fetchUsers();
-  }, [token, navigate, fetchUsers]);
+  }, [fetchUsers]);
 
   return {
     loading,
     users,
     mensagem,
-    registerUser
+    registerUser,
   };
 };
 

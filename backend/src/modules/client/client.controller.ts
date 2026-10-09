@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -18,7 +19,9 @@ import {
   ListClientsService,
 } from './service';
 import { EditClientDto } from './dto/edit-cliient.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('Clientes')
 @Controller('client')
 export class ClientController {
@@ -31,8 +34,16 @@ export class ClientController {
 
   @Post()
   @ApiOperation({ summary: 'Cria um novo cliente' })
-  public async createClient(@Body() clientData: CreateClientDto) {
-    const response = await this.createClientService.execute(clientData);
+  public async createClient(
+    @Body() clientData: CreateClientDto,
+    @Req() req: any,
+  ) {
+    const currentUserId = req.user?.userId || req.user?.sub;
+
+    const response = await this.createClientService.execute(
+      clientData,
+      currentUserId,
+    );
     return response;
   }
 
@@ -48,8 +59,15 @@ export class ClientController {
   public async editClient(
     @Param('id') id: string,
     @Body() newClient: EditClientDto,
+    @Req() req: any,
   ) {
-    const response = await this.editClientService.execute(id, newClient);
+    const currentUserId = req.user?.userId || req.user?.sub;
+
+    const response = await this.editClientService.execute(
+      id,
+      newClient,
+      currentUserId,
+    );
     return response;
   }
 

@@ -36,7 +36,7 @@ interface BrasilApiCepResponse {
 export class CreateClientService {
   constructor(private readonly httpService: HttpService) {}
 
-  public async execute(clientData: CreateClientDto) {
+  public async execute(clientData: CreateClientDto, currentUserId: string) {
     const { cnpj } = clientData;
 
     const cleanCnpj = cnpj.replace(/\D/g, '');
@@ -45,15 +45,14 @@ export class CreateClientService {
       throw new BadRequestException('CNPJ inválido. Deve conter 14 dígitos.');
     }
 
-    const existingClient = await ClientEntity.findOne({
-      where: { cnpj: cleanCnpj },
-    });
+    const existingClient = await ClientEntity.createQueryBuilder('client')
+      .where('client.cnpj = :cnpj', { cnpj: cleanCnpj })
+      .getOne();
 
     if (existingClient) {
       throw new ConflictException('CNPJ já cadastrado no sistema.');
     }
 
-    // 1. Consulta CNPJ na BrasilAPI
     let companyData: BrasilApiCnpjResponse | null = null;
     try {
       const response = await firstValueFrom(
@@ -73,7 +72,6 @@ export class CreateClientService {
       );
     }
 
-    // 2. Consulta CEP na BrasilAPI (Caso o usuário informe um CEP diferente ou o CNPJ venha sem endereço)
     const targetZipCode = (
       clientData.zipCode ||
       companyData?.cep ||
@@ -92,9 +90,13 @@ export class CreateClientService {
           ),
         );
         cepData = responseCep.data;
-      } catch {
-        // Silencia o erro para utilizar o fallback dos dados do CNPJ/DTO se a API de CEP falhar
-      }
+      } catch {}
+    }
+
+    if (!clientData.municipalRegistration && !clientData.stateRegistration) {
+      throw new BadRequestException(
+        'Registro municipal e registro estadual não podem ficar vazios, preencha ao menos 1 dos campos.',
+      );
     }
 
     const client = new ClientEntity();
@@ -111,7 +113,6 @@ export class CreateClientService {
     client.phone = clientData.phone || companyData?.ddd_telefone_1 || '';
     client.contactPerson = clientData.contactPerson;
 
-    // Endereço priorizando: DTO -> CEP API -> CNPJ API
     client.zipCode = targetZipCode;
     client.street =
       clientData.street || cepData?.street || companyData?.logradouro || '';
@@ -127,9 +128,16 @@ export class CreateClientService {
     client.state = clientData.state || cepData?.state || companyData?.uf || '';
 
     client.isActive = clientData.isActive ?? true;
+    client.createdBy = currentUserId;
 
-    const savedClient = await client.save();
-
-    return savedClient;
+    try {
+      const savedClient = await client.save();
+      return savedClient;
+    } catch (error: any) {
+      throw new InternalServerErrorException(
+        'Erro ao cadastrar o cliente.',
+        error.message,
+      );
+    }
   }
 }
