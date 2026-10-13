@@ -56,10 +56,11 @@ export class ClientController {
     return response;
   }
 
-  @Get('user/:userId')
+  @Get('userClients')
   @ApiOperation({ summary: 'Lista os clientes de um usuário específico' })
-  public async listUserClients(@Param('userId') userId: string) {
-    const response = await this.listUserClientsService.execute(userId);
+  public async listUserClients(@Req() req: any) {
+    const currentUserId = req.user?.userId || req.user?.sub;
+    const response = await this.listUserClientsService.execute(currentUserId);
     return response;
   }
 

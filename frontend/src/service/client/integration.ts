@@ -73,3 +73,15 @@ export const deleteClient = async (id: string) => {
 
   return response.data;
 };
+
+export const listUserClients = async (): Promise<ClientsResponse[]> => {
+  const token = getToken();
+
+  const response = await axios.get(`${BASE_URL}/client/userClients`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};

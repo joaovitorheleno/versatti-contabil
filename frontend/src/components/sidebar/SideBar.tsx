@@ -9,6 +9,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import * as S from "./styles";
 import { versattiIcon, versattiLogoTransparente } from "../../assets";
+import { isAdmin } from "../../common/auth/user-is-admin";
 
 const { Sider } = Layout;
 
@@ -16,10 +17,10 @@ const SIDEBAR_GREEN = "#14342b";
 
 const menuItems = [
   { key: "/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
-  { key: "/users", icon: <TeamOutlined />, label: "Usuários" },
+  { key: "/users", icon: <TeamOutlined />, label: "Usuários", adminOnly: true },
   { key: "/clients", icon: <InsertRowLeftOutlined />, label: "Clientes" },
   { key: "/relatorios", icon: <FileTextOutlined />, label: "Relatórios" },
-  { key: "/configuracoes", icon: <SettingOutlined />, label: "Configurações" },
+  { key: "/documents", icon: <FileTextOutlined />, label: "Documentos" },
 ];
 
 interface SidebarProps {
@@ -31,6 +32,10 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const visibleItems = menuItems
+    .filter((item) => !item.adminOnly || isAdmin())
+    .map(({ adminOnly, ...item }) => item);
+
   return (
     <Sider
       collapsible
@@ -40,13 +45,19 @@ const Sidebar = ({ collapsed, onCollapse }: SidebarProps) => {
       width={240}
       style={{ background: SIDEBAR_GREEN }}
     >
-      <S.Logo>{collapsed ? <img src={versattiIcon}></img> : <img src={versattiLogoTransparente} height={50}></img>}</S.Logo>
+      <S.Logo>
+        {collapsed ? (
+          <img src={versattiIcon}></img>
+        ) : (
+          <img src={versattiLogoTransparente} height={50}></img>
+        )}
+      </S.Logo>
 
       <Menu
         theme="dark"
         mode="inline"
         selectedKeys={[location.pathname]}
-        items={menuItems}
+        items={visibleItems}
         onClick={({ key }) => navigate(key)}
         style={{ background: SIDEBAR_GREEN }}
       />

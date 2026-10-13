@@ -1,17 +1,18 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import './App.css';
-import LoginPage from './pages/login/LoginPage';
-import RegisterPage from './pages/registerPassword/RegisterPage';
-import RegisterCpfPage from './pages/registerCpf/RegisterCpf';
-import AppTheme from './config/AppTheme';
-import { AppThemeProvider } from './context/ThemeContext';
-import RecoverPasswordPage from './pages/recoverPassword/RecoverPasswordPage';
-import ResetPasswordPage from './pages/changePassword/ResetPasswordPage';
-import ListUsersPage from './pages/listUsers/ListUsersPage';
-import AppLayout from './layouts/AppLayout';
-import CreateUserPage from './pages/createUser/CreateUserPage';
-import ListClientsPage from './pages/listClients/ListClientsPage';
-import CreateClientPage from './pages/createClient/CreateClientPage';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import LoginPage from "./pages/login/LoginPage";
+import RegisterPage from "./pages/registerPassword/RegisterPage";
+import RegisterCpfPage from "./pages/registerCpf/RegisterCpf";
+import AppTheme from "./config/AppTheme";
+import { AppThemeProvider } from "./context/ThemeContext";
+import RecoverPasswordPage from "./pages/recoverPassword/RecoverPasswordPage";
+import ResetPasswordPage from "./pages/changePassword/ResetPasswordPage";
+import ListUsersPage from "./pages/listUsers/ListUsersPage";
+import AppLayout from "./layouts/AppLayout";
+import CreateUserPage from "./pages/createUser/CreateUserPage";
+import ListClientsPage from "./pages/listClients/ListClientsPage";
+import CreateClientPage from "./pages/createClient/CreateClientPage";
+import { isAdmin } from "./common/auth/user-is-admin";
 
 function MainLayout() {
   return (
@@ -25,11 +26,17 @@ function MainLayout() {
           <Route path="/resetPassword" element={<ResetPasswordPage />} />
 
           <Route element={<AppLayout />}>
-            <Route path="/users" element={<ListUsersPage />} />
-            <Route path="/users/register" element={<CreateUserPage />} />
-
+            {isAdmin() && (
+              <>
+                <Route path="/users" element={<ListUsersPage />} />
+                <Route path="/users/register" element={<CreateUserPage />} />
+                <Route
+                  path="/clients/register"
+                  element={<CreateClientPage />}
+                />
+              </>
+            )}
             <Route path="/clients" element={<ListClientsPage />} />
-            <Route path="/clients/register" element={<CreateClientPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

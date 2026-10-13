@@ -32,8 +32,16 @@ import useEditClient from "../../hooks/clients/useEditClient";
 import { TaxRegimeEnum } from "../../common/enum/tax-regime.enum";
 import useDeleteClient from "../../hooks/clients/useDeleteClient";
 import { maskCep } from "../../functions/maskCep";
+import EmptyState from "../../components/empty/Empty";
 
 const { Text } = Typography;
+
+const taxRegimeOptions = [
+  { value: TaxRegimeEnum.SIMPLES_NACIONAL, label: "Simples Nacional" },
+  { value: TaxRegimeEnum.LUCRO_PRESUMIDO, label: "Lucro Presumido" },
+  { value: TaxRegimeEnum.LUCRO_REAL, label: "Lucro Real" },
+  { value: TaxRegimeEnum.MEI, label: "MEI" },
+];
 
 interface ClientTableData {
   id: string;
@@ -56,8 +64,7 @@ interface ClientTableData {
 }
 
 const ListClientsPage = () => {
-  const { loading, clients, mensagem, registerClient, fetchClients } =
-    useListClients();
+  const { loading, clients, registerClient, fetchClients } = useListClients();
   const {
     form,
     isEditModalOpen,
@@ -250,7 +257,7 @@ const ListClientsPage = () => {
   return (
     <S.ListClientsContainer>
       <Card
-        bordered={false}
+        variant="borderless"
         style={{ borderRadius: 6, width: "100%", overflow: "hidden" }}
       >
         <S.HeaderRow>
@@ -286,9 +293,19 @@ const ListClientsPage = () => {
           scroll={{ x: 500 }}
           showSorterTooltip={false}
           style={{ marginTop: 16, width: "100%" }}
+          locale={{
+            emptyText: (
+              <EmptyState
+                title={
+                  search
+                    ? "Nenhuma empresa corresponde à busca"
+                    : "Nenhuma empresa cadastrada"
+                }
+                description={search ? "Tente outro nome ou CNPJ." : undefined}
+              />
+            ),
+          }}
         />
-
-        {mensagem && <Text type="secondary">{mensagem}</Text>}
       </Card>
 
       <Modal
@@ -315,243 +332,151 @@ const ListClientsPage = () => {
                 <S.FieldRow>
                   <FormItemComponent
                     name="cnpj"
-                    getValueFromEvent={(e) => {
-                      const masked = maskCnpj(e.target.value);
-                      return masked;
-                    }}
                     normalize={(value) => maskCnpj(value)}
                     layout="vertical"
                     label="CNPJ"
                   >
-                    <InputComponent
-                      maxLength={18}
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="taxRegime"
-                    getValueFromEvent={(value) => value}
                     layout="vertical"
                     label="Regime Tributário"
                   >
-                    <Select disabled={true} variant="outlined">
-                      <Select value={TaxRegimeEnum.SIMPLES_NACIONAL}>
-                        Simples Nacional
-                      </Select>
-                      <Select value={TaxRegimeEnum.LUCRO_PRESUMIDO}>
-                        Lucro Presumido
-                      </Select>
-                      <Select value={TaxRegimeEnum.LUCRO_REAL}>
-                        Lucro Real
-                      </Select>
-                      <Select value={TaxRegimeEnum.MEI}>MEI</Select>
-                    </Select>
+                    <Select
+                      disabled
+                      variant="outlined"
+                      options={taxRegimeOptions}
+                    />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="name"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Razão Social"
                   >
-                    <InputComponent
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="tradeName"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Nome Fantasia"
                   >
-                    <InputComponent
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="stateRegistration"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Inscrição Estadual"
                   >
-                    <InputComponent
-                      disabled={true}
-                      variant="filled"
-                      allowClear
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="municipalRegistration"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Inscrição Municipal"
                   >
-                    <InputComponent
-                      disabled={true}
-                      variant="filled"
-                      allowClear
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="phone"
-                    getValueFromEvent={(e) => {
-                      const masked = maskPhone(e.target.value);
-                      return masked;
-                    }}
                     normalize={(value) => maskPhone(value)}
                     layout="vertical"
                     label="Telefone"
                   >
-                    <InputComponent
-                      maxLength={15}
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="contactPerson"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Pessoa de Contato"
                   >
-                    <InputComponent
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <FormItemComponent
                   name="nfeEmail"
-                  getValueFromEvent={(e) => e.target.value}
                   layout="vertical"
                   label="E-mail para NF-e"
                 >
-                  <InputComponent allowClear disabled={true} variant="filled" />
+                  <InputComponent disabled variant="filled" />
                 </FormItemComponent>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="zipCode"
-                    getValueFromEvent={(e) => {
-                      const masked = maskCep(e.target.value);
-                      return masked;
-                    }}
                     normalize={(value) => maskCep(value)}
                     layout="vertical"
                     label="CEP"
                   >
-                    <InputComponent
-                      maxLength={9}
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="street"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Rua / Logradouro"
                   >
-                    <InputComponent
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="number"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Número"
                   >
-                    <InputComponent
-                      disabled={true}
-                      variant="filled"
-                      allowClear
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="complement"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Complemento"
                   >
-                    <InputComponent
-                      disabled={true}
-                      variant="filled"
-                      allowClear
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="neighborhood"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Bairro"
                   >
-                    <InputComponent
-                      disabled={true}
-                      variant="filled"
-                      allowClear
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
 
                   <FormItemComponent
                     name="city"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Cidade"
                   >
-                    <InputComponent
-                      allowClear
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
                     name="state"
-                    getValueFromEvent={(e) => e.target.value}
                     layout="vertical"
                     label="Estado (UF)"
                   >
-                    <InputComponent
-                      allowClear
-                      maxLength={2}
-                      disabled={true}
-                      variant="filled"
-                    />
+                    <InputComponent disabled variant="filled" />
                   </FormItemComponent>
                 </S.FieldRow>
               </FormComponent>
@@ -609,18 +534,13 @@ const ListClientsPage = () => {
             <FormItemComponent
               name="taxRegime"
               label="Regime Tributário"
-              rules={[{ required: true }]}
+              rules={[{ required: true, message: "Selecione o regime" }]}
             >
-              <Select variant="outlined" placeholder="Regime Tributário">
-                <Select value={TaxRegimeEnum.SIMPLES_NACIONAL}>
-                  Simples Nacional
-                </Select>
-                <Select value={TaxRegimeEnum.LUCRO_PRESUMIDO}>
-                  Lucro Presumido
-                </Select>
-                <Select value={TaxRegimeEnum.LUCRO_REAL}>Lucro Real</Select>
-                <Select value={TaxRegimeEnum.MEI}>MEI</Select>
-              </Select>
+              <Select
+                variant="outlined"
+                placeholder="Regime Tributário"
+                options={taxRegimeOptions}
+              />
             </FormItemComponent>
 
             <FormItemComponent
@@ -653,10 +573,7 @@ const ListClientsPage = () => {
               rules={[
                 { required: true, message: "Preencha o telefone de contato" },
               ]}
-              getValueFromEvent={(e) => {
-                const masked = maskPhone(e.target.value);
-                return masked;
-              }}
+              getValueFromEvent={(e) => maskPhone(e.target.value)}
               normalize={(value) => maskPhone(value)}
               layout="vertical"
               label="Telefone"

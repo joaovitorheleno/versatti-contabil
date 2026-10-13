@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listClients } from "../../service/client/integration";
+import { listClients, listUserClients } from "../../service/client/integration";
 import { openErrorNotification } from "../../components/notification/error";
+import { isAdmin } from "../../common/auth/user-is-admin";
 
 export interface ClientResponse {
   id?: string;
@@ -39,7 +40,14 @@ const useListClients = () => {
       setLoading(true);
       setMensagem("");
 
-      const response = await listClients();
+      let response;
+
+      if (isAdmin()) {
+        response = await listClients();
+      } else {
+        response = await listUserClients();
+      }
+
       setClients(response);
 
       if (Array.isArray(response) && response.length === 0) {
