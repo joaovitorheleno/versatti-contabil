@@ -15,7 +15,7 @@ import useListClients from "../../hooks/clients/useListClients";
 
 const CreateUserPage = () => {
   const navigate = useNavigate();
-  const { handleCreateUser, loading } = useCreateUser();
+  const { handleCreateUser } = useCreateUser();
   const { clients } = useListClients();
 
   const clientOptions: SelectOption[] = clients
@@ -27,7 +27,7 @@ const CreateUserPage = () => {
       label: client.name,
       value: client.id,
     }));
-
+ 
   const onSubmit = (values: any) => {
     const formattedValues = {
       ...values,

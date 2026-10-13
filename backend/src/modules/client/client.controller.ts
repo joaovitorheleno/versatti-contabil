@@ -17,6 +17,7 @@ import {
   DeleteClientService,
   EditClientService,
   ListClientsService,
+  ListUserClientsService,
 } from './service';
 import { EditClientDto } from './dto/edit-cliient.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -30,6 +31,7 @@ export class ClientController {
     private readonly listClientService: ListClientsService,
     private readonly editClientService: EditClientService,
     private readonly deleteClientService: DeleteClientService,
+    private readonly listUserClientsService: ListUserClientsService,
   ) {}
 
   @Post()
@@ -51,6 +53,13 @@ export class ClientController {
   @ApiOperation({ summary: 'Lista todos os clientes' })
   public async listClients() {
     const response = await this.listClientService.execute();
+    return response;
+  }
+
+  @Get('user/:userId')
+  @ApiOperation({ summary: 'Lista os clientes de um usuário específico' })
+  public async listUserClients(@Param('userId') userId: string) {
+    const response = await this.listUserClientsService.execute(userId);
     return response;
   }
 

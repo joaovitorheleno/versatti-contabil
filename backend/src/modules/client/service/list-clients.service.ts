@@ -1,6 +1,7 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ClientEntity } from 'src/entities/client.entity';
 
+@Injectable()
 export class ListClientsService {
   public async execute(): Promise<Object[]> {
     try {

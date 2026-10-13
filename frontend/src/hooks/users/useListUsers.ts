@@ -70,7 +70,8 @@ const useListUsers = () => {
       openErrorNotification({
         title: "Falha ao inspecionar usuário",
       });
-      return null;
+      console.error("Falha ao inspecionar usuário:", e);
+      throw new Error(`Falha ao inspecionar usuário: ${e?.message || e}`);
     }
   }, []);
 
@@ -93,9 +94,7 @@ const useListUsers = () => {
       const response = await listUsers();
       setUsers(response);
 
-      if (Array.isArray(response) && response.length > 0 && response[0].id) {
-        await inspectUser("0a96c03c-07b4-4696-9b7e-493ec461968e");
-      } else if (Array.isArray(response) && response.length === 0) {
+      if (Array.isArray(response) && response.length === 0) {
         setMensagem("Nenhum usuário encontrado.");
       }
     } catch (e: any) {
