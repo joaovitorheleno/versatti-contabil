@@ -21,7 +21,7 @@ const RegisterCpfPage = () => {
   return (
     <S.RegisterCpfPageWrapper>
       <S.RegisterCpfCardContainer>
-        <LeftOutlined onClick={() => navigate('/login')} style={{ cursor: 'pointer' }} />
+        <LeftOutlined onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
         <S.RegisterCpfSubtitle>Confirme o CPF</S.RegisterCpfSubtitle>
 
         <FormComponent
@@ -65,7 +65,7 @@ const RegisterCpfPage = () => {
                 Confirmar
               </SubmitButton>
               <S.RegisterLink>
-                Já possui acesso? <Link to="/login">Clique aqui!</Link>
+                Já possui acesso? <Link to="/">Clique aqui!</Link>
               </S.RegisterLink>
             </S.ButtonContainer>
           </FormItemComponent>

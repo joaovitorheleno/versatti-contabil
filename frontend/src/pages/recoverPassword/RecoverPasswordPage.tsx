@@ -19,7 +19,7 @@ const RecoverPasswordPage = () => {
   return (
     <S.RecoverPasswordPageWrapper>
       <S.RecoverPasswordCardContainer>
-        <LeftOutlined onClick={() => navigate('/login')} style={{ cursor: 'pointer' }} />
+        <LeftOutlined onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
         <S.RecoverPasswordTitle>Insira o e-mail para recuperação</S.RecoverPasswordTitle>
         <S.RecoverPasswordSubtitle></S.RecoverPasswordSubtitle>
 

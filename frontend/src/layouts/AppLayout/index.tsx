@@ -21,7 +21,7 @@ const AppLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("@versatti:token");
-    navigate("/login");
+    navigate("/");
   };
 
   const userMenuItems = [
