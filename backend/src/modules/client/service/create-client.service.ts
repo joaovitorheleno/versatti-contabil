@@ -4,6 +4,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { ClientEntity } from 'src/entities/client.entity';
@@ -32,8 +33,16 @@ interface BrasilApiCepResponse {
   street: string;
 }
 
+// Sem User-Agent, alguns provedores tratam a chamada do servidor como robô e bloqueiam
+const BRASIL_API_REQUEST_CONFIG = {
+  timeout: 8000,
+  headers: { 'User-Agent': 'Versatti-Contabil/1.0', Accept: 'application/json' },
+};
+
 @Injectable()
 export class CreateClientService {
+  private readonly logger = new Logger(CreateClientService.name);
+
   constructor(private readonly httpService: HttpService) {}
 
   public async execute(clientData: CreateClientDto, currentUserId: string) {
@@ -53,11 +62,14 @@ export class CreateClientService {
       throw new ConflictException('CNPJ já cadastrado no sistema.');
     }
 
+    // A consulta à BrasilAPI só complementa os dados do formulário. Se ela estiver fora do ar
+    // ou bloquear o servidor, o cadastro segue com o que o usuário preencheu.
     let companyData: BrasilApiCnpjResponse | null = null;
     try {
       const response = await firstValueFrom(
         this.httpService.get<BrasilApiCnpjResponse>(
           `https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`,
+          BRASIL_API_REQUEST_CONFIG,
         ),
       );
       companyData = response.data;
@@ -67,8 +79,10 @@ export class CreateClientService {
           'CNPJ não encontrado na Receita Federal.',
         );
       }
-      throw new InternalServerErrorException(
-        'Erro ao consultar os dados do CNPJ na API externa.',
+      this.logger.warn(
+        `BrasilAPI indisponível ao consultar o CNPJ ${cleanCnpj} (status ${
+          error.response?.status ?? error.code ?? 'desconhecido'
+        }): seguindo com os dados do formulário`,
       );
     }
 
@@ -87,6 +101,7 @@ export class CreateClientService {
         const responseCep = await firstValueFrom(
           this.httpService.get<BrasilApiCepResponse>(
             `https://brasilapi.com.br/api/cep/v1/${targetZipCode}`,
+            BRASIL_API_REQUEST_CONFIG,
           ),
         );
         cepData = responseCep.data;
