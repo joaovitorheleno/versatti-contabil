@@ -12,7 +12,7 @@ interface CustomModalProps extends ModalProps {
   confirmLoading?: boolean;
   okText?: string;
   cancelText?: string;
-  hideCancelButton?: boolean; // Adicionada uma prop limpa e descritiva
+  hideCancelButton?: boolean;
 }
 
 const ModalComponent: React.FC<CustomModalProps> = ({

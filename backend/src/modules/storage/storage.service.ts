@@ -6,8 +6,6 @@ import 'multer';
 
 @Injectable()
 export class StorageService {
-  // STORAGE_PATH aponta para o volume persistente em produção (ex: /data/uploads).
-  // Sem volume, os arquivos seriam apagados a cada deploy.
   private readonly basePath =
     process.env.STORAGE_PATH || join(process.cwd(), 'uploads');
 

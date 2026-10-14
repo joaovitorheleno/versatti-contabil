@@ -59,7 +59,6 @@ const ListDocumentTypesPage = () => {
 
   const requiresExpiration = Form.useWatch("requiresExpiration", form);
 
-  // Cada código só pode ser usado uma vez; esconde os que já estão cadastrados
   const codeOptions: SelectOption[] = useMemo(() => {
     const usedCodes = new Set(documentTypes.map((type) => type.code));
 

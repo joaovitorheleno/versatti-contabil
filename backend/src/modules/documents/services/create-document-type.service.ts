@@ -13,7 +13,6 @@ export class CreateDocumentTypeService {
     dto: CreateDocumentTypeDto,
     userId: string,
   ): Promise<DocumentTypeEntity> {
-    // withDeleted: o código é único no banco mesmo para tipos excluídos (soft delete)
     const existing = await DocumentTypeEntity.findOne({
       where: { code: dto.code },
       withDeleted: true,

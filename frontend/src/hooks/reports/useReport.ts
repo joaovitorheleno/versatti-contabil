@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { openErrorNotification } from "../../components/notification/error";
 import type { ReportFilters } from "../../service/reports/types";
 
-// Hook genérico: cada relatório passa sua função de busca e os filtros iniciais
 const useReport = <T>(
   fetcher: (filters: ReportFilters) => Promise<T>,
   initialFilters: ReportFilters,
@@ -31,7 +30,6 @@ const useReport = <T>(
     [fetcher],
   );
 
-  // Gera com os filtros padrão ao abrir a aba
   useEffect(() => {
     generate(initialFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps

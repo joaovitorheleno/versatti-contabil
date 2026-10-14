@@ -1,6 +1,3 @@
-// Exportação de relatórios. As bibliotecas são carregadas sob demanda (import dinâmico)
-// para não pesar no carregamento inicial do app.
-
 export type ExportColumn<T> = {
   header: string;
   value: (row: T) => string | number;
@@ -66,7 +63,6 @@ export const exportToExcel = async <T>({
     sheet.getColumn(index + 1).width = column.width ?? 20;
   });
 
-  // Congela o cabeçalho da tabela ao rolar
   sheet.views = [{ state: "frozen", ySplit: headerRow.number }];
 
   const buffer = await workbook.xlsx.writeBuffer();

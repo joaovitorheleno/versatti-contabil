@@ -82,7 +82,6 @@ const useCreateDocument = () => {
     fetchOptions();
   }, [token, navigate, fetchOptions]);
 
-  // Ao trocar o tipo, sugere o alerta padrão e limpa o vencimento se o tipo não usa
   useEffect(() => {
     if (!selectedType) return;
 
@@ -109,7 +108,6 @@ const useCreateDocument = () => {
       visibleToClient: values.visibleToClient,
     };
 
-    // Um documento por arquivo; sem arquivo, cria só o registro
     const payloads =
       files.length === 0
         ? [{ ...baseDocument, title: values.title }]
@@ -130,7 +128,6 @@ const useCreateDocument = () => {
     const failures: string[] = [];
     const createdIds: string[] = [];
 
-    // Envia em sequência para não sobrecarregar o servidor com vários uploads simultâneos
     for (const payload of payloads) {
       try {
         const created = await createDocument(payload);
@@ -166,7 +163,6 @@ const useCreateDocument = () => {
       });
     }
 
-    // Um único e-mail com todos os documentos criados, em vez de um por arquivo
     if (sent > 0 && isAdmin() && values.notifyResponsible) {
       await sendToResponsible(createdIds);
     }

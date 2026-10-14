@@ -1,4 +1,3 @@
-// src/layouts/AppLayout/styles.ts
 import styled from "styled-components";
 
 export const Logo = styled.div`

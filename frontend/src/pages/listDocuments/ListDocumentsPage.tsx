@@ -77,7 +77,6 @@ const ListDocumentsPage = () => {
 
   const [searchParams] = useSearchParams();
 
-  // ?status= vem dos cards e do gráfico de situação do dashboard
   const [statusFilter, setStatusFilter] = useState<string[] | null>(() => {
     const status = searchParams.get("status");
     return status && status in statusConfig ? [status] : null;
@@ -110,7 +109,6 @@ const ListDocumentsPage = () => {
   const getActionMenuItems = (
     record: DocumentListItem,
   ): MenuProps["items"] =>
-    // Nota fiscal em XML: quem baixa escolhe entre o PDF (DANFE) e o XML original
     record.isXml
       ? [
           {

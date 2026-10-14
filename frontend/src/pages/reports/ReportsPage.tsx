@@ -54,7 +54,6 @@ const { RangePicker } = DatePicker;
 const DATE_FORMAT = "DD/MM/YYYY";
 const API_FORMAT = "YYYY-MM-DD";
 
-// Status sempre com ícone + rótulo, nunca só cor
 const statusConfig: Record<
   DocumentStatus | ComplianceStatus,
   { label: string; color: string; icon: ReactNode }
@@ -102,7 +101,6 @@ const describeFilters = (filters: ReportFilters, clients: ClientsResponse[]) => 
   return parts.join(" · ");
 };
 
-// ---------- barra de filtros compartilhada ----------
 
 type FiltersBarProps = {
   filters: ReportFilters;
@@ -227,7 +225,6 @@ const runExport = async <T,>(
   }
 };
 
-// ---------- 1. Vencimentos por período ----------
 
 const ExpirationsReport = ({
   clients,
@@ -378,7 +375,6 @@ const ExpirationsReport = ({
   );
 };
 
-// ---------- 2. Situação documental por empresa ----------
 
 type ComplianceRow = ComplianceReport["clients"][number];
 
@@ -528,7 +524,6 @@ const ComplianceReportTab = ({
   );
 };
 
-// ---------- 3. Documentos enviados ----------
 
 const UploadsReport = ({
   clients,
@@ -672,7 +667,6 @@ const UploadsReport = ({
   );
 };
 
-// ---------- página ----------
 
 const ReportsPage = () => {
   const [clients, setClients] = useState<ClientsResponse[]>([]);

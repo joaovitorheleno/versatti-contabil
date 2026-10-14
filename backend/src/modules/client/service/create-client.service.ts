@@ -33,7 +33,6 @@ interface BrasilApiCepResponse {
   street: string;
 }
 
-// Sem User-Agent, alguns provedores tratam a chamada do servidor como robô e bloqueiam
 const BRASIL_API_REQUEST_CONFIG = {
   timeout: 8000,
   headers: { 'User-Agent': 'Versatti-Contabil/1.0', Accept: 'application/json' },
@@ -62,8 +61,6 @@ export class CreateClientService {
       throw new ConflictException('CNPJ já cadastrado no sistema.');
     }
 
-    // A consulta à BrasilAPI só complementa os dados do formulário. Se ela estiver fora do ar
-    // ou bloquear o servidor, o cadastro segue com o que o usuário preencheu.
     let companyData: BrasilApiCnpjResponse | null = null;
     try {
       const response = await firstValueFrom(

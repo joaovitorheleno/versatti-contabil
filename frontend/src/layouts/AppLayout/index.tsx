@@ -1,4 +1,3 @@
-// src/layouts/AppLayout/index.tsx
 import { useState } from "react";
 import { Layout, Dropdown, Typography } from "antd";
 import {

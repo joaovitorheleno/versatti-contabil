@@ -1,4 +1,3 @@
-// components/date-input/styles.ts
 import styled, { createGlobalStyle } from 'styled-components';
 import { DatePicker } from 'antd';
 
