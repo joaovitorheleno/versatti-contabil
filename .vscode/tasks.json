@@ -1,0 +1,103 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "LOCAL: tudo (banco + backend + frontend)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["LOCAL: banco e Redis (Docker)", "LOCAL: backend + frontend"],
+      "problemMatcher": []
+    },
+    {
+      "label": "LOCAL: backend + frontend",
+      "dependsOn": ["LOCAL: backend", "LOCAL: frontend"],
+      "problemMatcher": []
+    },
+    {
+      "label": "LOCAL: banco e Redis (Docker)",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "LOCAL: rodar migrations",
+      "type": "shell",
+      "command": "yarn migration:run",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "LOCAL: backend",
+      "type": "shell",
+      "command": "yarn start:dev",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "presentation": { "group": "local", "panel": "dedicated" },
+      "problemMatcher": {
+        "owner": "nest",
+        "pattern": { "regexp": "^(.*):(\\d+):(\\d+) - (error) (.*)$", "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5 },
+        "background": {
+          "activesBegin": true,
+          "beginsPattern": "(Starting compilation|File change detected)",
+          "endsPattern": "(Nest application successfully started|Found [1-9]\\d* error)"
+        }
+      }
+    },
+    {
+      "label": "LOCAL: frontend",
+      "type": "shell",
+      "command": "yarn dev",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "presentation": { "group": "local", "panel": "dedicated" },
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": { "regexp": "^__never__$" },
+        "background": { "activesBegin": true, "beginsPattern": "VITE", "endsPattern": "Local:" }
+      }
+    },
+    {
+      "label": "DEV: frontend local usando a API de DEV",
+      "type": "shell",
+      "command": "yarn dev:staging",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "presentation": { "panel": "dedicated" },
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": { "regexp": "^__never__$" },
+        "background": { "activesBegin": true, "beginsPattern": "VITE", "endsPattern": "Local:" }
+      }
+    },
+    {
+      "label": "DEV: túnel do banco (127.0.0.1:54331)",
+      "type": "shell",
+      "command": "railway connect Postgres --tunnel-only -e staging -P 54331",
+      "isBackground": true,
+      "presentation": { "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "DEV: logs do backend",
+      "type": "shell",
+      "command": "railway logs --service versatti-contabil -e staging",
+      "presentation": { "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "PRODUÇÃO: túnel do banco (127.0.0.1:54330)",
+      "type": "shell",
+      "command": "railway connect Postgres --tunnel-only -e production -P 54330",
+      "isBackground": true,
+      "presentation": { "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "PRODUÇÃO: logs do backend",
+      "type": "shell",
+      "command": "railway logs --service versatti-contabil -e production",
+      "presentation": { "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ]
+}

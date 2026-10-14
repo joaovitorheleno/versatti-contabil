@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "LOCAL: depurar backend",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "yarn start:debug",
+      "cwd": "${workspaceFolder}/backend"
+    }
+  ]
+}
