@@ -14,7 +14,7 @@ Ambos fazem deploy automático a cada push na branch configurada (sugestão: `ma
    ```bash
    node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
    ```
-3. Tenha em mãos as credenciais de SMTP (veja a seção de e-mail no `backend/.env.example`).
+3. Tenha uma chave do [Resend](https://resend.com) com o domínio verificado (veja a seção de e-mail no `backend/.env.example`).
 
 ---
 
@@ -38,7 +38,9 @@ Ambos fazem deploy automático a cada push na branch configurada (sugestão: `ma
    | `JWT_SECRET` | o valor gerado no passo 0 |
    | `NODE_ENV` | `production` |
    | `CORS_ORIGINS` | a URL da Vercel (passo 3 abaixo); pode deixar para depois |
-   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | dados do SMTP |
+   | `RESEND_API_KEY` | chave da API do Resend (o Railway bloqueia SMTP fora do plano Pro) |
+   | `MAIL_FROM` | `Versatti Contabilidade <nao-responda@versatticontabilidade.com.br>` |
+   | `MAIL_REPLY_TO` | e-mail do escritório que recebe as respostas dos clientes (opcional) |
 
    As referências `${{...}}` usam a rede privada do Railway (sem SSL, `DB_SSL` fica de fora).
 
@@ -87,7 +89,7 @@ use **Postgres → Connect → Public Network** (essa conexão exige SSL).
 - [ ] Enviar um documento e baixá-lo de volta
 - [ ] Fazer um novo deploy do backend e confirmar que o documento **continua** baixando (prova de que o volume funciona)
 - [ ] Envio de e-mail ao responsável chega (e não cai no spam)
-- [ ] Nenhum aviso `SMTP não configurado` nos logs do Railway
+- [ ] O log do Railway mostra `Envio de e-mail via API do Resend`
 
 ---
 
