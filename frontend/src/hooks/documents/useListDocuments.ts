@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAdmin } from "../../common/auth/user-is-admin";
 import { openErrorNotification } from "../../components/notification/error";
 import { listClients, listUserClients } from "../../service/client/integration";
@@ -45,7 +45,12 @@ const useListDocuments = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [documents, setDocuments] = useState<DocumentListItem[]>([]);
   const [clients, setClients] = useState<ClientsResponse[]>([]);
-  const [clientId, setClientId] = useState<string | undefined>(undefined);
+  const [searchParams] = useSearchParams();
+
+  // ?clientId= vem do dashboard ("Ver documentos" de uma empresa com pendências)
+  const [clientId, setClientId] = useState<string | undefined>(
+    searchParams.get("clientId") ?? undefined,
+  );
   const [fileLoadingId, setFileLoadingId] = useState<string | null>(null);
 
   const token = localStorage.getItem("@versatti:token");

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { deleteClient } from "../../service/client/integration";
-import { Modal } from "antd";
 import { openSuccessNotification } from "../../components/notification/success";
 
 interface ClientTableData {

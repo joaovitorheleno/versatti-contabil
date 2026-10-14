@@ -1,8 +1,7 @@
 // src/layouts/AppLayout/index.tsx
 import { useState } from "react";
-import { Layout, Avatar, Dropdown, Typography } from "antd";
+import { Layout, Dropdown, Typography } from "antd";
 import {
-  UserOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,

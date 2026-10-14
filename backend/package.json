@@ -1,6 +1,9 @@
 {
   "name": "backend",
   "version": "0.0.1",
+  "engines": {
+    "node": ">=22"
+  },
   "description": "",
   "author": "",
   "private": true,
@@ -22,7 +25,8 @@
     "migration:create": "node -e \"require('child_process').execSync('typeorm-ts-node-commonjs migration:create src/migrations/' + process.argv[1], {stdio:'inherit'})\"",
     "migration:generate": "node -e \"require('child_process').execSync('typeorm-ts-node-commonjs migration:generate -d src/data-source.ts src/migrations/' + process.argv[1], {stdio:'inherit'})\"",
     "migration:run": "yarn typeorm migration:run -d src/data-source.ts",
-    "migration:revert": "yarn typeorm migration:revert -d src/data-source.ts"
+    "migration:revert": "yarn typeorm migration:revert -d src/data-source.ts",
+    "migration:run:prod": "typeorm migration:run -d dist/data-source.js"
   },
   "dependencies": {
     "@alexssmusica/node-pdf-nfe": "1.2.24",

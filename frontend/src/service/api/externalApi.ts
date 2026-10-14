@@ -1,6 +1,5 @@
 import axios from "axios";
 import type { CnpjResponse, CepResponse } from "./types";
-import { openErrorNotification } from "../../components/notification/error";
 
 export const fetchCnpjData = async (
   cnpj: string,

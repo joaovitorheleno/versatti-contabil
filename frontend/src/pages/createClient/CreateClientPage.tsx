@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Form, message, Spin } from "antd";
+import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { TaxRegimeEnum } from "../../common/enum/tax-regime.enum";
 import FormComponent from "../../components/form/FormComponent";
@@ -10,7 +9,6 @@ import SelectComponent, {
 } from "../../components/selectButton/SelectComponent";
 import { maskCnpj } from "../../functions/maskCnpj";
 import { maskCep } from "../../functions/maskCep";
-import { fetchCepData, fetchCnpjData } from "../../service/api/externalApi";
 import * as S from "./styles";
 import type { FormClientType } from "./types";
 import { maskPhone } from "../../functions/maskPhone";

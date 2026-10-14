@@ -30,7 +30,7 @@ const useListClients = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [clients, setClients] = useState<ClientResponse[]>([]);
   const [mensagem, setMensagem] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
+  const [, setOpen] = useState<boolean>(false);
 
   const navigate = useNavigate();
 

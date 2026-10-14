@@ -16,6 +16,8 @@ import { isAdmin } from "./common/auth/user-is-admin";
 import ListDocumentsPage from "./pages/listDocuments/ListDocumentsPage";
 import CreateDocumentPage from "./pages/createDocument/CreateDocumentPage";
 import ListDocumentTypesPage from "./pages/listDocumentTypes/ListDocumentTypesPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
+import ReportsPage from "./pages/reports/ReportsPage";
 
 function MainLayout() {
   return (
@@ -43,6 +45,8 @@ function MainLayout() {
                 />
               </>
             )}
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/relatorios" element={<ReportsPage />} />
             <Route path="/clients" element={<ListClientsPage />} />
             <Route path="/documents" element={<ListDocumentsPage />} />
             <Route

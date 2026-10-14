@@ -1,5 +1,4 @@
 import { Empty, Typography } from "antd";
-import { versattiIcon512 } from "../../assets";
 
 const { Text } = Typography;
 

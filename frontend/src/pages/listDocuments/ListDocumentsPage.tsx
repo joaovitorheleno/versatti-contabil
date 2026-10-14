@@ -19,6 +19,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { isAdmin } from "../../common/auth/user-is-admin";
 import { documentCategoryLabels } from "../../common/enum/document-category.enum";
 import SubmitButton from "../../components/button/SubmitButton";
@@ -73,6 +74,14 @@ const ListDocumentsPage = () => {
   } = useListDocuments();
 
   const [search, setSearch] = useState("");
+
+  const [searchParams] = useSearchParams();
+
+  // ?status= vem dos cards e do gráfico de situação do dashboard
+  const [statusFilter, setStatusFilter] = useState<string[] | null>(() => {
+    const status = searchParams.get("status");
+    return status && status in statusConfig ? [status] : null;
+  });
 
   const admin = isAdmin();
 
@@ -221,6 +230,7 @@ const ListDocumentsPage = () => {
         text: config.label,
         value,
       })),
+      filteredValue: statusFilter,
       onFilter: (value, record) => getDocumentStatus(record) === value,
       render: (_, record) => {
         const status = statusConfig[getDocumentStatus(record)];
@@ -321,6 +331,9 @@ const ListDocumentsPage = () => {
           pagination={{ pageSize: 10, simple: true }}
           scroll={{ x: 900 }}
           showSorterTooltip={false}
+          onChange={(_, filters) =>
+            setStatusFilter((filters.status as string[] | null) ?? null)
+          }
           style={{ marginTop: 16, width: "100%" }}
           locale={{
             emptyText: (

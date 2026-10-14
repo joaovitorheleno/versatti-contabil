@@ -2,6 +2,9 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,10 +16,14 @@
     "@ant-design/icons": "^6.3.4",
     "@emailjs/browser": "^4.4.1",
     "axios": "^1.19.0",
+    "exceljs": "4.4.0",
+    "jspdf": "4.2.1",
+    "jspdf-autotable": "5.0.8",
     "jwt-decode": "^4.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",
+    "recharts": "3.10.1",
     "styled-components": "^6.5.3"
   },
   "devDependencies": {
