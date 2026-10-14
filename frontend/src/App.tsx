@@ -13,6 +13,9 @@ import CreateUserPage from "./pages/createUser/CreateUserPage";
 import ListClientsPage from "./pages/listClients/ListClientsPage";
 import CreateClientPage from "./pages/createClient/CreateClientPage";
 import { isAdmin } from "./common/auth/user-is-admin";
+import ListDocumentsPage from "./pages/listDocuments/ListDocumentsPage";
+import CreateDocumentPage from "./pages/createDocument/CreateDocumentPage";
+import ListDocumentTypesPage from "./pages/listDocumentTypes/ListDocumentTypesPage";
 
 function MainLayout() {
   return (
@@ -34,9 +37,18 @@ function MainLayout() {
                   path="/clients/register"
                   element={<CreateClientPage />}
                 />
+                <Route
+                  path="/document-types"
+                  element={<ListDocumentTypesPage />}
+                />
               </>
             )}
             <Route path="/clients" element={<ListClientsPage />} />
+            <Route path="/documents" element={<ListDocumentsPage />} />
+            <Route
+              path="/documents/register"
+              element={<CreateDocumentPage />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

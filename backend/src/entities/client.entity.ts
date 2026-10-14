@@ -29,6 +29,9 @@ export class ClientEntity extends CrudEntity {
   @Column('varchar', { nullable: false, length: 20 })
   phone!: string;
 
+  @Column('varchar', { name: 'responsible_email', nullable: true })
+  responsibleEmail?: string | null;
+
   @Column('varchar', { name: 'contact_person', nullable: true })
   contactPerson?: string;
 

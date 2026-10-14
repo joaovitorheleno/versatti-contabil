@@ -168,15 +168,31 @@ const CreateClientPage = () => {
             </FormItemComponent>
           </S.FieldRow>
 
-          <FormItemComponent<FormClientType>
-            name="nfeEmail"
-            rules={[{ type: "email", message: "Insira um e-mail válido" }]}
-            getValueFromEvent={(e) => e.target.value}
-            layout="vertical"
-            label="E-mail para NF-e"
-          >
-            <InputComponent placeholder="Ex: nfe@empresa.com.br" allowClear />
-          </FormItemComponent>
+          <S.FieldRow>
+            <FormItemComponent<FormClientType>
+              name="nfeEmail"
+              rules={[{ type: "email", message: "Insira um e-mail válido" }]}
+              getValueFromEvent={(e) => e.target.value}
+              layout="vertical"
+              label="E-mail para NF-e"
+            >
+              <InputComponent placeholder="Ex: nfe@empresa.com.br" allowClear />
+            </FormItemComponent>
+
+            <FormItemComponent<FormClientType>
+              name="responsibleEmail"
+              rules={[{ type: "email", message: "Insira um e-mail válido" }]}
+              getValueFromEvent={(e) => e.target.value}
+              layout="vertical"
+              label="E-mail do responsável"
+              extra="Recebe por e-mail os documentos enviados para esta empresa"
+            >
+              <InputComponent
+                placeholder="Ex: responsavel@empresa.com.br"
+                allowClear
+              />
+            </FormItemComponent>
+          </S.FieldRow>
 
           <S.FieldRow>
             <Spin spinning={loadingCep}>

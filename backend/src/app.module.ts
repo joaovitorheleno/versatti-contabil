@@ -7,6 +7,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
+import { DocumentModule } from './modules/documents/documents.module';
 
 @Module({
   imports: [
@@ -16,13 +17,14 @@ import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
     TypeOrmModule.forRoot(typeOrmConfig),
     ClientModule,
     UserModule,
-    AuthModule
+    AuthModule,
+    DocumentModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-  ]
+  ],
 })
 export class AppModule {}

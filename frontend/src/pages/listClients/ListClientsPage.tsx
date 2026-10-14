@@ -53,6 +53,7 @@ interface ClientTableData {
   municipalRegistration: string;
   phone: string;
   nfeEmail: string;
+  responsibleEmail: string;
   contactPerson: string;
   zipCode: string;
   street: string;
@@ -134,6 +135,7 @@ const ListClientsPage = () => {
               : "",
           phone: client.phone || "",
           nfeEmail: client.nfeEmail || "",
+          responsibleEmail: client.responsibleEmail || "",
           contactPerson: client.contactPerson || "",
           zipCode: client.zipCode || "",
           street: client.street || "",
@@ -407,13 +409,23 @@ const ListClientsPage = () => {
                   </FormItemComponent>
                 </S.FieldRow>
 
-                <FormItemComponent
-                  name="nfeEmail"
-                  layout="vertical"
-                  label="E-mail para NF-e"
-                >
-                  <InputComponent disabled variant="filled" />
-                </FormItemComponent>
+                <S.FieldRow>
+                  <FormItemComponent
+                    name="nfeEmail"
+                    layout="vertical"
+                    label="E-mail para NF-e"
+                  >
+                    <InputComponent disabled variant="filled" />
+                  </FormItemComponent>
+
+                  <FormItemComponent
+                    name="responsibleEmail"
+                    layout="vertical"
+                    label="E-mail do responsável"
+                  >
+                    <InputComponent disabled variant="filled" />
+                  </FormItemComponent>
+                </S.FieldRow>
 
                 <S.FieldRow>
                   <FormItemComponent
@@ -594,6 +606,20 @@ const ListClientsPage = () => {
               <InputComponent
                 variant="underlined"
                 placeholder="Ex: joaoteste@gmail.com"
+                allowClear
+              />
+            </FormItemComponent>
+
+            <FormItemComponent
+              name="responsibleEmail"
+              layout="vertical"
+              label="E-mail do responsável"
+              rules={[{ type: "email", message: "Insira um e-mail válido" }]}
+              extra="Recebe por e-mail os documentos enviados para esta empresa"
+            >
+              <InputComponent
+                variant="underlined"
+                placeholder="Ex: responsavel@empresa.com.br"
                 allowClear
               />
             </FormItemComponent>

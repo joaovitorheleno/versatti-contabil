@@ -69,6 +69,17 @@ export class EditClientDto {
   @IsOptional()
   nfeEmail?: string | undefined;
 
+  // '' vira null para permitir apagar o e-mail na edição
+  @Transform(({ value }) => (value === '' ? null : value))
+  @IsEmail({}, { message: 'E-mail do responsável inválido' })
+  @IsOptional()
+  @ApiPropertyOptional({
+    description:
+      'E-mail do responsável pela empresa. Recebe os documentos enviados pelo escritório',
+    example: 'responsavel@empresateste.com.br',
+  })
+  responsibleEmail?: string | null;
+
   @IsString({ message: 'O telefone deve ser uma string' })
   @IsOptional()
   @ApiPropertyOptional({

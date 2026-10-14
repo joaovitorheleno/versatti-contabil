@@ -9,6 +9,7 @@ export type FormClientType = {
   stateRegistration?: number | undefined;
   municipalRegistration?: number | undefined;
   nfeEmail?: string | undefined;
+  responsibleEmail?: string | undefined;
   phone: string;
   contactPerson?: string | undefined;
   zipCode: string;

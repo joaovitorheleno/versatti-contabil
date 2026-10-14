@@ -3,8 +3,8 @@ import {
   TeamOutlined,
   DashboardOutlined,
   FileTextOutlined,
-  SettingOutlined,
   InsertRowLeftOutlined,
+  TagsOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as S from "./styles";
@@ -21,6 +21,12 @@ const menuItems = [
   { key: "/clients", icon: <InsertRowLeftOutlined />, label: "Clientes" },
   { key: "/relatorios", icon: <FileTextOutlined />, label: "Relatórios" },
   { key: "/documents", icon: <FileTextOutlined />, label: "Documentos" },
+  {
+    key: "/document-types",
+    icon: <TagsOutlined />,
+    label: "Tipos de Documento",
+    adminOnly: true,
+  },
 ];
 
 interface SidebarProps {

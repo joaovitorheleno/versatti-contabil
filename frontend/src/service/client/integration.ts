@@ -22,6 +22,7 @@ export const listClients = async (): Promise<ClientsResponse[]> => {
       stateRegistration: client.stateRegistration || "",
       municipalRegistration: client.municipalRegistration || "",
       nfeEmail: client.nfeEmail || undefined,
+      responsibleEmail: client.responsibleEmail || null,
       phone: client.phone,
       contactPerson: client.contactPerson || "",
       zipCode: client.zipCode,

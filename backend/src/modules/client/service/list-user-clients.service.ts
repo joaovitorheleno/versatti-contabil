@@ -23,6 +23,7 @@ export class ListUserClientsService {
           'client.stateRegistration',
           'client.municipalRegistration',
           'client.nfeEmail',
+          'client.responsibleEmail',
           'client.phone',
           'client.contactPerson',
           'client.zipCode',

@@ -25,6 +25,7 @@
     "migration:revert": "yarn typeorm migration:revert -d src/data-source.ts"
   },
   "dependencies": {
+    "@alexssmusica/node-pdf-nfe": "1.2.24",
     "@nestjs/axios": "^12.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
@@ -40,6 +41,7 @@
     "class-validator": "^0.15.1",
     "cpf-cnpj-validator": "^2.1.2",
     "ioredis": "^5.11.1",
+    "nodemailer": "^10.1.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.23.0",
@@ -59,7 +61,9 @@
     "@types/express": "^5.0.0",
     "@types/ioredis": "^4.28.10",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.3.0",
     "@types/node": "^24.0.0",
+    "@types/nodemailer": "^8.0.2",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.0.0",
     "cross-var": "^1.1.0",

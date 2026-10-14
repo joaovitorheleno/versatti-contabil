@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -69,6 +70,16 @@ export class CreateClientDto {
     example: 'fiscal@empresateste.com.br',
   })
   nfeEmail?: string | undefined;
+
+  @Transform(({ value }) => (value === '' ? undefined : value))
+  @IsEmail({}, { message: 'E-mail do responsável inválido' })
+  @IsOptional()
+  @ApiPropertyOptional({
+    description:
+      'E-mail do responsável pela empresa. Recebe os documentos enviados pelo escritório',
+    example: 'responsavel@empresateste.com.br',
+  })
+  responsibleEmail?: string | undefined;
 
   @IsString({ message: 'O telefone deve ser uma string' })
   @IsNotEmpty({ message: 'O telefone é obrigatório' })

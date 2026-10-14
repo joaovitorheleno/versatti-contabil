@@ -18,6 +18,7 @@ interface ClientTableData {
   municipalRegistration: string;
   phone: string;
   nfeEmail: string;
+  responsibleEmail: string;
   contactPerson: string;
 }
 
@@ -76,6 +77,7 @@ const useEditClient = (onSuccess?: () => void) => {
       municipalRegistration: client.municipalRegistration || "",
       phone: maskPhone(client.phone) || "",
       nfeEmail: client.nfeEmail || "",
+      responsibleEmail: client.responsibleEmail || "",
       contactPerson: client.contactPerson || "",
     });
     setIsEditModalOpen(true);
