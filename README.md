@@ -41,6 +41,8 @@ O escritório atende dezenas de empresas e cada uma tem documentos com prazo de 
 
 ## Telas
 
+> Dados pessoais, CNPJs e nomes de documentos foram ocultados nas imagens.
+
 ### Dashboard
 Indicadores de vencimento, situação dos documentos, envios por mês e volume por categoria.
 
@@ -67,7 +69,7 @@ Tipos configuráveis pelo escritório, com categoria, regra de vencimento e aler
 ![Tipos de documento](docs/screenshots/tipos-de-documento.png)
 
 ### Usuários
-Gestão de acessos do escritório e das empresas clientes (dados pessoais ocultados).
+Gestão de acessos do escritório e das empresas clientes.
 
 ![Usuários](docs/screenshots/usuarios.png)
 
