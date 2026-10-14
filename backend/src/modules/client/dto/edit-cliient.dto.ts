@@ -69,7 +69,6 @@ export class EditClientDto {
   @IsOptional()
   nfeEmail?: string | undefined;
 
-  // '' vira null para permitir apagar o e-mail na edição
   @Transform(({ value }) => (value === '' ? null : value))
   @IsEmail({}, { message: 'E-mail do responsável inválido' })
   @IsOptional()
@@ -95,11 +94,4 @@ export class EditClientDto {
     example: 'João Silva',
   })
   contactPerson?: string | undefined;
-
-  // @IsBoolean()
-  // @IsOptional()
-  // @ApiPropertyOptional({
-  //   description: 'Indica se o cliente está ativo no sistema',
-  // })
-  // isActive?: boolean;
 }

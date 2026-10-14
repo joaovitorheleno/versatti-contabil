@@ -84,9 +84,6 @@ export const FormCard = styled.div`
   }
 `;
 
-// minmax(0, 1fr) deixa a coluna encolher abaixo da largura do conteúdo;
-// com 1fr puro, o select de tipo empurrava o layout para fora do card.
-// O breakpoint é maior que o de celular porque o sidebar ocupa 240px da tela.
 export const FieldRow = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

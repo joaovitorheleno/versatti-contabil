@@ -40,7 +40,6 @@ export class MailService {
     this.transporter = createTransport({
       host,
       port,
-      // 465 usa TLS direto; 587 usa STARTTLS
       secure: port === 465,
       auth: { user, pass },
     });

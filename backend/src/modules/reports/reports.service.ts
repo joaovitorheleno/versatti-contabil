@@ -33,7 +33,6 @@ const daysBetween = (from: string, to: string) =>
       86_400_000,
   );
 
-// Mesma regra de status da listagem de documentos e do dashboard
 const getStatus = (
   expirationDate: string | null,
   alertDays: number | null,
@@ -47,7 +46,6 @@ const getStatus = (
 
 @Injectable()
 export class ReportsService {
-  // Documentos ativos dentro do escopo do usuário (admin: todos; comum: suas empresas e visíveis)
   private scopedDocuments(
     user: CurrentUser,
     filters: ReportQueryDto,
@@ -133,8 +131,6 @@ export class ReportsService {
     try {
       const today = todayKey();
 
-      // Tipos esperados: os que exigem vencimento (alvarás, certidões, certificados...).
-      // Documentos sem vencimento (notas, contratos) não entram no checklist.
       const typesQuery = DocumentTypeEntity.createQueryBuilder('type')
         .where('type.active = :active', { active: true })
         .andWhere('type.requiresExpiration = :requires', { requires: true })
@@ -179,7 +175,6 @@ export class ReportsService {
         })
         .getMany();
 
-      // Para cada empresa + tipo, vale o documento com o vencimento mais distante (o mais recente)
       const latest = new Map<string, DocumentEntity>();
       documents.forEach((document) => {
         const key = `${document.client.id}:${document.documentType.id}`;
@@ -246,7 +241,6 @@ export class ReportsService {
         .orderBy('document.createdAt', 'DESC')
         .getMany();
 
-      // createdBy guarda só o ID; busca os nomes de uma vez
       const userIds = [
         ...new Set(documents.map((d) => d.createdBy).filter(Boolean)),
       ] as string[];

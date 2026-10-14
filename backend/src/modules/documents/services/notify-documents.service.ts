@@ -10,7 +10,6 @@ import { DocumentEntity } from '../../../entities/documents.entity';
 import { MailService, type MailAttachment } from '../../mail/mail.service';
 import { StorageService } from '../../storage/storage.service';
 
-// A maioria dos provedores SMTP recusa mensagens acima de ~25 MB
 const MAX_ATTACHMENTS_SIZE = 20 * 1024 * 1024;
 
 export interface NotifyResult {
@@ -45,7 +44,6 @@ export class NotifyDocumentsService {
       );
     }
 
-    // withDeleted para manter o tipo mesmo que tenha sido excluído (soft delete)
     const documents = (
       await DocumentEntity.find({
         where: { id: In(documentIds), active: true },
@@ -76,7 +74,6 @@ export class NotifyDocumentsService {
         continue;
       }
 
-      // Documento marcado como não visível ao cliente não sai por e-mail
       const visibleDocuments = clientDocuments.filter((d) => d.visibleToClient);
 
       if (visibleDocuments.length === 0) {

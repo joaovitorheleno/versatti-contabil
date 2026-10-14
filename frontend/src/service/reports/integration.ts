@@ -11,7 +11,6 @@ import type {
 const getReport = async <T>(path: string, filters: ReportFilters): Promise<T> => {
   const token = getToken();
 
-  // Remove filtros vazios para não mandar "clientId=" na URL
   const params = Object.fromEntries(
     Object.entries(filters).filter(([, value]) => value),
   );

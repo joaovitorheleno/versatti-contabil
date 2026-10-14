@@ -33,7 +33,6 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const ACCEPTED_FILES = ".xml,.pdf,.png,.jpg,.jpeg,.docx,.xlsx";
 
-// Notas fiscais costumam vir em lote, um XML por nota
 const MAX_FILES = 50;
 
 const CreateDocumentPage = () => {

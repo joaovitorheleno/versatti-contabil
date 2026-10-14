@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { UserRole } from '../../enum/user-role.enum';
 
-// Use depois do JwtAuthGuard: depende do req.user preenchido pela JwtStrategy
 @Injectable()
 export class AdminGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {

@@ -21,22 +21,19 @@ const PREVIEWABLE_MIME_TYPES = [
   "text/xml",
 ];
 
-// Com responseType "blob", a mensagem de erro do backend também chega como Blob
 const getBlobErrorMessage = async (error: any): Promise<string> => {
   const data = error?.response?.data;
 
-  if (data instanceof Blob) {
-    try {
-      const json = JSON.parse(await data.text());
-      return Array.isArray(json.message)
-        ? json.message.join(", ")
-        : json.message;
-    } catch {
-      // resposta não era JSON; cai na mensagem genérica
-    }
-  }
+  const fallback = error?.message || String(error);
 
-  return error?.message || String(error);
+  if (!(data instanceof Blob)) return fallback;
+
+  try {
+    const json = JSON.parse(await data.text());
+    return Array.isArray(json.message) ? json.message.join(", ") : json.message;
+  } catch {
+    return fallback;
+  }
 };
 
 const useListDocuments = () => {
@@ -47,7 +44,6 @@ const useListDocuments = () => {
   const [clients, setClients] = useState<ClientsResponse[]>([]);
   const [searchParams] = useSearchParams();
 
-  // ?clientId= vem do dashboard ("Ver documentos" de uma empresa com pendências)
   const [clientId, setClientId] = useState<string | undefined>(
     searchParams.get("clientId") ?? undefined,
   );
@@ -115,7 +111,6 @@ const useListDocuments = () => {
       const blob = await getDocumentFile(document.id, format);
       const url = URL.createObjectURL(blob);
 
-      // PDF gerado a partir do XML (DANFE) é sempre PDF, independente do arquivo original
       const mime = format === "pdf" ? "application/pdf" : document.fileMime;
       const baseName = document.fileName ?? "documento";
       const fileName =
@@ -135,7 +130,6 @@ const useListDocuments = () => {
         link.click();
       }
 
-      // Dá tempo da nova aba carregar o arquivo antes de liberar a URL
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e: any) {
       openErrorNotification({

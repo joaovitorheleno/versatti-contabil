@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-// Em produção (Railway) basta DATABASE_URL; localmente continuam valendo as DB_*
 const connection = process.env.DATABASE_URL
   ? {
       url: process.env.DATABASE_URL,

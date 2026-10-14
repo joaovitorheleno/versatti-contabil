@@ -89,7 +89,6 @@ export class DownloadDocumentService {
       throw new BadRequestException('Este documento não é um arquivo XML');
     }
 
-    // PDF de um XML: gera o DANFE na hora a partir da nota
     if (format === 'pdf' && isXml) {
       return {
         stream: await this.generateDanfe(path),
@@ -114,8 +113,6 @@ export class DownloadDocumentService {
   private async generateDanfe(path: string): Promise<Readable> {
     const xml = await fs.readFile(path, 'utf-8');
 
-    // A biblioteca só entende NF-e (modelo 55) e NFC-e (65) autorizadas, com <nfeProc>.
-    // NFS-e e CT-e têm layouts próprios e não geram DANFE.
     if (!/<nfeProc[\s>]/.test(xml)) {
       throw new UnprocessableEntityException(
         'Não foi possível gerar o PDF: o XML não é de uma NF-e/NFC-e autorizada (sem <nfeProc>). Baixe o XML.',
