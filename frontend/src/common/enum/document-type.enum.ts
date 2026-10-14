@@ -1,0 +1,34 @@
+export const DocumentTypeEnum = {
+  // Licenças
+  ALVARA: 'ALVARA',
+  LICENCA_BOMBEIROS: 'LICENCA_BOMBEIROS',
+  LICENCA_SANITARIA: 'LICENCA_SANITARIA',
+
+  // Certidões
+  CND_FEDERAL: 'CND_FEDERAL',
+  CND_ESTADUAL: 'CND_ESTADUAL',
+  CND_MUNICIPAL: 'CND_MUNICIPAL',
+  CRF_FGTS: 'CRF_FGTS',
+  CNDT: 'CNDT',
+
+  // Certificados digitais
+  CERT_ECNPJ: 'CERT_ECNPJ',
+  CERT_ECPF: 'CERT_ECPF',
+
+  // Notas fiscais
+  NFE_ENTRADA: 'NFE_ENTRADA',
+  NFE_SAIDA: 'NFE_SAIDA',
+  NFCE: 'NFCE',
+  NFSE: 'NFSE',
+  CTE: 'CTE',
+
+  // Societários
+  CONTRATO_SOCIAL: 'CONTRATO_SOCIAL',
+  ALTERACAO_CONTRATUAL: 'ALTERACAO_CONTRATUAL',
+  ATA: 'ATA',
+
+  OUTRO: 'OUTRO',
+} as const;
+
+export type DocumentTypeEnum =
+  (typeof DocumentTypeEnum)[keyof typeof DocumentTypeEnum];

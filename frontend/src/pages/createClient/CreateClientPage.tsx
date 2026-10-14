@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Form, message, Spin } from "antd";
+import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { TaxRegimeEnum } from "../../common/enum/tax-regime.enum";
 import FormComponent from "../../components/form/FormComponent";
@@ -10,7 +9,6 @@ import SelectComponent, {
 } from "../../components/selectButton/SelectComponent";
 import { maskCnpj } from "../../functions/maskCnpj";
 import { maskCep } from "../../functions/maskCep";
-import { fetchCepData, fetchCnpjData } from "../../service/api/externalApi";
 import * as S from "./styles";
 import type { FormClientType } from "./types";
 import { maskPhone } from "../../functions/maskPhone";
@@ -168,15 +166,31 @@ const CreateClientPage = () => {
             </FormItemComponent>
           </S.FieldRow>
 
-          <FormItemComponent<FormClientType>
-            name="nfeEmail"
-            rules={[{ type: "email", message: "Insira um e-mail válido" }]}
-            getValueFromEvent={(e) => e.target.value}
-            layout="vertical"
-            label="E-mail para NF-e"
-          >
-            <InputComponent placeholder="Ex: nfe@empresa.com.br" allowClear />
-          </FormItemComponent>
+          <S.FieldRow>
+            <FormItemComponent<FormClientType>
+              name="nfeEmail"
+              rules={[{ type: "email", message: "Insira um e-mail válido" }]}
+              getValueFromEvent={(e) => e.target.value}
+              layout="vertical"
+              label="E-mail para NF-e"
+            >
+              <InputComponent placeholder="Ex: nfe@empresa.com.br" allowClear />
+            </FormItemComponent>
+
+            <FormItemComponent<FormClientType>
+              name="responsibleEmail"
+              rules={[{ type: "email", message: "Insira um e-mail válido" }]}
+              getValueFromEvent={(e) => e.target.value}
+              layout="vertical"
+              label="E-mail do responsável"
+              extra="Recebe por e-mail os documentos enviados para esta empresa"
+            >
+              <InputComponent
+                placeholder="Ex: responsavel@empresa.com.br"
+                allowClear
+              />
+            </FormItemComponent>
+          </S.FieldRow>
 
           <S.FieldRow>
             <Spin spinning={loadingCep}>

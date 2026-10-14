@@ -22,6 +22,7 @@ export const listClients = async (): Promise<ClientsResponse[]> => {
       stateRegistration: client.stateRegistration || "",
       municipalRegistration: client.municipalRegistration || "",
       nfeEmail: client.nfeEmail || undefined,
+      responsibleEmail: client.responsibleEmail || null,
       phone: client.phone,
       contactPerson: client.contactPerson || "",
       zipCode: client.zipCode,
@@ -66,6 +67,18 @@ export const deleteClient = async (id: string) => {
   const token = getToken();
 
   const response = await axios.delete(`${BASE_URL}/client/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const listUserClients = async (): Promise<ClientsResponse[]> => {
+  const token = getToken();
+
+  const response = await axios.get(`${BASE_URL}/client/userClients`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

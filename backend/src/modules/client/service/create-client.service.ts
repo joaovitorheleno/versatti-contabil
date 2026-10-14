@@ -110,6 +110,7 @@ export class CreateClientService {
     client.municipalRegistration = clientData.municipalRegistration;
 
     client.nfeEmail = clientData.nfeEmail || companyData?.email;
+    client.responsibleEmail = clientData.responsibleEmail || null;
     client.phone = clientData.phone || companyData?.ddd_telefone_1 || '';
     client.contactPerson = clientData.contactPerson;
 

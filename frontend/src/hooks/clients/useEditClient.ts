@@ -2,8 +2,6 @@ import { Form } from "antd";
 import { useState } from "react";
 import { maskCnpj } from "../../functions/maskCnpj";
 import { maskPhone } from "../../functions/maskPhone";
-import axios from "axios";
-import { BASE_URL } from "../../config/url/baseUrl";
 import { editClient } from "../../service/client/integration";
 import { openErrorNotification } from "../../components/notification/error";
 import { openSuccessNotification } from "../../components/notification/success";
@@ -18,6 +16,7 @@ interface ClientTableData {
   municipalRegistration: string;
   phone: string;
   nfeEmail: string;
+  responsibleEmail: string;
   contactPerson: string;
 }
 
@@ -76,6 +75,7 @@ const useEditClient = (onSuccess?: () => void) => {
       municipalRegistration: client.municipalRegistration || "",
       phone: maskPhone(client.phone) || "",
       nfeEmail: client.nfeEmail || "",
+      responsibleEmail: client.responsibleEmail || "",
       contactPerson: client.contactPerson || "",
     });
     setIsEditModalOpen(true);

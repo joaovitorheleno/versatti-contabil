@@ -8,6 +8,7 @@ export type ClientsResponse = {
   municipalRegistration?: number | undefined;
   phone: string;
   nfeEmail?: string | undefined;
+  responsibleEmail?: string | null;
   contactPerson?: string | undefined;
   zipCode: string;
   street: string;
@@ -28,5 +29,6 @@ export type EditClientType = {
   municipalRegistration?: number | undefined;
   phone: string;
   nfeEmail?: string | undefined;
+  responsibleEmail?: string | null;
   contactPerson?: string | undefined;
 };

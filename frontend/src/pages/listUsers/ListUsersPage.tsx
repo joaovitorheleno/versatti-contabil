@@ -34,6 +34,7 @@ import useListUsers from "../../hooks/users/useListUsers";
 import useListClients from "../../hooks/clients/useListClients";
 import DateComponent from "../../components/date/DateComponent";
 import dayjs, { Dayjs } from "dayjs";
+import EmptyState from "../../components/empty/Empty";
 
 const { Text } = Typography;
 
@@ -346,6 +347,18 @@ const ListUsersPage = () => {
           scroll={{ x: 500 }}
           showSorterTooltip={false}
           style={{ marginTop: 16, width: "100%" }}
+          locale={{
+            emptyText: (
+              <EmptyState
+                title={
+                  search
+                    ? "Nenhum usuário corresponde à busca"
+                    : "Nenhum usuário cadastrado"
+                }
+                description={search ? "Tente outro nome ou email." : undefined}
+              />
+            ),
+          }}
         />
 
         {mensagem && <Text type="secondary">{mensagem}</Text>}
