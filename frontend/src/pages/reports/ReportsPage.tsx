@@ -46,6 +46,13 @@ import type {
   ReportFilters,
   UploadReportRow,
 } from "../../service/reports/types";
+import {
+  auditActionLabels,
+  listAuditLogs,
+  type AuditAction,
+  type AuditFilters,
+  type AuditLog,
+} from "../../service/audit/integration";
 import * as S from "./styles";
 
 const { Text } = Typography;
@@ -668,6 +675,190 @@ const UploadsReport = ({
 };
 
 
+const auditActionOptions: SelectOption[] = (
+  Object.keys(auditActionLabels) as AuditAction[]
+).map((action) => ({ value: action, label: auditActionLabels[action] }));
+
+const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
+  const [filters, setFilters] = useState<AuditFilters>({
+    from: dayjs().subtract(30, "day").format(API_FORMAT),
+    to: dayjs().format(API_FORMAT),
+  });
+  const [rows, setRows] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState<"excel" | "pdf" | null>(null);
+
+  const generate = async (next: AuditFilters = filters) => {
+    try {
+      setLoading(true);
+      setRows(await listAuditLogs(next));
+    } catch (e: any) {
+      openErrorNotification({
+        title: "Falha ao carregar o registro de acessos",
+        description: e?.response?.data?.message || e?.message || String(e),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const formatDateTime = (date: string) => dayjs(date).format("DD/MM/YYYY HH:mm:ss");
+
+  const handleExport = async (format: "excel" | "pdf") => {
+    setExporting(format);
+    await runExport(format, {
+      fileName: `registro_acessos_${filters.from}_${filters.to}`,
+      title: "Registro de acessos",
+      subtitle: `${formatDate(filters.from ?? null)} a ${formatDate(filters.to ?? null)}`,
+      rows,
+      columns: [
+        { header: "Data e hora", value: (r) => formatDateTime(r.createdAt), width: 20 },
+        { header: "Ação", value: (r) => auditActionLabels[r.action], width: 28 },
+        { header: "Usuário", value: (r) => r.user?.name ?? "-", width: 28 },
+        { header: "Empresa", value: (r) => r.client?.name ?? "-", width: 34 },
+        { header: "Detalhe", value: (r) => r.description ?? "", width: 36 },
+        { header: "IP", value: (r) => r.ip ?? "", width: 18 },
+      ],
+    });
+    setExporting(null);
+  };
+
+  const columns: ColumnsType<AuditLog> = [
+    {
+      title: "Data e hora",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 170,
+      render: (date: string) => formatDateTime(date),
+    },
+    {
+      title: "Ação",
+      dataIndex: "action",
+      key: "action",
+      render: (action: AuditAction) => (
+        <Tag color={action === "LOGIN_FAILED" ? "red" : "default"}>
+          {auditActionLabels[action]}
+        </Tag>
+      ),
+    },
+    {
+      title: "Usuário",
+      key: "user",
+      render: (_, record) => record.user?.name ?? <Text type="secondary">-</Text>,
+    },
+    {
+      title: "Empresa",
+      key: "client",
+      render: (_, record) => record.client?.name ?? <Text type="secondary">-</Text>,
+    },
+    {
+      title: "Detalhe",
+      dataIndex: "description",
+      key: "description",
+      render: (text: string | null) => <Text type="secondary">{text ?? "-"}</Text>,
+    },
+    {
+      title: "IP",
+      dataIndex: "ip",
+      key: "ip",
+      render: (ip: string | null) => <Text type="secondary">{ip ?? "-"}</Text>,
+    },
+  ];
+
+  return (
+    <>
+      <S.FiltersBar>
+        <S.FilterField>
+          Período
+          <RangePicker
+            locale={ptBR}
+            format={DATE_FORMAT}
+            allowClear={false}
+            value={[
+              filters.from ? dayjs(filters.from) : null,
+              filters.to ? dayjs(filters.to) : null,
+            ]}
+            onChange={(range) =>
+              setFilters((prev) => ({
+                ...prev,
+                from: (range?.[0] as Dayjs | null)?.format(API_FORMAT),
+                to: (range?.[1] as Dayjs | null)?.format(API_FORMAT),
+              }))
+            }
+          />
+        </S.FilterField>
+        <S.FilterField>
+          Empresa
+          <SelectComponent
+            placeholder="Todas as empresas"
+            options={clientOptions}
+            value={filters.clientId}
+            onChange={(value) => setFilters((prev) => ({ ...prev, clientId: value ?? undefined }))}
+          />
+        </S.FilterField>
+        <S.FilterField>
+          Ação
+          <SelectComponent
+            placeholder="Todas as ações"
+            options={auditActionOptions}
+            value={filters.action}
+            onChange={(value) => setFilters((prev) => ({ ...prev, action: value ?? undefined }))}
+          />
+        </S.FilterField>
+        <S.FilterActions>
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            onClick={() => generate()}
+            loading={loading}
+            style={{ backgroundColor: "#16302A" }}
+          >
+            Gerar
+          </Button>
+          <Button
+            icon={<FileExcelOutlined />}
+            onClick={() => handleExport("excel")}
+            disabled={rows.length === 0}
+            loading={exporting === "excel"}
+          >
+            Excel
+          </Button>
+          <Button
+            icon={<FilePdfOutlined />}
+            onClick={() => handleExport("pdf")}
+            disabled={rows.length === 0}
+            loading={exporting === "pdf"}
+          >
+            PDF
+          </Button>
+        </S.FilterActions>
+      </S.FiltersBar>
+
+      <S.SummaryRow>
+        <span>
+          {rows.length} registro(s){rows.length === 1000 ? " (limite atingido: refine o filtro)" : ""}
+        </span>
+      </S.SummaryRow>
+
+      <Table
+        dataSource={rows}
+        columns={columns}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 20, simple: true }}
+        scroll={{ x: 900 }}
+        size="small"
+        locale={{ emptyText: <EmptyState title="Nenhum registro no período" /> }}
+      />
+    </>
+  );
+};
+
 const ReportsPage = () => {
   const [clients, setClients] = useState<ClientsResponse[]>([]);
 
@@ -721,6 +912,15 @@ const ReportsPage = () => {
               label: "Documentos enviados",
               children: <UploadsReport {...tabProps} />,
             },
+            ...(isAdmin()
+              ? [
+                  {
+                    key: "audit",
+                    label: "Registro de acessos",
+                    children: <AuditReport clientOptions={clientOptions} />,
+                  },
+                ]
+              : []),
           ]}
         />
       </Card>

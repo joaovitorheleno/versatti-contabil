@@ -25,6 +25,7 @@ export interface DownloadDocumentParams {
 }
 
 export interface DownloadedFile {
+  clientId: string;
   stream: Readable;
   fileName: string;
   fileMime: string;
@@ -91,6 +92,7 @@ export class DownloadDocumentService {
 
     if (format === 'pdf' && isXml) {
       return {
+        clientId: document.client.id,
         stream: await this.generateDanfe(path),
         fileName: fileName.replace(/\.xml$/i, '') + '.pdf',
         fileMime: 'application/pdf',
@@ -104,6 +106,7 @@ export class DownloadDocumentService {
     }
 
     return {
+      clientId: document.client.id,
       stream: createReadStream(path),
       fileName,
       fileMime: isXml ? 'application/xml' : fileMime,

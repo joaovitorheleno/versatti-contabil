@@ -18,6 +18,9 @@ export interface SendMailParams {
 
 const RESEND_URL = 'https://api.resend.com/emails';
 const RESEND_TIMEOUT_MS = 30_000;
+const DEFAULT_MIN_INTERVAL_MS = 1_000;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 @Injectable()
 export class MailService {
@@ -26,6 +29,9 @@ export class MailService {
   private readonly resendApiKey: string | null = null;
   private readonly from: string;
   private readonly replyTo: string | undefined;
+  private readonly minIntervalMs: number;
+  private queue: Promise<unknown> = Promise.resolve();
+  private lastSentAt = 0;
 
   constructor(config: ConfigService) {
     const user = config.get<string>('SMTP_USER');
@@ -35,6 +41,9 @@ export class MailService {
       user ??
       '';
     this.replyTo = config.get<string>('MAIL_REPLY_TO') || undefined;
+    this.minIntervalMs = Number(
+      config.get<string>('MAIL_MIN_INTERVAL_MS') ?? DEFAULT_MIN_INTERVAL_MS,
+    );
 
     const resendApiKey = config.get<string>('RESEND_API_KEY');
     if (resendApiKey) {
@@ -70,7 +79,21 @@ export class MailService {
     return this.resendApiKey !== null || this.transporter !== null;
   }
 
-  public async send(params: SendMailParams) {
+  public send(params: SendMailParams): Promise<void> {
+    const job = this.queue.then(async () => {
+      const wait = this.lastSentAt + this.minIntervalMs - Date.now();
+      if (wait > 0) await sleep(wait);
+      try {
+        await this.deliver(params);
+      } finally {
+        this.lastSentAt = Date.now();
+      }
+    });
+    this.queue = job.catch(() => undefined);
+    return job;
+  }
+
+  private async deliver(params: SendMailParams) {
     if (this.resendApiKey) {
       return this.sendWithResend(this.resendApiKey, params);
     }

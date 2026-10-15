@@ -35,6 +35,8 @@ import {
 } from './dto/create-document.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminGuard } from '../auth/admin.guard';
+import { AuditActionEnum } from '../../enum/audit-action.enum';
+import { AuditService } from '../audit/audit.service';
 import {
   CreateDocumentService,
   CreateDocumentTypeService,
@@ -61,6 +63,7 @@ export class DocumentController {
     private readonly downloadDocumentService: DownloadDocumentService,
     private readonly deleteDocumentTypeService: DeleteDocumentTypeService,
     private readonly notifyDocumentsService: NotifyDocumentsService,
+    private readonly auditService: AuditService,
   ) {}
 
   @Post('notify')
@@ -135,6 +138,16 @@ export class DocumentController {
       format: format as DownloadFormat | undefined,
     });
 
+    await this.auditService.record(
+      {
+        action: AuditActionEnum.DOCUMENT_DOWNLOAD,
+        clientId: file.clientId,
+        entityId: id,
+        description: `${file.fileName}${format ? ` (${format.toUpperCase()})` : ''}`,
+      },
+      req,
+    );
+
     res.set({
       'Content-Type': file.fileMime,
       'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
@@ -167,15 +180,27 @@ export class DocumentController {
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )
-  create(
+  async create(
     @Body() dto: CreateDocumentDto,
     @Req() req: any,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.createDocumentService.execute(dto, file, {
+    const document = await this.createDocumentService.execute(dto, file, {
       userId: req.user?.userId,
       role: req.user?.role,
     });
+
+    await this.auditService.record(
+      {
+        action: AuditActionEnum.DOCUMENT_UPLOAD,
+        clientId: dto.clientId,
+        entityId: document.id,
+        description: document.title,
+      },
+      req,
+    );
+
+    return document;
   }
 
   @Post('type')

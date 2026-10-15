@@ -18,6 +18,9 @@ import CreateDocumentPage from "./pages/createDocument/CreateDocumentPage";
 import ListDocumentTypesPage from "./pages/listDocumentTypes/ListDocumentTypesPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import ReportsPage from "./pages/reports/ReportsPage";
+import LegalProcessesPage from "./pages/legalProcesses/LegalProcessesPage";
+import TicketsPage from "./pages/tickets/TicketsPage";
+import PrivacyPolicyPage from "./pages/privacy/PrivacyPolicyPage";
 
 function MainLayout() {
   return (
@@ -29,6 +32,7 @@ function MainLayout() {
           <Route path="/confirmCpf" element={<RegisterCpfPage />} />
           <Route path="/recoverPassword" element={<RecoverPasswordPage />} />
           <Route path="/resetPassword" element={<ResetPasswordPage />} />
+          <Route path="/privacidade" element={<PrivacyPolicyPage />} />
 
           <Route element={<AppLayout />}>
             {isAdmin() && (
@@ -49,6 +53,8 @@ function MainLayout() {
             <Route path="/relatorios" element={<ReportsPage />} />
             <Route path="/clients" element={<ListClientsPage />} />
             <Route path="/documents" element={<ListDocumentsPage />} />
+            <Route path="/processes" element={<LegalProcessesPage />} />
+            <Route path="/tickets" element={<TicketsPage />} />
             <Route
               path="/documents/register"
               element={<CreateDocumentPage />}

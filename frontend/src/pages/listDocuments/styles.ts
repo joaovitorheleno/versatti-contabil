@@ -43,6 +43,16 @@ export const FiltersWrapper = styled.div`
   }
 `;
 
+export const TabsRow = styled.div`
+  margin-top: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+
+  .ant-segmented {
+    white-space: nowrap;
+  }
+`;
+
 export const CellStack = styled.div`
   display: flex;
   flex-direction: column;

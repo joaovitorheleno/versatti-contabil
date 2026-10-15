@@ -5,6 +5,8 @@ import {
   FileTextOutlined,
   InsertRowLeftOutlined,
   TagsOutlined,
+  NodeIndexOutlined,
+  CustomerServiceOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as S from "./styles";
@@ -21,6 +23,8 @@ const menuItems = [
   { key: "/clients", icon: <InsertRowLeftOutlined />, label: "Clientes" },
   { key: "/relatorios", icon: <FileTextOutlined />, label: "Relatórios" },
   { key: "/documents", icon: <FileTextOutlined />, label: "Documentos" },
+  { key: "/processes", icon: <NodeIndexOutlined />, label: "Processos" },
+  { key: "/tickets", icon: <CustomerServiceOutlined />, label: "Atendimento" },
   {
     key: "/document-types",
     icon: <TagsOutlined />,

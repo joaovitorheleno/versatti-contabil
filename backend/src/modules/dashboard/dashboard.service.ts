@@ -3,42 +3,18 @@ import { ClientEntity } from '../../entities/client.entity';
 import { DocumentEntity } from '../../entities/documents.entity';
 import { DocumentCategoryEnum } from '../../enum/document-category.enum';
 import { UserRole } from '../../enum/user-role.enum';
-
-type DocumentStatus = 'EXPIRED' | 'EXPIRING' | 'VALID' | 'NO_EXPIRATION';
+import {
+  addMonthsToMonthKey,
+  getDocumentStatus,
+  monthKeyOf,
+  todayKey,
+  type DocumentStatus,
+} from '../../common/utils/document-dates';
 
 export interface DashboardParams {
   userId: string;
   role?: string;
 }
-
-const pad = (value: number) => String(value).padStart(2, '0');
-
-const toDateKey = (date: Date) =>
-  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-
-const toMonthKey = (date: Date) =>
-  `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
-
-const addMonths = (date: Date, months: number) =>
-  new Date(date.getFullYear(), date.getMonth() + months, 1);
-
-const daysBetween = (from: string, to: string) =>
-  Math.round(
-    (new Date(`${to}T00:00:00`).getTime() -
-      new Date(`${from}T00:00:00`).getTime()) /
-      86_400_000,
-  );
-
-const getStatus = (
-  expirationDate: string | null,
-  alertDays: number | null,
-  today: string,
-): DocumentStatus => {
-  if (!expirationDate) return 'NO_EXPIRATION';
-  if (expirationDate < today) return 'EXPIRED';
-  if (daysBetween(today, expirationDate) <= (alertDays ?? 0)) return 'EXPIRING';
-  return 'VALID';
-};
 
 @Injectable()
 export class DashboardService {
@@ -75,10 +51,9 @@ export class DashboardService {
 
       const documents = await query.getMany();
 
-      const now = new Date();
-      const today = toDateKey(now);
-      const currentMonth = toMonthKey(now);
-      const lastMonth = toMonthKey(addMonths(now, -1));
+      const today = todayKey();
+      const currentMonth = today.slice(0, 7);
+      const lastMonth = addMonthsToMonthKey(currentMonth, -1);
 
       const statusCount: Record<DocumentStatus, number> = {
         EXPIRED: 0,
@@ -88,12 +63,12 @@ export class DashboardService {
       };
 
       const expirationMonths = Array.from({ length: 6 }, (_, i) =>
-        toMonthKey(addMonths(now, i)),
+        addMonthsToMonthKey(currentMonth, i),
       );
       const expirationsByMonth = new Map(expirationMonths.map((m) => [m, 0]));
 
       const uploadMonths = Array.from({ length: 12 }, (_, i) =>
-        toMonthKey(addMonths(now, i - 11)),
+        addMonthsToMonthKey(currentMonth, i - 11),
       );
       const uploadsByMonth = new Map(uploadMonths.map((m) => [m, 0]));
 
@@ -108,7 +83,7 @@ export class DashboardService {
       let sentLastMonth = 0;
 
       for (const document of documents) {
-        const status = getStatus(
+        const status = getDocumentStatus(
           document.expirationDate,
           document.alertDays,
           today,
@@ -122,7 +97,7 @@ export class DashboardService {
           }
         }
 
-        const uploadMonth = toMonthKey(new Date(document.createdAt));
+        const uploadMonth = monthKeyOf(new Date(document.createdAt));
         if (uploadsByMonth.has(uploadMonth)) {
           uploadsByMonth.set(uploadMonth, uploadsByMonth.get(uploadMonth)! + 1);
         }

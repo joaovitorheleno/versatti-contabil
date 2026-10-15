@@ -1,4 +1,6 @@
-import { Controller, Post, Body, UseGuards, Get, Request, Patch } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Request, Req, Patch } from '@nestjs/common';
+import { AuditActionEnum } from '../../enum/audit-action.enum';
+import { AuditService } from '../audit/audit.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Public } from './public.decorator';
 import { ValidateCpfService, AuthService, CreatePasswordService, RecoverPasswordService, ChangePasswordService } from './services';
@@ -10,13 +12,22 @@ export class AuthController {
     private readonly validateCpfService: ValidateCpfService,
     private readonly createPasswordService: CreatePasswordService,
     private readonly recoverPasswordService: RecoverPasswordService,
-    private readonly changePasswordService: ChangePasswordService
+    private readonly changePasswordService: ChangePasswordService,
+    private readonly auditService: AuditService,
   ) {}
 
   @Public()
   @Post('login/user')
-  async login(@Body() body: { cpf: string; password: string }) {
-    const user = await this.authService.validateUser(body.cpf, body.password);
+  async login(@Body() body: { cpf: string; password: string }, @Req() req: any) {
+    let user: Awaited<ReturnType<AuthService['validateUser']>>;
+    try {
+      user = await this.authService.validateUser(body.cpf, body.password);
+    } catch (e) {
+      await this.auditService.record({ action: AuditActionEnum.LOGIN_FAILED, userId: null }, req);
+      throw e;
+    }
+
+    await this.auditService.record({ action: AuditActionEnum.LOGIN, userId: user.id }, req);
     return this.authService.login(user);
   }
 
