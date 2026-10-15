@@ -11,6 +11,12 @@ import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 import { DocumentModule } from './modules/documents/documents.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
+import { LegalProcessModule } from './modules/legal-process/legal-process.module';
+import { TicketModule } from './modules/ticket/ticket.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { PrivacyModule } from './modules/privacy/privacy.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -18,12 +24,18 @@ import { ReportsModule } from './modules/reports/reports.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
+    ScheduleModule.forRoot(),
     ClientModule,
     UserModule,
     AuthModule,
     DocumentModule,
     DashboardModule,
     ReportsModule,
+    AlertsModule,
+    LegalProcessModule,
+    TicketModule,
+    AuditModule,
+    PrivacyModule,
   ],
   controllers: [HealthController],
   providers: [

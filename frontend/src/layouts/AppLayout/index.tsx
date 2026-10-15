@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Layout, Dropdown, Typography } from "antd";
 import {
+  FileProtectOutlined,
   LogoutOutlined,
+  SafetyOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
@@ -9,6 +11,9 @@ import { useNavigate, Outlet } from "react-router-dom";
 import * as S from "./styles";
 import Sidebar from "../../components/sidebar/SideBar";
 import { loggedUser } from "../../common/auth/logged-user";
+import TermsGate from "../../components/privacy/TermsGate";
+import { openErrorNotification } from "../../components/notification/error";
+import { getMyData } from "../../service/privacy/integration";
 
 const { Header, Content } = Layout;
 const { Text } = Typography;
@@ -22,7 +27,33 @@ const AppLayout = () => {
     navigate("/");
   };
 
+  const downloadMyData = async () => {
+    try {
+      const data = await getMyData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `meus-dados-versatti-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch (e: any) {
+      openErrorNotification({
+        title: "Não foi possível exportar seus dados",
+        description: e?.response?.data?.message || e?.message || String(e),
+      });
+    }
+  };
+
   const userMenuItems = [
+    { key: "my-data", icon: <SafetyOutlined />, label: "Meus dados (LGPD)", onClick: downloadMyData },
+    {
+      key: "privacy",
+      icon: <FileProtectOutlined />,
+      label: "Política de privacidade",
+      onClick: () => window.open("/privacidade", "_blank", "noopener"),
+    },
+    { type: "divider" as const },
     { key: "logout", icon: <LogoutOutlined />, label: "Sair", onClick: handleLogout, danger: true, },
   ];
 
@@ -32,6 +63,7 @@ const AppLayout = () => {
 
   return (
     <Layout style={{ height: "100vh" }}>
+      <TermsGate onLogout={handleLogout} />
       <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />
 
       <Layout style={{ height: "100vh" }}>

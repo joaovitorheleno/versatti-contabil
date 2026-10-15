@@ -8,9 +8,11 @@ import {
   FileTextOutlined,
   InsertRowLeftOutlined,
   MinusCircleOutlined,
+  MailOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { Button, Skeleton, Table, Tag, Typography } from "antd";
+import { Button, Skeleton, Space, Table, Tag, Typography } from "antd";
+import { isAdmin } from "../../common/auth/user-is-admin";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
@@ -91,7 +93,8 @@ const ChartTooltip = ({
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const { loading, data, fetchDashboard } = useDashboard();
+  const { loading, data, fetchDashboard, sendAlerts, sendingAlerts } =
+    useDashboard();
 
   const goToDocuments = (params: Record<string, string>) =>
     navigate(`/documents?${new URLSearchParams(params).toString()}`);
@@ -127,13 +130,24 @@ const DashboardPage = () => {
           </S.PageSubtitle>
         </div>
 
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={fetchDashboard}
-          loading={loading}
-        >
-          Atualizar
-        </Button>
+        <Space wrap>
+          {isAdmin() && (
+            <Button
+              icon={<MailOutlined />}
+              onClick={sendAlerts}
+              loading={sendingAlerts}
+            >
+              Enviar alertas agora
+            </Button>
+          )}
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={fetchDashboard}
+            loading={loading}
+          >
+            Atualizar
+          </Button>
+        </Space>
       </S.PageHeader>
 
       <S.TilesGrid>

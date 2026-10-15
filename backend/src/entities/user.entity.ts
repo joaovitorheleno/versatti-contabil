@@ -27,6 +27,12 @@ export class UserEntity extends CrudEntity {
     @Column({ type: 'enum', enum: UserRole, default: UserRole.DEFAULT })
     role!: UserRole;
     
+    @Column({ name: 'terms_accepted_at', type: 'timestamp', nullable: true })
+    termsAcceptedAt!: Date | null;
+
+    @Column({ name: 'terms_version', type: 'varchar', length: 20, nullable: true })
+    termsVersion!: string | null;
+
     @OneToMany(() => UserClientEntity, (userClient) => userClient.user)
     userClients!: UserClientEntity[];
 }

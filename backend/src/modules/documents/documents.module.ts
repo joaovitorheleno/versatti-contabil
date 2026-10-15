@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DocumentController } from './document.controller';
 import { StorageService } from '../storage/storage.service';
-import { MailService } from '../mail/mail.service';
+import { MailModule } from '../mail/mail.module';
 import {
   CreateDocumentService,
   CreateDocumentTypeService,
@@ -13,6 +13,7 @@ import {
 } from './services';
 
 @Module({
+  imports: [MailModule],
   controllers: [DocumentController],
   providers: [
     CreateDocumentService,
@@ -23,7 +24,6 @@ import {
     DeleteDocumentTypeService,
     NotifyDocumentsService,
     StorageService,
-    MailService,
   ],
 })
 export class DocumentModule {}

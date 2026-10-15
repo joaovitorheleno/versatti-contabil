@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   Dropdown,
+  Segmented,
   Table,
   Tag,
   Tooltip,
@@ -21,7 +22,10 @@ import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { isAdmin } from "../../common/auth/user-is-admin";
-import { documentCategoryLabels } from "../../common/enum/document-category.enum";
+import {
+  DocumentCategoryEnum,
+  documentCategoryLabels,
+} from "../../common/enum/document-category.enum";
 import SubmitButton from "../../components/button/SubmitButton";
 import EmptyState from "../../components/empty/Empty";
 import InputComponent from "../../components/input/InputComponent";
@@ -58,6 +62,32 @@ const getDocumentStatus = (document: DocumentListItem): DocumentStatus => {
   return "VALID";
 };
 
+type PortalTab = "ALL" | "GUIAS" | "FOLHA" | "RELATORIOS" | "NOTAS" | "EMPRESA";
+
+const portalTabs: { value: PortalTab; label: string; categories?: DocumentCategoryEnum[] }[] = [
+  { value: "ALL", label: "Todos" },
+  { value: "GUIAS", label: "Guias de impostos", categories: [DocumentCategoryEnum.GUIAS] },
+  { value: "FOLHA", label: "Folha de pagamento", categories: [DocumentCategoryEnum.TRABALHISTA] },
+  { value: "RELATORIOS", label: "Relatórios contábeis", categories: [DocumentCategoryEnum.CONTABIL] },
+  { value: "NOTAS", label: "Notas fiscais", categories: [DocumentCategoryEnum.FISCAL] },
+  {
+    value: "EMPRESA",
+    label: "Documentos da empresa",
+    categories: [
+      DocumentCategoryEnum.SOCIETARIO,
+      DocumentCategoryEnum.LICENCAS,
+      DocumentCategoryEnum.CERTIDOES,
+      DocumentCategoryEnum.CERTIFICADO_DIGITAL,
+      DocumentCategoryEnum.OUTROS,
+    ],
+  },
+];
+
+const inPortalTab = (document: DocumentListItem, tab: PortalTab) => {
+  const categories = portalTabs.find((t) => t.value === tab)?.categories;
+  return !categories || categories.includes(document.documentType.category);
+};
+
 const formatDate = (date: string | null) =>
   date ? dayjs(date).format("DD/MM/YYYY") : "-";
 
@@ -74,6 +104,7 @@ const ListDocumentsPage = () => {
   } = useListDocuments();
 
   const [search, setSearch] = useState("");
+  const [portalTab, setPortalTab] = useState<PortalTab>("ALL");
 
   const [searchParams] = useSearchParams();
 
@@ -95,16 +126,26 @@ const ListDocumentsPage = () => {
 
   const filteredDocuments = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return documents;
 
     return documents.filter(
       (document) =>
-        document.title.toLowerCase().includes(term) ||
-        document.documentType.name.toLowerCase().includes(term) ||
-        (document.number ?? "").toLowerCase().includes(term) ||
-        document.client.name.toLowerCase().includes(term),
+        inPortalTab(document, portalTab) &&
+        (!term ||
+          document.title.toLowerCase().includes(term) ||
+          document.documentType.name.toLowerCase().includes(term) ||
+          (document.number ?? "").toLowerCase().includes(term) ||
+          document.client.name.toLowerCase().includes(term)),
     );
-  }, [documents, search]);
+  }, [documents, search, portalTab]);
+
+  const tabOptions = useMemo(
+    () =>
+      portalTabs.map((tab) => ({
+        value: tab.value,
+        label: `${tab.label} (${documents.filter((d) => inPortalTab(d, tab.value)).length})`,
+      })),
+    [documents],
+  );
 
   const getActionMenuItems = (
     record: DocumentListItem,
@@ -320,6 +361,14 @@ const ListDocumentsPage = () => {
             + Enviar Documento
           </SubmitButton>
         </S.HeaderRow>
+
+        <S.TabsRow>
+          <Segmented
+            options={tabOptions}
+            value={portalTab}
+            onChange={(value) => setPortalTab(value as PortalTab)}
+          />
+        </S.TabsRow>
 
         <Table
           dataSource={filteredDocuments}

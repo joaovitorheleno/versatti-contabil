@@ -10,39 +10,19 @@ import { DocumentEntity } from '../../entities/documents.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { UserRole } from '../../enum/user-role.enum';
 import { ReportQueryDto } from './dto/report-query.dto';
+import {
+  daysBetween,
+  getDocumentStatus,
+  todayKey,
+  type DocumentStatus,
+} from '../../common/utils/document-dates';
 
-export type DocumentStatus = 'EXPIRED' | 'EXPIRING' | 'VALID' | 'NO_EXPIRATION';
 export type ComplianceStatus = Exclude<DocumentStatus, 'NO_EXPIRATION'> | 'MISSING';
 
 export interface CurrentUser {
   userId: string;
   role?: string;
 }
-
-const pad = (value: number) => String(value).padStart(2, '0');
-
-const todayKey = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-};
-
-const daysBetween = (from: string, to: string) =>
-  Math.round(
-    (new Date(`${to}T00:00:00`).getTime() -
-      new Date(`${from}T00:00:00`).getTime()) /
-      86_400_000,
-  );
-
-const getStatus = (
-  expirationDate: string | null,
-  alertDays: number | null,
-  today: string,
-): DocumentStatus => {
-  if (!expirationDate) return 'NO_EXPIRATION';
-  if (expirationDate < today) return 'EXPIRED';
-  if (daysBetween(today, expirationDate) <= (alertDays ?? 0)) return 'EXPIRING';
-  return 'VALID';
-};
 
 @Injectable()
 export class ReportsService {
@@ -118,7 +98,7 @@ export class ReportsService {
         number: document.number,
         expirationDate: document.expirationDate,
         daysLeft: daysBetween(today, document.expirationDate!),
-        status: getStatus(document.expirationDate, document.alertDays, today),
+        status: getDocumentStatus(document.expirationDate, document.alertDays, today),
       }));
     } catch (e: any) {
       throw new InternalServerErrorException(
@@ -193,7 +173,7 @@ export class ReportsService {
           const items = expectedTypes.map((type) => {
             const document = latest.get(`${client.id}:${type.id}`);
             const status: ComplianceStatus = document
-              ? (getStatus(
+              ? (getDocumentStatus(
                   document.expirationDate,
                   document.alertDays,
                   today,
