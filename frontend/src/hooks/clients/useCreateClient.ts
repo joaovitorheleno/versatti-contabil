@@ -22,7 +22,8 @@ const useCreateClient = () => {
     if (cleanCnpj.length === 14) {
       setLoadingCnpj(true);
       try {
-        const companyData = await fetchCnpjData(cleanCnpj);
+        const lookup = await fetchCnpjData(cleanCnpj);
+        const companyData = lookup.status === "found" ? lookup.data : null;
         setLoadingCnpj(false);
 
         if (companyData) {
@@ -54,7 +55,11 @@ const useCreateClient = () => {
             handleCepSearch(rawCep);
           }
         } else {
-          message.warning("CNPJ não encontrado na Receita Federal.");
+          message.warning(
+            lookup.status === "not_found"
+              ? "CNPJ não encontrado na Receita Federal."
+              : "Consulta de CNPJ indisponível no momento. Preencha os dados manualmente.",
+          );
         }
       } catch (err) {
         setLoadingCnpj(false);

@@ -12,6 +12,11 @@ export type CnpjResponse = {
   email?: string;
 };
 
+export type CnpjLookupResult =
+  | { status: "found"; data: CnpjResponse }
+  | { status: "not_found" }
+  | { status: "unavailable" };
+
 export type CepResponse = {
   cep: string;
   state: string;
