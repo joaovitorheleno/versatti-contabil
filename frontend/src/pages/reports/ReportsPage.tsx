@@ -84,7 +84,11 @@ const statusConfig: Record<
   },
 };
 
-const StatusTag = ({ status }: { status: DocumentStatus | ComplianceStatus }) => (
+const StatusTag = ({
+  status,
+}: {
+  status: DocumentStatus | ComplianceStatus;
+}) => (
   <Tag color={statusConfig[status].color} icon={statusConfig[status].icon}>
     {statusConfig[status].label}
   </Tag>
@@ -97,7 +101,10 @@ const categoryOptions: SelectOption[] = Object.values(DocumentCategoryEnum).map(
   (category) => ({ label: documentCategoryLabels[category], value: category }),
 );
 
-const describeFilters = (filters: ReportFilters, clients: ClientsResponse[]) => {
+const describeFilters = (
+  filters: ReportFilters,
+  clients: ClientsResponse[],
+) => {
   const parts: string[] = [];
   if (filters.from && filters.to) {
     parts.push(`${formatDate(filters.from)} a ${formatDate(filters.to)}`);
@@ -107,7 +114,6 @@ const describeFilters = (filters: ReportFilters, clients: ClientsResponse[]) => 
   if (filters.category) parts.push(documentCategoryLabels[filters.category]);
   return parts.join(" · ");
 };
-
 
 type FiltersBarProps = {
   filters: ReportFilters;
@@ -232,7 +238,6 @@ const runExport = async <T,>(
   }
 };
 
-
 const ExpirationsReport = ({
   clients,
   clientOptions,
@@ -298,7 +303,9 @@ const ExpirationsReport = ({
     {
       title: "Categoria",
       key: "category",
-      render: (_, record) => <Tag>{documentCategoryLabels[record.category]}</Tag>,
+      render: (_, record) => (
+        <Tag>{documentCategoryLabels[record.category]}</Tag>
+      ),
     },
     {
       title: "Situação",
@@ -315,15 +322,27 @@ const ExpirationsReport = ({
       subtitle: describeFilters(filters, clients),
       rows,
       columns: [
-        { header: "Vencimento", value: (r) => formatDate(r.expirationDate), width: 14 },
+        {
+          header: "Vencimento",
+          value: (r) => formatDate(r.expirationDate),
+          width: 14,
+        },
         { header: "Dias", value: (r) => r.daysLeft, width: 8 },
         { header: "Empresa", value: (r) => r.client.name, width: 36 },
         { header: "CNPJ", value: (r) => maskCnpj(r.client.cnpj), width: 20 },
         { header: "Documento", value: (r) => r.title, width: 36 },
         { header: "Tipo", value: (r) => r.documentType, width: 26 },
         { header: "Número", value: (r) => r.number ?? "", width: 18 },
-        { header: "Categoria", value: (r) => documentCategoryLabels[r.category], width: 18 },
-        { header: "Situação", value: (r) => statusConfig[r.status].label, width: 16 },
+        {
+          header: "Categoria",
+          value: (r) => documentCategoryLabels[r.category],
+          width: 18,
+        },
+        {
+          header: "Situação",
+          value: (r) => statusConfig[r.status].label,
+          width: 16,
+        },
       ],
     });
 
@@ -382,7 +401,6 @@ const ExpirationsReport = ({
   );
 };
 
-
 type ComplianceRow = ComplianceReport["clients"][number];
 
 const ComplianceReportTab = ({
@@ -430,7 +448,10 @@ const ComplianceReportTab = ({
           sorter: (a: ComplianceRow, b: ComplianceRow) => a[field] - b[field],
           render: (value: number) =>
             value > 0 && status !== "VALID" ? (
-              <Tag color={statusConfig[status].color} icon={statusConfig[status].icon}>
+              <Tag
+                color={statusConfig[status].color}
+                icon={statusConfig[status].icon}
+              >
                 {value}
               </Tag>
             ) : (
@@ -452,10 +473,26 @@ const ComplianceReportTab = ({
       columns: [
         { header: "Empresa", value: (r) => r.client.name, width: 36 },
         { header: "CNPJ", value: (r) => maskCnpj(r.client.cnpj), width: 20 },
-        { header: "Tipo de documento", value: (r) => r.documentType, width: 30 },
-        { header: "Categoria", value: (r) => documentCategoryLabels[r.category], width: 18 },
-        { header: "Situação", value: (r) => statusConfig[r.status].label, width: 16 },
-        { header: "Vencimento", value: (r) => formatDate(r.expirationDate), width: 14 },
+        {
+          header: "Tipo de documento",
+          value: (r) => r.documentType,
+          width: 30,
+        },
+        {
+          header: "Categoria",
+          value: (r) => documentCategoryLabels[r.category],
+          width: 18,
+        },
+        {
+          header: "Situação",
+          value: (r) => statusConfig[r.status].label,
+          width: 16,
+        },
+        {
+          header: "Vencimento",
+          value: (r) => formatDate(r.expirationDate),
+          width: 14,
+        },
         { header: "Documento", value: (r) => r.documentTitle ?? "", width: 36 },
       ],
     });
@@ -530,7 +567,6 @@ const ComplianceReportTab = ({
     </>
   );
 };
-
 
 const UploadsReport = ({
   clients,
@@ -623,7 +659,11 @@ const UploadsReport = ({
       subtitle: describeFilters(filters, clients),
       rows,
       columns: [
-        { header: "Enviado em", value: (r) => dayjs(r.createdAt).format("DD/MM/YYYY HH:mm"), width: 18 },
+        {
+          header: "Enviado em",
+          value: (r) => dayjs(r.createdAt).format("DD/MM/YYYY HH:mm"),
+          width: 18,
+        },
         { header: "Empresa", value: (r) => r.client.name, width: 36 },
         { header: "CNPJ", value: (r) => maskCnpj(r.client.cnpj), width: 20 },
         { header: "Documento", value: (r) => r.title, width: 36 },
@@ -674,7 +714,6 @@ const UploadsReport = ({
   );
 };
 
-
 const auditActionOptions: SelectOption[] = (
   Object.keys(auditActionLabels) as AuditAction[]
 ).map((action) => ({ value: action, label: auditActionLabels[action] }));
@@ -707,7 +746,8 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const formatDateTime = (date: string) => dayjs(date).format("DD/MM/YYYY HH:mm:ss");
+  const formatDateTime = (date: string) =>
+    dayjs(date).format("DD/MM/YYYY HH:mm:ss");
 
   const handleExport = async (format: "excel" | "pdf") => {
     setExporting(format);
@@ -717,8 +757,16 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
       subtitle: `${formatDate(filters.from ?? null)} a ${formatDate(filters.to ?? null)}`,
       rows,
       columns: [
-        { header: "Data e hora", value: (r) => formatDateTime(r.createdAt), width: 20 },
-        { header: "Ação", value: (r) => auditActionLabels[r.action], width: 28 },
+        {
+          header: "Data e hora",
+          value: (r) => formatDateTime(r.createdAt),
+          width: 20,
+        },
+        {
+          header: "Ação",
+          value: (r) => auditActionLabels[r.action],
+          width: 28,
+        },
         { header: "Usuário", value: (r) => r.user?.name ?? "-", width: 28 },
         { header: "Empresa", value: (r) => r.client?.name ?? "-", width: 34 },
         { header: "Detalhe", value: (r) => r.description ?? "", width: 36 },
@@ -749,18 +797,22 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
     {
       title: "Usuário",
       key: "user",
-      render: (_, record) => record.user?.name ?? <Text type="secondary">-</Text>,
+      render: (_, record) =>
+        record.user?.name ?? <Text type="secondary">-</Text>,
     },
     {
       title: "Empresa",
       key: "client",
-      render: (_, record) => record.client?.name ?? <Text type="secondary">-</Text>,
+      render: (_, record) =>
+        record.client?.name ?? <Text type="secondary">-</Text>,
     },
     {
       title: "Detalhe",
       dataIndex: "description",
       key: "description",
-      render: (text: string | null) => <Text type="secondary">{text ?? "-"}</Text>,
+      render: (text: string | null) => (
+        <Text type="secondary">{text ?? "-"}</Text>
+      ),
     },
     {
       title: "IP",
@@ -798,7 +850,9 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
             placeholder="Todas as empresas"
             options={clientOptions}
             value={filters.clientId}
-            onChange={(value) => setFilters((prev) => ({ ...prev, clientId: value ?? undefined }))}
+            onChange={(value) =>
+              setFilters((prev) => ({ ...prev, clientId: value ?? undefined }))
+            }
           />
         </S.FilterField>
         <S.FilterField>
@@ -807,7 +861,9 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
             placeholder="Todas as ações"
             options={auditActionOptions}
             value={filters.action}
-            onChange={(value) => setFilters((prev) => ({ ...prev, action: value ?? undefined }))}
+            onChange={(value) =>
+              setFilters((prev) => ({ ...prev, action: value ?? undefined }))
+            }
           />
         </S.FilterField>
         <S.FilterActions>
@@ -841,7 +897,8 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
 
       <S.SummaryRow>
         <span>
-          {rows.length} registro(s){rows.length === 1000 ? " (limite atingido: refine o filtro)" : ""}
+          {rows.length} registro(s)
+          {rows.length === 1000 ? " (limite atingido: refine o filtro)" : ""}
         </span>
       </S.SummaryRow>
 
@@ -853,7 +910,9 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
         pagination={{ pageSize: 20, simple: true }}
         scroll={{ x: 900 }}
         size="small"
-        locale={{ emptyText: <EmptyState title="Nenhum registro no período" /> }}
+        locale={{
+          emptyText: <EmptyState title="Nenhum registro no período" />,
+        }}
       />
     </>
   );
@@ -886,13 +945,6 @@ const ReportsPage = () => {
 
   return (
     <S.ReportsContainer>
-      <div>
-        <S.PageTitle>Relatórios</S.PageTitle>
-        <S.PageSubtitle>
-          Consulte e exporte em Excel ou PDF
-        </S.PageSubtitle>
-      </div>
-
       <Card variant="borderless" style={{ borderRadius: 6, width: "100%" }}>
         <Tabs
           destroyOnHidden={false}
