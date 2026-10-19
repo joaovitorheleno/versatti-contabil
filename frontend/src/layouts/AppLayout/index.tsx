@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Layout, Dropdown, Typography } from "antd";
+import { useEffect, useState } from "react";
+import { Layout, Dropdown, Typography, Grid } from "antd";
 import {
   FileProtectOutlined,
   LogoutOutlined,
@@ -19,7 +19,13 @@ const { Header, Content } = Layout;
 const { Text } = Typography;
 
 const AppLayout = () => {
+  const screens = Grid.useBreakpoint();
+  const isMobile = screens.md === false;
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    setCollapsed(isMobile);
+  }, [isMobile]);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -30,7 +36,9 @@ const AppLayout = () => {
   const downloadMyData = async () => {
     try {
       const data = await getMyData();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -46,7 +54,12 @@ const AppLayout = () => {
   };
 
   const userMenuItems = [
-    { key: "my-data", icon: <SafetyOutlined />, label: "Meus dados (LGPD)", onClick: downloadMyData },
+    {
+      key: "my-data",
+      icon: <SafetyOutlined />,
+      label: "Meus dados (LGPD)",
+      onClick: downloadMyData,
+    },
     {
       key: "privacy",
       icon: <FileProtectOutlined />,
@@ -54,7 +67,13 @@ const AppLayout = () => {
       onClick: () => window.open("/privacidade", "_blank", "noopener"),
     },
     { type: "divider" as const },
-    { key: "logout", icon: <LogoutOutlined />, label: "Sair", onClick: handleLogout, danger: true, },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "Sair",
+      onClick: handleLogout,
+      danger: true,
+    },
   ];
 
   const user = loggedUser();
@@ -64,13 +83,17 @@ const AppLayout = () => {
   return (
     <Layout style={{ height: "100vh" }}>
       <TermsGate onLogout={handleLogout} />
-      <Sidebar collapsed={collapsed} onCollapse={setCollapsed} />
+      <Sidebar
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        isMobile={isMobile}
+      />
 
-      <Layout style={{ height: "100vh" }}>
+      <Layout style={{ height: "100vh", minWidth: 0 }}>
         <Header
           style={{
             background: "#fff",
-            padding: "0 24px",
+            padding: isMobile ? "0 16px" : "0 24px",
             height: 64,
             display: "flex",
             alignItems: "center",
@@ -83,7 +106,7 @@ const AppLayout = () => {
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <S.UserArea>
-              <p>Bem vindo ao painel admnistrativo, </p>
+              {!isMobile && <p>Bem vindo ao painel admnistrativo, </p>}
               <Text strong>{userName}</Text>
             </S.UserArea>
           </Dropdown>
@@ -92,7 +115,7 @@ const AppLayout = () => {
         <Content
           style={{
             flex: 1,
-            padding: "24px",
+            padding: isMobile ? "12px" : "24px",
             overflow: "auto",
             background: "#f4f6f9",
           }}
