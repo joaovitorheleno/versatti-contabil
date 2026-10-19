@@ -46,10 +46,7 @@ import { chartTokens } from "./styles";
 
 const { Text } = Typography;
 
-const statusMeta: Record<
-  DocumentStatus,
-  { label: string; icon: ReactNode }
-> = {
+const statusMeta: Record<DocumentStatus, { label: string; icon: ReactNode }> = {
   EXPIRED: { label: "Vencidos", icon: <CloseCircleOutlined /> },
   EXPIRING: { label: "Vencem em breve", icon: <ExclamationCircleOutlined /> },
   VALID: { label: "Válidos", icon: <CheckCircleOutlined /> },
@@ -122,14 +119,6 @@ const DashboardPage = () => {
   return (
     <S.DashboardContainer>
       <S.PageHeader>
-        <div>
-          <S.PageTitle>Dashboard</S.PageTitle>
-          <S.PageSubtitle>
-            Situação dos documentos das empresas em{" "}
-            {dayjs().locale("pt-br").format("DD [de] MMMM [de] YYYY")}
-          </S.PageSubtitle>
-        </div>
-
         <Space wrap>
           {isAdmin() && (
             <Button
@@ -157,7 +146,9 @@ const DashboardPage = () => {
           aria-label={`${summary.expired} documentos vencidos. Ver documentos`}
         >
           <S.TileLabel>
-            <CloseCircleOutlined style={{ color: chartTokens.status.EXPIRED }} />
+            <CloseCircleOutlined
+              style={{ color: chartTokens.status.EXPIRED }}
+            />
             Documentos vencidos
           </S.TileLabel>
           <S.TileValue>{summary.expired}</S.TileValue>
@@ -176,7 +167,9 @@ const DashboardPage = () => {
             Vencem em breve
           </S.TileLabel>
           <S.TileValue>{summary.expiring}</S.TileValue>
-          <S.TileFooter>Dentro do prazo de alerta de cada documento</S.TileFooter>
+          <S.TileFooter>
+            Dentro do prazo de alerta de cada documento
+          </S.TileFooter>
         </S.Tile>
 
         <S.Tile
@@ -212,7 +205,9 @@ const DashboardPage = () => {
             Empresas ativas
           </S.TileLabel>
           <S.TileValue>{summary.activeClients}</S.TileValue>
-          <S.TileFooter>{summary.totalDocuments} documentos no total</S.TileFooter>
+          <S.TileFooter>
+            {summary.totalDocuments} documentos no total
+          </S.TileFooter>
         </S.Tile>
       </S.TilesGrid>
 
@@ -337,7 +332,10 @@ const StatusChart = ({
                 style={{ cursor: "pointer" }}
               >
                 {slices.map((item) => (
-                  <Cell key={item.status} fill={chartTokens.status[item.status]} />
+                  <Cell
+                    key={item.status}
+                    fill={chartTokens.status[item.status]}
+                  />
                 ))}
               </Pie>
               <Tooltip
