@@ -87,7 +87,10 @@ export class ExpirationAlertsService {
 
     const notified = new Set<string>();
 
-    const byClient = new Map<string, { client: ClientEntity; documents: DocumentEntity[] }>();
+    const byClient = new Map<
+      string,
+      { client: ClientEntity; documents: DocumentEntity[] }
+    >();
     due.forEach((document) => {
       const group = byClient.get(document.client.id) ?? {
         client: document.client,
@@ -116,7 +119,9 @@ export class ExpirationAlertsService {
         visible.forEach((d) => notified.add(d.id));
       } catch (e: any) {
         result.failures.push(`${client.name}: ${e.message}`);
-        this.logger.error(`Falha no alerta para ${client.responsibleEmail}: ${e.message}`);
+        this.logger.error(
+          `Falha no alerta para ${client.responsibleEmail}: ${e.message}`,
+        );
       }
     }
 
@@ -138,7 +143,10 @@ export class ExpirationAlertsService {
     if (result.officeEmailSent) due.forEach((d) => notified.add(d.id));
 
     if (notified.size > 0) {
-      await DocumentEntity.update({ id: In([...notified]) }, { lastAlertAt: today });
+      await DocumentEntity.update(
+        { id: In([...notified]) },
+        { lastAlertAt: today },
+      );
     }
 
     return result;
@@ -170,11 +178,18 @@ export class ExpirationAlertsService {
 
     return [...latest.values()]
       .filter((document) => {
-        const status = getDocumentStatus(document.expirationDate, document.alertDays, today);
+        const status = getDocumentStatus(
+          document.expirationDate,
+          document.alertDays,
+          today,
+        );
         if (status !== 'EXPIRING' && status !== 'EXPIRED') return false;
         if (!document.lastAlertAt) return true;
-        if (document.expirationDate === today && document.lastAlertAt < today) return true;
-        return daysBetween(document.lastAlertAt, today) >= REMINDER_INTERVAL_DAYS;
+        if (document.expirationDate === today && document.lastAlertAt < today)
+          return true;
+        return (
+          daysBetween(document.lastAlertAt, today) >= REMINDER_INTERVAL_DAYS
+        );
       })
       .sort((a, b) => a.expirationDate!.localeCompare(b.expirationDate!));
   }
@@ -189,12 +204,17 @@ export class ExpirationAlertsService {
 
   private describeDeadline(expirationDate: string, today: string) {
     const days = daysBetween(today, expirationDate);
-    if (days < 0) return `<strong style="color:#d03b3b;">vencido há ${-days} dia(s)</strong>`;
+    if (days < 0)
+      return `<strong style="color:#d03b3b;">vencido há ${-days} dia(s)</strong>`;
     if (days === 0) return '<strong style="color:#d03b3b;">vence hoje</strong>';
     return `vence em ${days} dia(s)`;
   }
 
-  private buildClientHtml(client: ClientEntity, documents: DocumentEntity[], today: string) {
+  private buildClientHtml(
+    client: ClientEntity,
+    documents: DocumentEntity[],
+    today: string,
+  ) {
     const rows = documents.map((d) => [
       escapeHtml(d.title),
       escapeHtml(d.documentType.name),
@@ -210,24 +230,43 @@ export class ExpirationAlertsService {
     );
   }
 
-  private buildOfficeHtml(documents: DocumentEntity[], today: string, clientsWithoutEmail: string[]) {
-    const rows = documents.map((d) => [
-      escapeHtml(d.client.name),
-      escapeHtml(d.title),
-      escapeHtml(d.documentType.name),
-      formatDateBr(d.expirationDate),
-      this.describeDeadline(d.expirationDate!, today),
-    ]);
+  private buildOfficeHtml(
+    documents: DocumentEntity[],
+    today: string,
+    clientsWithoutEmail: string[],
+  ) {
+    const headers = ['Empresa', 'Documento', 'Tipo', 'Vencimento', 'Prazo'];
+    const toRows = (list: DocumentEntity[]) =>
+      list.map((d) => [
+        escapeHtml(d.client.name),
+        escapeHtml(d.title),
+        escapeHtml(d.documentType.name),
+        formatDateBr(d.expirationDate),
+        this.describeDeadline(d.expirationDate!, today),
+      ]);
+
+    const expired = documents.filter((d) => d.expirationDate! <= today);
+    const expiring = documents.filter((d) => d.expirationDate! > today);
 
     const warning = clientsWithoutEmail.length
       ? `<p style="color:#b45309;">Sem e-mail do responsável cadastrado (o cliente não foi avisado): <strong>${clientsWithoutEmail.map(escapeHtml).join(', ')}</strong>.</p>`
       : '';
 
+    const expiredSection = expired.length
+      ? `<h3 style="color:#d03b3b;">Documentos vencidos (${expired.length})</h3>
+       ${renderTable(headers, toRows(expired))}`
+      : '';
+
+    const expiringSection = expiring.length
+      ? `<h3>Documentos perto do vencimento (${expiring.length})</h3>
+       ${renderTable(headers, toRows(expiring))}`
+      : '';
+
     return renderMailLayout(
       `Vencimentos de documentos - ${formatDateBr(today)}`,
-      `<p>${documents.length} documento(s) vencido(s) ou perto do vencimento.</p>
-       ${warning}
-       ${renderTable(['Empresa', 'Documento', 'Tipo', 'Vencimento', 'Prazo'], rows)}`,
+      `${warning}
+       ${expiredSection}
+       ${expiringSection}`,
     );
   }
 }
