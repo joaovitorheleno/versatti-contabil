@@ -30,7 +30,6 @@ export class ValidateCpfService {
         cpf: usuarioExistente.cpf,
         phone: usuarioExistente.phone,
         email: usuarioExistente.email,
-        dateOfBirth: usuarioExistente.dateOfBirth,
         role: usuarioExistente.role
       }
     };

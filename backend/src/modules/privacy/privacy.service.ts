@@ -70,7 +70,6 @@ export class PrivacyService {
         email: user.email,
         cpf: user.cpf,
         phone: user.phone,
-        dateOfBirth: user.dateOfBirth,
         role: user.role,
         createdAt: user.createdAt,
         termsVersion: user.termsVersion,

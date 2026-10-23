@@ -26,14 +26,11 @@ import FormItemComponent from "../../components/form/FormItemComponent";
 import ModalComponent from "../../components/modal/ModalComponent";
 import { maskPhone } from "../../functions/maskPhone";
 import { maskCPF } from "../../functions/maskCpf";
-import { maskDate } from "../../functions/maskDate";
 import SubmitButton from "../../components/button/SubmitButton";
 import { isAdmin } from "../../common/auth/user-is-admin";
 import type { ColumnsType } from "antd/es/table";
 import useListUsers from "../../hooks/users/useListUsers";
 import useListClients from "../../hooks/clients/useListClients";
-import DateComponent from "../../components/date/DateComponent";
-import dayjs, { Dayjs } from "dayjs";
 import EmptyState from "../../components/empty/Empty";
 
 const { Text } = Typography;
@@ -44,7 +41,6 @@ interface UserTableData {
   email: string;
   cpf: string;
   phone: string;
-  dateOfBirth: string;
 }
 
 interface UserDetails extends UserTableData {
@@ -56,7 +52,6 @@ interface EditUserFormValues {
   email: string;
   cpf: string;
   phone: string;
-  dateOfBirth: Dayjs | null;
   clients: string[];
 }
 
@@ -108,7 +103,6 @@ const ListUsersPage = () => {
         email: selectedUser.email,
         cpf: maskCPF(selectedUser.cpf || ""),
         phone: maskPhone(selectedUser.phone || ""),
-        dateOfBirth: maskDate(selectedUser.dateOfBirth || ""),
         clients: (selectedUser.clients || []).map((c) => c.id),
       });
     }
@@ -147,9 +141,6 @@ const ListUsersPage = () => {
         email: editingUser.email,
         cpf: maskCPF(editingUser.cpf || ""),
         phone: maskPhone(editingUser.phone || ""),
-        dateOfBirth: editingUser.dateOfBirth
-          ? dayjs(editingUser.dateOfBirth)
-          : null,
         clients: (editingUser.clients || []).map((c) => c.id),
       });
     }
@@ -174,9 +165,6 @@ const ListUsersPage = () => {
         email: values.email.trim().toLowerCase(),
         cpf: values.cpf.replace(/\D/g, ""),
         phone: values.phone.replace(/\D/g, ""),
-        dateOfBirth: values.dateOfBirth
-          ? dayjs(values.dateOfBirth).toISOString()
-          : null,
         clientIds: values.clients ?? [],
       } as any);
 
@@ -210,7 +198,6 @@ const ListUsersPage = () => {
           email: user.email || "",
           cpf: user.cpf || "",
           phone: user.phone || "",
-          dateOfBirth: user.dateOfBirth || "",
         }))
         .filter(
           (u) =>
@@ -279,14 +266,6 @@ const ListUsersPage = () => {
       dataIndex: "phone",
       key: "phone",
       render: (phone: string) => <Text>{maskPhone(phone)}</Text>,
-    },
-    {
-      title: "Data de Nascimento",
-      dataIndex: "dateOfBirth",
-      key: "dateOfBirth",
-      sorter: (a, b) =>
-        new Date(a.dateOfBirth).getTime() - new Date(b.dateOfBirth).getTime(),
-      render: (dateOfBirth: string) => <Text>{maskDate(dateOfBirth)}</Text>,
     },
     {
       title: "Ação",
@@ -418,16 +397,6 @@ const ListUsersPage = () => {
                     </FormItemComponent>
                   </S.FieldRow>
 
-                  <S.FieldRow>
-                    <FormItemComponent
-                      name="dateOfBirth"
-                      layout="vertical"
-                      label="Data de Nascimento"
-                    >
-                      <InputComponent disabled variant="filled" />
-                    </FormItemComponent>
-                  </S.FieldRow>
-
                   <FormItemComponent
                     name="clients"
                     layout="vertical"
@@ -541,17 +510,6 @@ const ListUsersPage = () => {
                   maxLength={16}
                   allowClear
                 />
-              </FormItemComponent>
-
-              <FormItemComponent
-                name="dateOfBirth"
-                rules={[
-                  { required: true, message: "Por favor selecione a data!" },
-                ]}
-                layout="vertical"
-                label="Data de nascimento"
-              >
-                <DateComponent />
               </FormItemComponent>
 
               <FormItemComponent name="clients" label="Empresas vinculadas">

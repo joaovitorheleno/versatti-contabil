@@ -127,6 +127,9 @@ const CreateClientPage = () => {
 
             <FormItemComponent<FormClientType>
               name="municipalRegistration"
+              rules={[
+                { required: true, message: "Preencha o Registro Municipal" },
+              ]}
               getValueFromEvent={(e) => e.target.value}
               layout="vertical"
               label="Inscrição Municipal"
@@ -167,16 +170,6 @@ const CreateClientPage = () => {
           </S.FieldRow>
 
           <S.FieldRow>
-            <FormItemComponent<FormClientType>
-              name="nfeEmail"
-              rules={[{ type: "email", message: "Insira um e-mail válido" }]}
-              getValueFromEvent={(e) => e.target.value}
-              layout="vertical"
-              label="E-mail para NF-e"
-            >
-              <InputComponent placeholder="Ex: nfe@empresa.com.br" allowClear />
-            </FormItemComponent>
-
             <FormItemComponent<FormClientType>
               name="responsibleEmail"
               rules={[{ type: "email", message: "Insira um e-mail válido" }]}

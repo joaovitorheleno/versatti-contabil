@@ -15,7 +15,6 @@ export interface UsersResponse {
   email: string;
   cpf: string;
   phone: string;
-  dateOfBirth: string;
 }
 
 const useListUsers = () => {

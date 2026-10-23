@@ -22,7 +22,6 @@ export class ListUserClientsService {
           'client.taxRegime',
           'client.stateRegistration',
           'client.municipalRegistration',
-          'client.nfeEmail',
           'client.responsibleEmail',
           'client.phone',
           'client.contactPerson',

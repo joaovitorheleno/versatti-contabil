@@ -13,7 +13,6 @@ export interface ClientResponse {
   stateRegistration?: number | undefined;
   municipalRegistration?: number | undefined;
   phone: string;
-  nfeEmail?: string | undefined;
   responsibleEmail?: string | null;
   contactPerson?: string | undefined;
   zipCode: string;

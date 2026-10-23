@@ -20,11 +20,8 @@ export class ClientEntity extends CrudEntity {
   @Column('varchar', { name: 'state_registration', nullable: true })
   stateRegistration?: string;
 
-  @Column('varchar', { name: 'municipal_registration', nullable: true })
-  municipalRegistration?: string;
-
-  @Column('varchar', { name: 'nfe_email', nullable: true })
-  nfeEmail?: string;
+  @Column('varchar', { name: 'municipal_registration', nullable: false })
+  municipalRegistration!: string;
 
   @Column('varchar', { nullable: false, length: 20 })
   phone!: string;

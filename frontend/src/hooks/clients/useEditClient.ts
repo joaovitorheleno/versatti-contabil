@@ -15,7 +15,6 @@ interface ClientTableData {
   stateRegistration: string;
   municipalRegistration: string;
   phone: string;
-  nfeEmail: string;
   responsibleEmail: string;
   contactPerson: string;
 }
@@ -74,7 +73,6 @@ const useEditClient = (onSuccess?: () => void) => {
       stateRegistration: client.stateRegistration || "",
       municipalRegistration: client.municipalRegistration || "",
       phone: maskPhone(client.phone) || "",
-      nfeEmail: client.nfeEmail || "",
       responsibleEmail: client.responsibleEmail || "",
       contactPerson: client.contactPerson || "",
     });

@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import DateComponent from "../../components/date/DateComponent";
 import FormComponent from "../../components/form/FormComponent";
 import FormItemComponent from "../../components/form/FormItemComponent";
 import InputComponent from "../../components/input/InputComponent";
@@ -27,16 +26,9 @@ const CreateUserPage = () => {
       label: client.name,
       value: client.id,
     }));
- 
-  const onSubmit = (values: any) => {
-    const formattedValues = {
-      ...values,
-      dateOfBirth: values.dateOfBirth
-        ? values.dateOfBirth.format("YYYY-MM-DD")
-        : undefined,
-    };
 
-    handleCreateUser(formattedValues);
+  const onSubmit = (values: any) => {
+    handleCreateUser(values);
   };
 
   return (
@@ -91,7 +83,7 @@ const CreateUserPage = () => {
             <FormItemComponent<FormItemType>
               name="phone"
               rules={[
-                { required: true, message: "Preencha o telefone do usuário" },
+                { required: false, message: "Preencha o telefone do usuário" },
               ]}
               getValueFromEvent={(e) => maskPhone(e.target.value)}
               normalize={(value) => maskPhone(value)}
@@ -103,17 +95,6 @@ const CreateUserPage = () => {
           </S.FieldRow>
 
           <S.DateFieldWrapper>
-            <FormItemComponent<FormItemType>
-              name="dateOfBirth"
-              rules={[
-                { required: true, message: "Por favor selecione a data!" },
-              ]}
-              layout="vertical"
-              label="Data de nascimento"
-            >
-              <DateComponent />
-            </FormItemComponent>
-
             <FormItemComponent<FormItemType>
               name="clientIds"
               rules={[

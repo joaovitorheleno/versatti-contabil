@@ -39,7 +39,6 @@ const useCreateClient = () => {
             phone:
               maskPhone(companyData.ddd_telefone_1) ||
               maskPhone(form.getFieldValue("phone")),
-            nfeEmail: companyData.email || form.getFieldValue("nfeEmail"),
             zipCode: formattedCep,
             street: companyData.logradouro || form.getFieldValue("street"),
             number: companyData.numero || form.getFieldValue("number"),

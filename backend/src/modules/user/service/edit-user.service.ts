@@ -15,7 +15,7 @@ export class EditUserService {
       throw new BadRequestException('ID é obrigatório para atualização.');
     }
 
-    const { name, email, cpf, phone, dateOfBirth, clientIds } = editUserDto;
+    const { name, email, cpf, phone, clientIds } = editUserDto;
 
     if (email !== undefined && email.trim() !== '') {
       const cleanEmail = email.trim().toLowerCase();
@@ -87,28 +87,12 @@ export class EditUserService {
       }
     }
 
-    if (dateOfBirth !== undefined && dateOfBirth !== null) {
-      const date = new Date(dateOfBirth);
-
-      if (
-        date.getFullYear() < 1900 ||
-        date.getFullYear() > new Date().getFullYear()
-      ) {
-        throw new BadRequestException('Data de nascimento inválida.');
-      }
-
-      if (date.getFullYear() > new Date().getFullYear() - 18) {
-        throw new BadRequestException('Usuário deve ser maior de idade.');
-      }
-    }
-
     user.updatedBy = currentUserId;
 
     if (name !== undefined) user.name = name;
     if (email !== undefined) user.email = email.trim().toLowerCase();
     if (cpf !== undefined) user.cpf = cpf.replace(/\D/g, '');
     if (phone !== undefined) user.phone = phone.replace(/\D/g, '');
-    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
 
     return await UserEntity.getRepository().manager.transaction(
       async (manager) => {

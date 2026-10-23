@@ -57,7 +57,6 @@ export const inspectUser = async (id: string): Promise<InspectUserResponse> => {
       email: response.data.email,
       cpf: response.data.cpf,
       phone: response.data.phone,
-      dateOfBirth: response.data.dateOfBirth,
       clients: response.data.clients.map((client: any) => ({
         id: client.id,
         name: client.name,
