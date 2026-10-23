@@ -4,7 +4,6 @@ export type CreateUserType = {
   password?: string | undefined;
   cpf: string;
   phone: string;
-  dateOfBirth?: string | undefined;
   clientIds: string[];
 };
 
@@ -14,7 +13,6 @@ export type ListUserResponse = {
   email: string;
   cpf: string;
   phone: string;
-  dateOfBirth: string;
 }[];
 
 export type InspectUserResponse = {
@@ -23,7 +21,6 @@ export type InspectUserResponse = {
   email: string;
   cpf: string;
   phone: string;
-  dateOfBirth?: string | undefined;
   clients: {
     id: string;
     name: string;

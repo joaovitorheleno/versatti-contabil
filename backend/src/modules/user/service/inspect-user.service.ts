@@ -24,7 +24,6 @@ export class InspectUserService {
       updatedAt: user.updatedAt,
       cpf: user.cpf,
       phone: user.phone,
-      dateOfBirth: user.dateOfBirth,
       clients: (user.userClients ?? [])
         .filter((userClient) => userClient.client)
         .map((userClient) => ({

@@ -56,20 +56,12 @@ export class CreateClientDto {
   stateRegistration?: string | undefined;
 
   @IsNumber({}, { message: 'A inscrição municipal deve ser um número' })
-  @IsOptional()
+  @IsNotEmpty({ message: 'O registro municipal é obrigatório' })
   @ApiPropertyOptional({
     description: 'Inscrição Municipal (para serviços)',
     example: '987654',
   })
   municipalRegistration?: string | undefined;
-
-  @IsEmail({}, { message: 'E-mail fiscal inválido' })
-  @IsOptional()
-  @ApiPropertyOptional({
-    description: 'E-mail para envio de XML/NFe',
-    example: 'fiscal@empresateste.com.br',
-  })
-  nfeEmail?: string | undefined;
 
   @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEmail({}, { message: 'E-mail do responsável inválido' })

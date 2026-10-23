@@ -52,7 +52,6 @@ interface ClientTableData {
   stateRegistration: string;
   municipalRegistration: string;
   phone: string;
-  nfeEmail: string;
   responsibleEmail: string;
   contactPerson: string;
   zipCode: string;
@@ -134,7 +133,6 @@ const ListClientsPage = () => {
               ? String(client.municipalRegistration)
               : "",
           phone: client.phone || "",
-          nfeEmail: client.nfeEmail || "",
           responsibleEmail: client.responsibleEmail || "",
           contactPerson: client.contactPerson || "",
           zipCode: client.zipCode || "",
@@ -411,14 +409,6 @@ const ListClientsPage = () => {
 
                 <S.FieldRow>
                   <FormItemComponent
-                    name="nfeEmail"
-                    layout="vertical"
-                    label="E-mail para NF-e"
-                  >
-                    <InputComponent disabled variant="filled" />
-                  </FormItemComponent>
-
-                  <FormItemComponent
                     name="responsibleEmail"
                     layout="vertical"
                     label="E-mail do responsável"
@@ -595,18 +585,6 @@ const ListClientsPage = () => {
                 maxLength={16}
                 allowClear
                 variant="underlined"
-              />
-            </FormItemComponent>
-
-            <FormItemComponent
-              name="nfeEmail"
-              layout="vertical"
-              label="Email NF-e"
-            >
-              <InputComponent
-                variant="underlined"
-                placeholder="Ex: joaoteste@gmail.com"
-                allowClear
               />
             </FormItemComponent>
 

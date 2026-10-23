@@ -5,7 +5,6 @@ export type UserPayload = {
     email: string;
     cpf: string;
     phone: string;
-    dateOfBirth: string;
     role: string;
   };
   exp: number;

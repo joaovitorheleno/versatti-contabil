@@ -3,6 +3,5 @@ export type FormItemType = {
     email: string;
     cpf: string;
     phone: string;
-    dateOfBirth: Date;
     clientIds: string[];
 }

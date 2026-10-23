@@ -35,7 +35,10 @@ interface BrasilApiCepResponse {
 
 const BRASIL_API_REQUEST_CONFIG = {
   timeout: 8000,
-  headers: { 'User-Agent': 'Versatti-Contabil/1.0', Accept: 'application/json' },
+  headers: {
+    'User-Agent': 'Versatti-Contabil/1.0',
+    Accept: 'application/json',
+  },
 };
 
 @Injectable()
@@ -105,10 +108,8 @@ export class CreateClientService {
       } catch {}
     }
 
-    if (!clientData.municipalRegistration && !clientData.stateRegistration) {
-      throw new BadRequestException(
-        'Registro municipal e registro estadual não podem ficar vazios, preencha ao menos 1 dos campos.',
-      );
+    if (!clientData.municipalRegistration) {
+      throw new BadRequestException('Registro municipal não pode ficar vazio.');
     }
 
     const client = new ClientEntity();
@@ -121,7 +122,6 @@ export class CreateClientService {
     client.stateRegistration = clientData.stateRegistration;
     client.municipalRegistration = clientData.municipalRegistration;
 
-    client.nfeEmail = clientData.nfeEmail || companyData?.email;
     client.responsibleEmail = clientData.responsibleEmail || null;
     client.phone = clientData.phone || companyData?.ddd_telefone_1 || '';
     client.contactPerson = clientData.contactPerson;

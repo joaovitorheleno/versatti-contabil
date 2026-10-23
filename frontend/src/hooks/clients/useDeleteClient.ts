@@ -11,7 +11,6 @@ interface ClientTableData {
   stateRegistration: string;
   municipalRegistration: string;
   phone: string;
-  nfeEmail: string;
   contactPerson: string;
 }
 

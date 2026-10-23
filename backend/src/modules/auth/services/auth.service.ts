@@ -26,7 +26,6 @@ export class AuthService {
                 cpf: usuarioExistente.cpf,
                 email: usuarioExistente.email,
                 phone: usuarioExistente.phone,
-                dateOfBirth: usuarioExistente.dateOfBirth,
                 role: usuarioExistente.role
             } 
         };

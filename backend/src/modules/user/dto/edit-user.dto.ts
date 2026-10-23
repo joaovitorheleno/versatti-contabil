@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
-  IsDateString,
   IsNotEmpty,
   IsString,
   IsUUID,
@@ -39,14 +38,6 @@ export class EditUserDto {
     example: '(11) 91234-5678',
   })
   phone?: string;
-
-  @IsDateString(
-    {},
-    { message: 'A data de nascimento deve estar no formato YYYY-MM-DD' },
-  )
-  @IsNotEmpty({ message: 'A data de nascimento é obrigatória' })
-  @ApiProperty({ example: '2005-03-04' })
-  dateOfBirth?: string;
 
   @IsArray({ message: 'O campo clientIds deve ser uma lista de IDs' })
   @IsNotEmpty({
