@@ -25,6 +25,7 @@ import {
   TicketStatusEnum,
 } from '../../enum/ticket.enum';
 import { UserRole } from '../../enum/user-role.enum';
+import { EmailCategoryEnum } from '../../enum/email-log.enum';
 import { escapeHtml, renderMailLayout } from '../mail/mail-layout';
 import { MailService } from '../mail/mail.service';
 import { StorageService } from '../storage/storage.service';
@@ -272,6 +273,7 @@ export class TicketService {
            <blockquote style="border-left:3px solid #e4e7e5;margin:0;padding:8px 12px;color:#12231c;white-space:pre-wrap;">${escapeHtml(message)}</blockquote>
            <p style="color:#6b7a73;">Responda pela tela de Atendimento do sistema.</p>`,
         ),
+        ticket.client.id,
       );
     }
   }
@@ -293,13 +295,19 @@ export class TicketService {
            <blockquote style="border-left:3px solid #e4e7e5;margin:0;padding:8px 12px;color:#12231c;white-space:pre-wrap;">${escapeHtml(message)}</blockquote>
            <p style="color:#6b7a73;">Para responder, acesse a tela de Atendimento do sistema.</p>`,
         ),
+        ticket.client.id,
       );
     }
   }
 
-  private async safeSend(to: string, subject: string, html: string) {
+  private async safeSend(to: string, subject: string, html: string, clientId?: string) {
     try {
-      await this.mailService.send({ to, subject, html });
+      await this.mailService.send({
+        to,
+        subject,
+        html,
+        log: { category: EmailCategoryEnum.TICKET, clientId },
+      });
     } catch (e: any) {
       this.logger.error(`Falha ao enviar e-mail de chamado para ${to}: ${e.message}`);
     }
