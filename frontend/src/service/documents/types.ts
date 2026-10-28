@@ -51,6 +51,7 @@ export type NotifyDocumentsResult = {
   sent: { client: string; email: string; documents: number; attached: number }[];
   skipped: { client: string; reason: string }[];
   failed: { client: string; reason: string }[];
+  receiptTo: string | null;
 };
 
 export type NotifyDocumentsOptions = {
