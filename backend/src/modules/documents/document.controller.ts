@@ -75,10 +75,11 @@ export class DocumentController {
   })
   @ApiResponse({ status: 200, description: 'Resultado do envio por empresa' })
   @ApiResponse({ status: 503, description: 'SMTP não configurado no servidor' })
-  notify(@Body() dto: NotifyDocumentsDto) {
+  notify(@Body() dto: NotifyDocumentsDto, @Req() req: any) {
     return this.notifyDocumentsService.execute(dto.documentIds, {
       includeResponsible: dto.includeResponsible,
       userIds: dto.userIds,
+      senderId: req.user?.userId,
     });
   }
 

@@ -253,6 +253,13 @@ const useCreateDocument = () => {
         }),
       );
 
+      if (result.receiptTo) {
+        openSuccessNotification({
+          title: "Comprovante a caminho",
+          description: `Um resumo do envio será enviado para ${result.receiptTo}.`,
+        });
+      }
+
       [...result.skipped, ...result.failed].forEach((item) =>
         openErrorNotification({
           title: `E-mail não enviado - ${item.client}`,

@@ -8,6 +8,8 @@ import { In } from 'typeorm';
 import { ClientEntity } from '../../../entities/client.entity';
 import { DocumentEntity } from '../../../entities/documents.entity';
 import { UserClientEntity } from '../../../entities/user-client.entity';
+import { UserEntity } from '../../../entities/user.entity';
+import { renderMailLayout, renderTable } from '../../mail/mail-layout';
 import { MailService, type MailAttachment } from '../../mail/mail.service';
 import { StorageService } from '../../storage/storage.service';
 
@@ -16,12 +18,21 @@ const MAX_ATTACHMENTS_SIZE = 20 * 1024 * 1024;
 export interface NotifyOptions {
   includeResponsible?: boolean;
   userIds?: string[];
+  senderId?: string;
+}
+
+interface Delivery {
+  client: string;
+  email: string;
+  documents: string[];
+  error?: string;
 }
 
 export interface NotifyResult {
   sent: { client: string; email: string; documents: number; attached: number }[];
   skipped: { client: string; reason: string }[];
   failed: { client: string; reason: string }[];
+  receiptTo: string | null;
 }
 
 const escapeHtml = (value: string) =>
@@ -45,7 +56,7 @@ export class NotifyDocumentsService {
 
   public async execute(
     documentIds: string[],
-    { includeResponsible = true, userIds = [] }: NotifyOptions = {},
+    { includeResponsible = true, userIds = [], senderId }: NotifyOptions = {},
   ): Promise<NotifyResult> {
     if (!this.mailService.isConfigured()) {
       throw new ServiceUnavailableException(
@@ -72,7 +83,13 @@ export class NotifyDocumentsService {
       byClient.set(document.client.id, group);
     });
 
-    const result: NotifyResult = { sent: [], skipped: [], failed: [] };
+    const result: NotifyResult = {
+      sent: [],
+      skipped: [],
+      failed: [],
+      receiptTo: null,
+    };
+    const deliveries: Delivery[] = [];
 
     for (const { client, documents: clientDocuments } of byClient.values()) {
       const visibleDocuments = clientDocuments.filter((d) => d.visibleToClient);
@@ -132,6 +149,11 @@ export class NotifyDocumentsService {
         try {
           await this.mailService.send({ to: email, subject, html, attachments });
 
+          deliveries.push({
+            client: client.name,
+            email,
+            documents: visibleDocuments.map((d) => d.title),
+          });
           result.sent.push({
             client: client.name,
             email,
@@ -140,6 +162,12 @@ export class NotifyDocumentsService {
           });
         } catch (e: any) {
           this.logger.error(`Falha ao enviar e-mail para ${email}: ${e.message}`);
+          deliveries.push({
+            client: client.name,
+            email,
+            documents: visibleDocuments.map((d) => d.title),
+            error: e.message,
+          });
           result.failed.push({
             client: client.name,
             reason: `${email}: ${e.message}`,
@@ -148,7 +176,52 @@ export class NotifyDocumentsService {
       }
     }
 
+    if (senderId && deliveries.length > 0) {
+      const sender = await UserEntity.findOne({
+        where: { id: senderId },
+        select: { id: true, name: true, email: true },
+      });
+
+      if (sender?.email) {
+        result.receiptTo = sender.email;
+        this.mailService
+          .send({
+            to: sender.email,
+            subject: `Comprovante de envio - ${deliveries.filter((d) => !d.error).length} e-mail(s) enviado(s)`,
+            html: this.buildReceiptHtml(sender.name, deliveries),
+          })
+          .catch((e) =>
+            this.logger.error(
+              `Falha ao enviar comprovante para ${sender.email}: ${e?.message ?? e}`,
+            ),
+          );
+      }
+    }
+
     return result;
+  }
+
+  private buildReceiptHtml(senderName: string, deliveries: Delivery[]) {
+    const sentAt = new Date().toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+    });
+
+    const rows = deliveries.map((d) => [
+      escapeHtml(d.client),
+      escapeHtml(d.email),
+      d.documents.map(escapeHtml).join('<br/>'),
+      d.error
+        ? `<strong style="color:#d03b3b;">Falhou</strong><br/><span style="font-size:12px;">${escapeHtml(d.error)}</span>`
+        : '<strong style="color:#1f8a5b;">Enviado</strong>',
+    ]);
+
+    return renderMailLayout(
+      'Comprovante de envio de documentos',
+      `<p>Olá, ${escapeHtml(senderName)}.</p>
+       <p>Segue o resumo dos documentos que você enviou por e-mail em <strong>${sentAt}</strong>.</p>
+       ${renderTable(['Empresa', 'Destinatário', 'Documentos', 'Status'], rows)}
+       <p style="color:#6b7a73;font-size:13px;">"Enviado" significa que o e-mail saiu do sistema. Se o endereço do destinatário estiver errado, o provedor dele pode recusar a mensagem depois.</p>`,
+    );
   }
 
   private async resolveRecipients(
