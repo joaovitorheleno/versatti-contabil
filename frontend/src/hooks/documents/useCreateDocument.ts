@@ -5,14 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { isAdmin } from "../../common/auth/user-is-admin";
 import { openErrorNotification } from "../../components/notification/error";
 import { openSuccessNotification } from "../../components/notification/success";
-import { listClients, listUserClients } from "../../service/client/integration";
-import type { ClientsResponse } from "../../service/client/types";
+import {
+  listClientUsers,
+  listClients,
+  listUserClients,
+} from "../../service/client/integration";
+import type { ClientUser, ClientsResponse } from "../../service/client/types";
 import {
   createDocument,
   listDocumentTypes,
   notifyDocuments,
 } from "../../service/documents/integration";
-import type { DocumentTypeResponse } from "../../service/documents/types";
+import type {
+  DocumentTypeResponse,
+  NotifyDocumentsOptions,
+} from "../../service/documents/types";
 
 export type FormDocumentType = {
   clientId: string;
@@ -25,8 +32,11 @@ export type FormDocumentType = {
   alertDays?: number;
   visibleToClient: boolean;
   notifyResponsible?: boolean;
+  recipients?: string[];
   file?: UploadFile[];
 };
+
+export const RESPONSIBLE_RECIPIENT = "__responsible__";
 
 const useCreateDocument = () => {
   const navigate = useNavigate();
@@ -38,10 +48,25 @@ const useCreateDocument = () => {
   );
   const [loadingOptions, setLoadingOptions] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [loadedUsers, setLoadedUsers] = useState<{
+    clientId: string;
+    users: ClientUser[];
+  } | null>(null);
 
   const token = localStorage.getItem("@versatti:token");
 
   const documentTypeId = Form.useWatch("documentTypeId", form);
+  const clientId = Form.useWatch("clientId", form);
+
+  const responsibleEmail = useMemo(
+    () => clients.find((client) => client.id === clientId)?.responsibleEmail,
+    [clients, clientId],
+  );
+
+  const clientUsers =
+    loadedUsers && loadedUsers.clientId === clientId ? loadedUsers.users : [];
+  const loadingUsers =
+    !!clientId && !!isAdmin() && loadedUsers?.clientId !== clientId;
 
   const selectedType = useMemo(
     () => documentTypes.find((type) => type.id === documentTypeId),
@@ -91,6 +116,38 @@ const useCreateDocument = () => {
       form.setFieldsValue({ expirationDate: undefined, alertDays: undefined });
     }
   }, [selectedType, form]);
+
+  useEffect(() => {
+    if (!clientId || !isAdmin()) {
+      form.setFieldValue("recipients", []);
+      return;
+    }
+
+    form.setFieldValue(
+      "recipients",
+      responsibleEmail ? [RESPONSIBLE_RECIPIENT] : [],
+    );
+
+    let cancelled = false;
+
+    listClientUsers(clientId)
+      .catch((error) => {
+        if (!cancelled) {
+          openErrorNotification({
+            title: "Falha ao carregar usuários",
+            description: `Não foi possível carregar os usuários da empresa: ${error?.response?.data?.message || error?.message || error}`,
+          });
+        }
+        return [];
+      })
+      .then((users) => {
+        if (!cancelled) setLoadedUsers({ clientId, users });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId, responsibleEmail, form]);
 
   const onSubmit = async (values: FormDocumentType) => {
     const files = (values.file ?? [])
@@ -163,8 +220,13 @@ const useCreateDocument = () => {
       });
     }
 
-    if (sent > 0 && isAdmin() && values.notifyResponsible) {
-      await sendToResponsible(createdIds);
+    const recipients = values.recipients ?? [];
+
+    if (sent > 0 && isAdmin() && values.notifyResponsible && recipients.length) {
+      await sendByEmail(createdIds, {
+        includeResponsible: recipients.includes(RESPONSIBLE_RECIPIENT),
+        userIds: recipients.filter((id) => id !== RESPONSIBLE_RECIPIENT),
+      });
     }
 
     setSubmitting(false);
@@ -174,9 +236,12 @@ const useCreateDocument = () => {
     }
   };
 
-  const sendToResponsible = async (documentIds: string[]) => {
+  const sendByEmail = async (
+    documentIds: string[],
+    options: NotifyDocumentsOptions,
+  ) => {
     try {
-      const result = await notifyDocuments(documentIds);
+      const result = await notifyDocuments(documentIds, options);
 
       result.sent.forEach((item) =>
         openSuccessNotification({
@@ -207,6 +272,9 @@ const useCreateDocument = () => {
     clients,
     documentTypes,
     selectedType,
+    responsibleEmail,
+    clientUsers,
+    loadingUsers,
     loadingOptions,
     submitting,
     onSubmit,

@@ -8,6 +8,7 @@ import type {
   DocumentResponse,
   DocumentTypeResponse,
   DownloadFormat,
+  NotifyDocumentsOptions,
   NotifyDocumentsResult,
 } from "./types";
 
@@ -41,12 +42,13 @@ export const createDocument = async (
 
 export const notifyDocuments = async (
   documentIds: string[],
+  options: NotifyDocumentsOptions,
 ): Promise<NotifyDocumentsResult> => {
   const token = getToken();
 
   const response = await axios.post(
     `${BASE_URL}/document/notify`,
-    { documentIds },
+    { documentIds, ...options },
     {
       headers: {
         Authorization: `Bearer ${token}`,

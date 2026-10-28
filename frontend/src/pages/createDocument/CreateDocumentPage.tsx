@@ -25,6 +25,7 @@ import SelectComponent, {
 import { openErrorNotification } from "../../components/notification/error";
 import { maskCnpj } from "../../functions/maskCnpj";
 import useCreateDocument, {
+  RESPONSIBLE_RECIPIENT,
   type FormDocumentType,
 } from "../../hooks/documents/useCreateDocument";
 import * as S from "./styles";
@@ -41,6 +42,9 @@ const CreateDocumentPage = () => {
     clients,
     documentTypes,
     selectedType,
+    responsibleEmail,
+    clientUsers,
+    loadingUsers,
     loadingOptions,
     submitting,
     onSubmit,
@@ -56,9 +60,9 @@ const CreateDocumentPage = () => {
     | boolean
     | undefined;
 
-  const responsibleEmail = clients.find(
-    (client) => client.id === clientId,
-  )?.responsibleEmail;
+  const notifyEnabled = Form.useWatch("notifyResponsible", form) as
+    | boolean
+    | undefined;
   const fileCount = fileList?.length ?? 0;
 
   const clientOptions: SelectOption[] = useMemo(
@@ -69,6 +73,26 @@ const CreateDocumentPage = () => {
       })),
     [clients],
   );
+
+  const recipientOptions: SelectOption[] = useMemo(
+    () => [
+      ...(responsibleEmail
+        ? [
+            {
+              label: `Responsável da empresa - ${responsibleEmail}`,
+              value: RESPONSIBLE_RECIPIENT,
+            },
+          ]
+        : []),
+      ...clientUsers.map((user) => ({
+        label: `${user.name} - ${user.email}`,
+        value: user.id,
+      })),
+    ],
+    [responsibleEmail, clientUsers],
+  );
+
+  const canSendEmail = !!responsibleEmail || clientUsers.length > 0;
 
   const documentTypeOptions = useMemo(() => {
     const groups = new Map<DocumentCategoryEnum, SelectOption[]>();
@@ -247,19 +271,54 @@ const CreateDocumentPage = () => {
           {admin && (
             <FormItemComponent<FormDocumentType>
               name="notifyResponsible"
-              label="Enviar por e-mail ao responsável da empresa"
+              label="Enviar por e-mail"
               valuePropName="checked"
               extra={
                 !clientId
-                  ? "Selecione a empresa para ver o e-mail do responsável."
-                  : !responsibleEmail
-                    ? "Esta empresa não tem e-mail do responsável cadastrado. Cadastre na tela de Clientes."
+                  ? "Selecione a empresa para escolher os destinatários."
+                  : !loadingUsers && !canSendEmail
+                    ? "Esta empresa não tem e-mail do responsável nem usuários vinculados."
                     : visibleToClient === false
                       ? "O documento não está visível para o cliente, então não será enviado por e-mail."
-                      : `Os arquivos serão enviados para ${responsibleEmail}.`
+                      : undefined
               }
             >
-              <Switch disabled={!!clientId && !responsibleEmail} />
+              <Switch disabled={!!clientId && !loadingUsers && !canSendEmail} />
+            </FormItemComponent>
+          )}
+
+          {admin && (
+            <FormItemComponent<FormDocumentType>
+              name="recipients"
+              label="Destinatários"
+              dependencies={["notifyResponsible"]}
+              rules={[
+                {
+                  required: !!notifyEnabled && !!clientId && canSendEmail,
+                  type: "array",
+                  min: 1,
+                  message: "Selecione ao menos um destinatário",
+                },
+              ]}
+              extra={
+                notifyEnabled && clientId
+                  ? "Cada destinatário recebe um e-mail separado com os arquivos em anexo."
+                  : undefined
+              }
+            >
+              <SelectComponent
+                mode="multiple"
+                placeholder={
+                  clientId
+                    ? "Selecione quem vai receber o e-mail"
+                    : "Selecione a empresa primeiro"
+                }
+                options={recipientOptions}
+                loading={loadingUsers}
+                disabled={!notifyEnabled || !clientId || !canSendEmail}
+                variant="underlined"
+                maxTagCount="responsive"
+              />
             </FormItemComponent>
           )}
 

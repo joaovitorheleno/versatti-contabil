@@ -53,6 +53,11 @@ export type NotifyDocumentsResult = {
   failed: { client: string; reason: string }[];
 };
 
+export type NotifyDocumentsOptions = {
+  includeResponsible: boolean;
+  userIds: string[];
+};
+
 export type DownloadFormat = "xml" | "pdf";
 
 export type DocumentListItem = {
