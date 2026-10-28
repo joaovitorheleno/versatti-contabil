@@ -32,3 +32,9 @@ export type EditClientType = {
   responsibleEmail?: string | null;
   contactPerson?: string | undefined;
 };
+
+export type ClientUser = {
+  id: string;
+  name: string;
+  email: string;
+};

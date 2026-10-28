@@ -7,10 +7,16 @@ import { existsSync } from 'fs';
 import { In } from 'typeorm';
 import { ClientEntity } from '../../../entities/client.entity';
 import { DocumentEntity } from '../../../entities/documents.entity';
+import { UserClientEntity } from '../../../entities/user-client.entity';
 import { MailService, type MailAttachment } from '../../mail/mail.service';
 import { StorageService } from '../../storage/storage.service';
 
 const MAX_ATTACHMENTS_SIZE = 20 * 1024 * 1024;
+
+export interface NotifyOptions {
+  includeResponsible?: boolean;
+  userIds?: string[];
+}
 
 export interface NotifyResult {
   sent: { client: string; email: string; documents: number; attached: number }[];
@@ -37,7 +43,10 @@ export class NotifyDocumentsService {
     private readonly storageService: StorageService,
   ) {}
 
-  public async execute(documentIds: string[]): Promise<NotifyResult> {
+  public async execute(
+    documentIds: string[],
+    { includeResponsible = true, userIds = [] }: NotifyOptions = {},
+  ): Promise<NotifyResult> {
     if (!this.mailService.isConfigured()) {
       throw new ServiceUnavailableException(
         'O envio de e-mail não está configurado no servidor',
@@ -66,20 +75,26 @@ export class NotifyDocumentsService {
     const result: NotifyResult = { sent: [], skipped: [], failed: [] };
 
     for (const { client, documents: clientDocuments } of byClient.values()) {
-      if (!client.responsibleEmail) {
-        result.skipped.push({
-          client: client.name,
-          reason: 'Empresa sem e-mail do responsável cadastrado',
-        });
-        continue;
-      }
-
       const visibleDocuments = clientDocuments.filter((d) => d.visibleToClient);
 
       if (visibleDocuments.length === 0) {
         result.skipped.push({
           client: client.name,
           reason: 'Nenhum documento visível para o cliente',
+        });
+        continue;
+      }
+
+      const recipients = await this.resolveRecipients(
+        client,
+        includeResponsible,
+        userIds,
+      );
+
+      if (recipients.length === 0) {
+        result.skipped.push({
+          client: client.name,
+          reason: 'Nenhum destinatário com e-mail para esta empresa',
         });
         continue;
       }
@@ -107,32 +122,60 @@ export class NotifyDocumentsService {
         });
       });
 
-      try {
-        await this.mailService.send({
-          to: client.responsibleEmail,
-          subject:
-            visibleDocuments.length > 1
-              ? `${visibleDocuments.length} novos documentos - ${client.name}`
-              : `Novo documento - ${client.name}`,
-          html: this.buildHtml(client, visibleDocuments, notAttached),
-          attachments,
-        });
+      const subject =
+        visibleDocuments.length > 1
+          ? `${visibleDocuments.length} novos documentos - ${client.name}`
+          : `Novo documento - ${client.name}`;
+      const html = this.buildHtml(client, visibleDocuments, notAttached);
 
-        result.sent.push({
-          client: client.name,
-          email: client.responsibleEmail,
-          documents: visibleDocuments.length,
-          attached: attachments.length,
-        });
-      } catch (e: any) {
-        this.logger.error(
-          `Falha ao enviar e-mail para ${client.responsibleEmail}: ${e.message}`,
-        );
-        result.failed.push({ client: client.name, reason: e.message });
+      for (const email of recipients) {
+        try {
+          await this.mailService.send({ to: email, subject, html, attachments });
+
+          result.sent.push({
+            client: client.name,
+            email,
+            documents: visibleDocuments.length,
+            attached: attachments.length,
+          });
+        } catch (e: any) {
+          this.logger.error(`Falha ao enviar e-mail para ${email}: ${e.message}`);
+          result.failed.push({
+            client: client.name,
+            reason: `${email}: ${e.message}`,
+          });
+        }
       }
     }
 
     return result;
+  }
+
+  private async resolveRecipients(
+    client: ClientEntity,
+    includeResponsible: boolean,
+    userIds: string[],
+  ): Promise<string[]> {
+    const emails: string[] = [];
+
+    if (includeResponsible && client.responsibleEmail) {
+      emails.push(client.responsibleEmail);
+    }
+
+    if (userIds.length > 0) {
+      const links = await UserClientEntity.find({
+        where: { client: { id: client.id }, user: { id: In(userIds) } },
+        relations: { user: true },
+      });
+      links.forEach((link) => link.user?.email && emails.push(link.user.email));
+    }
+
+    const unique = new Map<string, string>();
+    emails.forEach((email) => {
+      const key = email.trim().toLowerCase();
+      if (!unique.has(key)) unique.set(key, email.trim());
+    });
+    return [...unique.values()];
   }
 
   private buildHtml(

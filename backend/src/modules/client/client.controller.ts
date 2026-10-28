@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Req,
@@ -16,10 +17,12 @@ import {
   CreateClientService,
   DeleteClientService,
   EditClientService,
+  ListClientUsersService,
   ListClientsService,
   ListUserClientsService,
 } from './service';
 import { EditClientDto } from './dto/edit-cliient.dto';
+import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -32,6 +35,7 @@ export class ClientController {
     private readonly editClientService: EditClientService,
     private readonly deleteClientService: DeleteClientService,
     private readonly listUserClientsService: ListUserClientsService,
+    private readonly listClientUsersService: ListClientUsersService,
   ) {}
 
   @Post()
@@ -62,6 +66,13 @@ export class ClientController {
     const currentUserId = req.user?.userId || req.user?.sub;
     const response = await this.listUserClientsService.execute(currentUserId);
     return response;
+  }
+
+  @Get(':id/users')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Lista os usuários vinculados à empresa' })
+  public async listClientUsers(@Param('id', ParseUUIDPipe) id: string) {
+    return this.listClientUsersService.execute(id);
   }
 
   @Patch(':id')

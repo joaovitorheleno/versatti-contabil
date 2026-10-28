@@ -71,12 +71,15 @@ export class DocumentController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Envia os documentos por e-mail ao responsável de cada empresa (anexando os arquivos)',
+      'Envia os documentos por e-mail ao responsável e aos usuários selecionados da empresa (anexando os arquivos)',
   })
   @ApiResponse({ status: 200, description: 'Resultado do envio por empresa' })
   @ApiResponse({ status: 503, description: 'SMTP não configurado no servidor' })
   notify(@Body() dto: NotifyDocumentsDto) {
-    return this.notifyDocumentsService.execute(dto.documentIds);
+    return this.notifyDocumentsService.execute(dto.documentIds, {
+      includeResponsible: dto.includeResponsible,
+      userIds: dto.userIds,
+    });
   }
 
   @Get()

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "../../config/url/baseUrl";
-import type { ClientsResponse, EditClientType } from "./types";
+import type { ClientUser, ClientsResponse, EditClientType } from "./types";
 import { getToken } from "../../config/token/getToken";
 
 export const listClients = async (): Promise<ClientsResponse[]> => {
@@ -78,6 +78,18 @@ export const listUserClients = async (): Promise<ClientsResponse[]> => {
   const token = getToken();
 
   const response = await axios.get(`${BASE_URL}/client/userClients`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
+export const listClientUsers = async (clientId: string): Promise<ClientUser[]> => {
+  const token = getToken();
+
+  const response = await axios.get(`${BASE_URL}/client/${clientId}/users`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

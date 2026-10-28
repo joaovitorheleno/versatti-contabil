@@ -7,6 +7,7 @@ import {
   DeleteClientService,
   EditClientService,
   ListClientsService,
+  ListClientUsersService,
   ListUserClientsService,
 } from './service';
 
@@ -20,6 +21,7 @@ import {
     DeleteClientService,
     ConsultCepService,
     ListUserClientsService,
+    ListClientUsersService,
   ],
 })
 export class ClientModule {}
