@@ -2,6 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { promises as fs } from 'fs';
 import { createTransport, type Transporter } from 'nodemailer';
+import { EmailLogEntity } from '../../entities/email-log.entity';
+import {
+  EmailCategoryEnum,
+  EmailStatusEnum,
+} from '../../enum/email-log.enum';
 
 export interface MailAttachment {
   filename: string;
@@ -9,11 +14,19 @@ export interface MailAttachment {
   contentType?: string;
 }
 
+export interface MailLogInfo {
+  category?: EmailCategoryEnum;
+  clientId?: string | null;
+  sentBy?: string | null;
+}
+
 export interface SendMailParams {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
   attachments?: MailAttachment[];
+  log?: MailLogInfo;
 }
 
 const RESEND_URL = 'https://api.resend.com/emails';
@@ -79,12 +92,17 @@ export class MailService {
     return this.resendApiKey !== null || this.transporter !== null;
   }
 
-  public send(params: SendMailParams): Promise<void> {
+  public send(params: SendMailParams): Promise<string | null> {
     const job = this.queue.then(async () => {
       const wait = this.lastSentAt + this.minIntervalMs - Date.now();
       if (wait > 0) await sleep(wait);
       try {
-        await this.deliver(params);
+        const providerId = await this.deliver(params);
+        await this.record(params, EmailStatusEnum.SENT, providerId);
+        return providerId;
+      } catch (e: any) {
+        await this.record(params, EmailStatusEnum.FAILED, null, e?.message);
+        throw e;
       } finally {
         this.lastSentAt = Date.now();
       }
@@ -93,7 +111,29 @@ export class MailService {
     return job;
   }
 
-  private async deliver(params: SendMailParams) {
+  private async record(
+    params: SendMailParams,
+    status: EmailStatusEnum,
+    providerId: string | null,
+    error?: string,
+  ) {
+    try {
+      await EmailLogEntity.create({
+        providerId,
+        toEmail: params.to.slice(0, 255),
+        subject: params.subject.slice(0, 255),
+        category: params.log?.category ?? EmailCategoryEnum.OTHER,
+        status,
+        clientId: params.log?.clientId ?? null,
+        sentBy: params.log?.sentBy ?? null,
+        error: error?.slice(0, 500) ?? null,
+      }).save();
+    } catch (e: any) {
+      this.logger.error(`Falha ao registrar o e-mail enviado: ${e.message}`);
+    }
+  }
+
+  private async deliver(params: SendMailParams): Promise<string | null> {
     if (this.resendApiKey) {
       return this.sendWithResend(this.resendApiKey, params);
     }
@@ -104,18 +144,19 @@ export class MailService {
 
     await this.transporter.sendMail({
       from: this.from,
-      replyTo: this.replyTo,
+      replyTo: params.replyTo ?? this.replyTo,
       to: params.to,
       subject: params.subject,
       html: params.html,
       attachments: params.attachments,
     });
+    return null;
   }
 
   private async sendWithResend(
     apiKey: string,
-    { to, subject, html, attachments }: SendMailParams,
-  ) {
+    { to, subject, html, replyTo, attachments }: SendMailParams,
+  ): Promise<string | null> {
     const files = attachments?.length
       ? await Promise.all(
           attachments.map(async (file) => ({
@@ -134,7 +175,7 @@ export class MailService {
       body: JSON.stringify({
         from: this.from,
         to: [to],
-        reply_to: this.replyTo,
+        reply_to: replyTo ?? this.replyTo,
         subject,
         html,
         attachments: files,
@@ -146,5 +187,10 @@ export class MailService {
       const detail = await response.text().catch(() => '');
       throw new Error(`Resend respondeu ${response.status}: ${detail}`);
     }
+
+    const body = (await response.json().catch(() => null)) as {
+      id?: string;
+    } | null;
+    return body?.id ?? null;
   }
 }

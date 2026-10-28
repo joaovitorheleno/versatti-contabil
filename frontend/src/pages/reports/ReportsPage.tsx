@@ -53,6 +53,15 @@ import {
   type AuditFilters,
   type AuditLog,
 } from "../../service/audit/integration";
+import {
+  emailCategoryLabels,
+  emailStatusConfig,
+  listEmailLogs,
+  type EmailCategory,
+  type EmailLog,
+  type EmailLogFilters,
+  type EmailStatus,
+} from "../../service/emailLog/integration";
 import * as S from "./styles";
 
 const { Text } = Typography;
@@ -918,6 +927,248 @@ const AuditReport = ({ clientOptions }: { clientOptions: SelectOption[] }) => {
   );
 };
 
+const emailStatusOptions: SelectOption[] = (
+  Object.keys(emailStatusConfig) as EmailStatus[]
+).map((status) => ({ value: status, label: emailStatusConfig[status].label }));
+
+const emailCategoryOptions: SelectOption[] = (
+  Object.keys(emailCategoryLabels) as EmailCategory[]
+).map((category) => ({ value: category, label: emailCategoryLabels[category] }));
+
+const EmailLogReport = ({
+  clientOptions,
+}: {
+  clientOptions: SelectOption[];
+}) => {
+  const [filters, setFilters] = useState<EmailLogFilters>({
+    from: dayjs().subtract(30, "day").format(API_FORMAT),
+    to: dayjs().format(API_FORMAT),
+  });
+  const [rows, setRows] = useState<EmailLog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState<"excel" | "pdf" | null>(null);
+
+  const generate = async (next: EmailLogFilters = filters) => {
+    try {
+      setLoading(true);
+      setRows(await listEmailLogs(next));
+    } catch (e: any) {
+      openErrorNotification({
+        title: "Falha ao carregar os e-mails enviados",
+        description: e?.response?.data?.message || e?.message || String(e),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const formatDateTime = (date: string | null) =>
+    date ? dayjs(date).format("DD/MM/YYYY HH:mm") : "-";
+
+  const lastUpdate = (r: EmailLog) =>
+    r.bouncedAt ?? r.openedAt ?? r.deliveredAt ?? null;
+
+  const handleExport = async (format: "excel" | "pdf") => {
+    setExporting(format);
+    await runExport(format, {
+      fileName: `emails_enviados_${filters.from}_${filters.to}`,
+      title: "E-mails enviados",
+      subtitle: `${formatDate(filters.from ?? null)} a ${formatDate(filters.to ?? null)}`,
+      rows,
+      columns: [
+        { header: "Enviado em", value: (r) => formatDateTime(r.createdAt), width: 18 },
+        { header: "Destinatário", value: (r) => r.toEmail, width: 32 },
+        { header: "Assunto", value: (r) => r.subject, width: 40 },
+        { header: "Empresa", value: (r) => r.client?.name ?? "-", width: 30 },
+        { header: "Enviado por", value: (r) => r.sentBy?.name ?? "Sistema", width: 20 },
+        { header: "Status", value: (r) => emailStatusConfig[r.status].label, width: 16 },
+        { header: "Atualizado em", value: (r) => formatDateTime(lastUpdate(r)), width: 18 },
+        { header: "Detalhe", value: (r) => r.error ?? "", width: 36 },
+      ],
+    });
+    setExporting(null);
+  };
+
+  const columns: ColumnsType<EmailLog> = [
+    {
+      title: "Enviado em",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 150,
+      render: (date: string) => formatDateTime(date),
+    },
+    {
+      title: "Destinatário",
+      dataIndex: "toEmail",
+      key: "toEmail",
+    },
+    {
+      title: "Assunto",
+      key: "subject",
+      render: (_, record) => (
+        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.35 }}>
+          <span>{record.subject}</span>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {emailCategoryLabels[record.category]}
+            {record.client?.name ? ` · ${record.client.name}` : ""}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      title: "Enviado por",
+      key: "sentBy",
+      render: (_, record) =>
+        record.sentBy?.name ?? <Text type="secondary">Sistema</Text>,
+    },
+    {
+      title: "Status",
+      key: "status",
+      width: 200,
+      render: (_, record) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <span>
+            <Tag color={emailStatusConfig[record.status].color}>
+              {emailStatusConfig[record.status].label}
+            </Tag>
+          </span>
+          {lastUpdate(record) && (
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {formatDateTime(lastUpdate(record))}
+            </Text>
+          )}
+          {record.error && (
+            <Text type="danger" style={{ fontSize: 12 }}>
+              {record.error}
+            </Text>
+          )}
+          {!record.tracked && record.status === "SENT" && (
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Sem rastreio de entrega
+            </Text>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const problems = rows.filter((r) =>
+    ["BOUNCED", "FAILED", "COMPLAINED"].includes(r.status),
+  ).length;
+
+  return (
+    <>
+      <S.FiltersBar>
+        <S.FilterField>
+          Período
+          <RangePicker
+            locale={ptBR}
+            format={DATE_FORMAT}
+            allowClear={false}
+            value={[
+              filters.from ? dayjs(filters.from) : null,
+              filters.to ? dayjs(filters.to) : null,
+            ]}
+            onChange={(range) =>
+              setFilters((prev) => ({
+                ...prev,
+                from: (range?.[0] as Dayjs | null)?.format(API_FORMAT),
+                to: (range?.[1] as Dayjs | null)?.format(API_FORMAT),
+              }))
+            }
+          />
+        </S.FilterField>
+        <S.FilterField>
+          Empresa
+          <SelectComponent
+            placeholder="Todas as empresas"
+            options={clientOptions}
+            value={filters.clientId}
+            onChange={(value) =>
+              setFilters((prev) => ({ ...prev, clientId: value ?? undefined }))
+            }
+          />
+        </S.FilterField>
+        <S.FilterField>
+          Status
+          <SelectComponent
+            placeholder="Todos os status"
+            options={emailStatusOptions}
+            value={filters.status}
+            onChange={(value) =>
+              setFilters((prev) => ({ ...prev, status: value ?? undefined }))
+            }
+          />
+        </S.FilterField>
+        <S.FilterField>
+          Tipo
+          <SelectComponent
+            placeholder="Todos os tipos"
+            options={emailCategoryOptions}
+            value={filters.category}
+            onChange={(value) =>
+              setFilters((prev) => ({ ...prev, category: value ?? undefined }))
+            }
+          />
+        </S.FilterField>
+        <S.FilterActions>
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            onClick={() => generate()}
+            loading={loading}
+            style={{ backgroundColor: "#16302A" }}
+          >
+            Gerar
+          </Button>
+          <Button
+            icon={<FileExcelOutlined />}
+            onClick={() => handleExport("excel")}
+            disabled={rows.length === 0}
+            loading={exporting === "excel"}
+          >
+            Excel
+          </Button>
+          <Button
+            icon={<FilePdfOutlined />}
+            onClick={() => handleExport("pdf")}
+            disabled={rows.length === 0}
+            loading={exporting === "pdf"}
+          >
+            PDF
+          </Button>
+        </S.FilterActions>
+      </S.FiltersBar>
+
+      <S.SummaryRow>
+        <span>
+          {rows.length} e-mail(s)
+          {problems > 0 ? ` · ${problems} com problema de entrega` : ""}
+          {rows.length === 1000 ? " (limite atingido: refine o filtro)" : ""}
+        </span>
+      </S.SummaryRow>
+
+      <Table
+        dataSource={rows}
+        columns={columns}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 20, simple: true }}
+        scroll={{ x: 900 }}
+        size="small"
+        locale={{
+          emptyText: <EmptyState title="Nenhum e-mail no período" />,
+        }}
+      />
+    </>
+  );
+};
+
 const ReportsPage = () => {
   const [clients, setClients] = useState<ClientsResponse[]>([]);
 
@@ -966,6 +1217,11 @@ const ReportsPage = () => {
             },
             ...(isAdmin()
               ? [
+                  {
+                    key: "emails",
+                    label: "E-mails enviados",
+                    children: <EmailLogReport clientOptions={clientOptions} />,
+                  },
                   {
                     key: "audit",
                     label: "Registro de acessos",

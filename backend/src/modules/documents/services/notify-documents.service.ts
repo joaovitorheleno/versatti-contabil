@@ -3,12 +3,13 @@ import {
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { existsSync } from 'fs';
+import { existsSync, statSync } from 'fs';
 import { In } from 'typeorm';
 import { ClientEntity } from '../../../entities/client.entity';
 import { DocumentEntity } from '../../../entities/documents.entity';
 import { UserClientEntity } from '../../../entities/user-client.entity';
 import { UserEntity } from '../../../entities/user.entity';
+import { EmailCategoryEnum } from '../../../enum/email-log.enum';
 import { renderMailLayout, renderTable } from '../../mail/mail-layout';
 import { MailService, type MailAttachment } from '../../mail/mail.service';
 import { StorageService } from '../../storage/storage.service';
@@ -26,6 +27,12 @@ interface Delivery {
   email: string;
   documents: string[];
   error?: string;
+}
+
+interface SentMessage {
+  client: string;
+  html: string;
+  attachments: MailAttachment[];
 }
 
 export interface NotifyResult {
@@ -83,6 +90,13 @@ export class NotifyDocumentsService {
       byClient.set(document.client.id, group);
     });
 
+    const sender = senderId
+      ? await UserEntity.findOne({
+          where: { id: senderId },
+          select: { id: true, name: true, email: true },
+        })
+      : null;
+
     const result: NotifyResult = {
       sent: [],
       skipped: [],
@@ -90,6 +104,7 @@ export class NotifyDocumentsService {
       receiptTo: null,
     };
     const deliveries: Delivery[] = [];
+    const messages: SentMessage[] = [];
 
     for (const { client, documents: clientDocuments } of byClient.values()) {
       const visibleDocuments = clientDocuments.filter((d) => d.visibleToClient);
@@ -144,10 +159,23 @@ export class NotifyDocumentsService {
           ? `${visibleDocuments.length} novos documentos - ${client.name}`
           : `Novo documento - ${client.name}`;
       const html = this.buildHtml(client, visibleDocuments, notAttached);
+      let anySent = false;
 
       for (const email of recipients) {
         try {
-          await this.mailService.send({ to: email, subject, html, attachments });
+          await this.mailService.send({
+            to: email,
+            subject,
+            html,
+            attachments,
+            replyTo: sender?.email || undefined,
+            log: {
+              category: EmailCategoryEnum.DOCUMENT,
+              clientId: client.id,
+              sentBy: sender?.id ?? null,
+            },
+          });
+          anySent = true;
 
           deliveries.push({
             client: client.name,
@@ -174,34 +202,47 @@ export class NotifyDocumentsService {
           });
         }
       }
+
+      if (anySent) messages.push({ client: client.name, html, attachments });
     }
 
-    if (senderId && deliveries.length > 0) {
-      const sender = await UserEntity.findOne({
-        where: { id: senderId },
-        select: { id: true, name: true, email: true },
-      });
-
-      if (sender?.email) {
-        result.receiptTo = sender.email;
-        this.mailService
-          .send({
-            to: sender.email,
-            subject: `Comprovante de envio - ${deliveries.filter((d) => !d.error).length} e-mail(s) enviado(s)`,
-            html: this.buildReceiptHtml(sender.name, deliveries),
-          })
-          .catch((e) =>
-            this.logger.error(
-              `Falha ao enviar comprovante para ${sender.email}: ${e?.message ?? e}`,
-            ),
-          );
-      }
+    if (sender?.email && deliveries.length > 0) {
+      result.receiptTo = sender.email;
+      this.mailService
+        .send({
+          to: sender.email,
+          subject: `Comprovante de envio - ${deliveries.filter((d) => !d.error).length} e-mail(s) enviado(s)`,
+          html: this.buildReceiptHtml(sender.name, deliveries, messages),
+          attachments: this.receiptAttachments(messages),
+          log: { category: EmailCategoryEnum.RECEIPT, sentBy: sender.id },
+        })
+        .catch((e) =>
+          this.logger.error(
+            `Falha ao enviar comprovante para ${sender.email}: ${e?.message ?? e}`,
+          ),
+        );
     }
 
     return result;
   }
 
-  private buildReceiptHtml(senderName: string, deliveries: Delivery[]) {
+  private receiptAttachments(messages: SentMessage[]): MailAttachment[] {
+    const all = messages.flatMap((m) => m.attachments);
+    const unique = new Map(all.map((a) => [a.path, a]));
+    let total = 0;
+    return [...unique.values()].filter((attachment) => {
+      const size = existsSync(attachment.path) ? statSync(attachment.path).size : 0;
+      if (total + size > MAX_ATTACHMENTS_SIZE) return false;
+      total += size;
+      return true;
+    });
+  }
+
+  private buildReceiptHtml(
+    senderName: string,
+    deliveries: Delivery[],
+    messages: SentMessage[],
+  ) {
     const sentAt = new Date().toLocaleString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
     });
@@ -220,7 +261,14 @@ export class NotifyDocumentsService {
       `<p>Olá, ${escapeHtml(senderName)}.</p>
        <p>Segue o resumo dos documentos que você enviou por e-mail em <strong>${sentAt}</strong>.</p>
        ${renderTable(['Empresa', 'Destinatário', 'Documentos', 'Status'], rows)}
-       <p style="color:#6b7a73;font-size:13px;">"Enviado" significa que o e-mail saiu do sistema. Se o endereço do destinatário estiver errado, o provedor dele pode recusar a mensagem depois.</p>`,
+       <p style="color:#6b7a73;font-size:13px;">"Enviado" significa que o e-mail saiu do sistema. A confirmação de entrega aparece em Relatórios &gt; E-mails enviados, e você será avisado por e-mail se algum destinatário recusar a mensagem.</p>
+       ${messages
+         .map(
+           (m) => `<h3 style="margin-top:28px;color:#16302a;">Cópia do e-mail enviado - ${escapeHtml(m.client)}</h3>
+       <div style="border:1px solid #e4e7e5;border-radius:6px;padding:12px 16px;background:#fbfcfb;">${m.html}</div>`,
+         )
+         .join('')}
+       ${messages.some((m) => m.attachments.length) ? '<p style="color:#6b7a73;font-size:13px;">Os mesmos arquivos enviados seguem em anexo.</p>' : ''}`,
     );
   }
 
@@ -289,7 +337,7 @@ export class NotifyDocumentsService {
         </table>
         <p>Os arquivos seguem em anexo.</p>
         ${notAttachedNote}
-        <p style="color:#6b7a73;font-size:12px;margin-top:24px;">Este é um e-mail automático do sistema Versatti. Não responda.</p>
+        <p style="color:#6b7a73;font-size:12px;margin-top:24px;">Enviado pelo sistema Versatti. Em caso de dúvidas, basta responder este e-mail.</p>
       </div>`;
   }
 }

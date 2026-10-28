@@ -13,6 +13,7 @@ import { ClientEntity } from '../../entities/client.entity';
 import { DocumentEntity } from '../../entities/documents.entity';
 import { UserEntity } from '../../entities/user.entity';
 import { UserRole } from '../../enum/user-role.enum';
+import { EmailCategoryEnum } from '../../enum/email-log.enum';
 import {
   escapeHtml,
   formatDateBr,
@@ -114,6 +115,7 @@ export class ExpirationAlertsService {
           to: client.responsibleEmail,
           subject: `Documentos vencendo - ${client.name}`,
           html: this.buildClientHtml(client, visible, today),
+          log: { category: EmailCategoryEnum.EXPIRATION_ALERT, clientId: client.id },
         });
         result.clientEmailsSent += 1;
         visible.forEach((d) => notified.add(d.id));
@@ -132,6 +134,7 @@ export class ExpirationAlertsService {
           to: email,
           subject: `Vencimentos de documentos - ${formatDateBr(today)}`,
           html: this.buildOfficeHtml(due, today, result.clientsWithoutEmail),
+          log: { category: EmailCategoryEnum.EXPIRATION_ALERT },
         });
         result.officeEmailSent = true;
       } catch (e: any) {

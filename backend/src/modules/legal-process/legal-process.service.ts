@@ -18,6 +18,7 @@ import {
   DEFAULT_PROCESS_STEPS,
   LegalProcessStatusEnum,
 } from '../../enum/legal-process.enum';
+import { EmailCategoryEnum } from '../../enum/email-log.enum';
 import { escapeHtml, renderMailLayout } from '../mail/mail-layout';
 import { MailService } from '../mail/mail.service';
 import {
@@ -241,6 +242,7 @@ export class LegalProcessService {
            ${step.notes ? `<p style="color:#6b7a73;">${escapeHtml(step.notes)}</p>` : ''}
            <p>${finished ? 'Todas as etapas foram concluídas.' : `Progresso: ${done} de ${process.steps.length} etapas concluídas.`}</p>`,
         ),
+        log: { category: EmailCategoryEnum.LEGAL_PROCESS, clientId: process.client.id },
       });
     } catch (e: any) {
       this.logger.error(`Falha ao avisar ${email} sobre o processo ${process.id}: ${e.message}`);
