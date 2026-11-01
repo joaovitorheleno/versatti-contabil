@@ -15,6 +15,7 @@ import CreateClientPage from "./pages/createClient/CreateClientPage";
 import { isAdmin } from "./common/auth/user-is-admin";
 import ListDocumentsPage from "./pages/listDocuments/ListDocumentsPage";
 import CreateDocumentPage from "./pages/createDocument/CreateDocumentPage";
+import AccountingPage from "./pages/accounting/AccountingPage";
 import ListDocumentTypesPage from "./pages/listDocumentTypes/ListDocumentTypesPage";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import ReportsPage from "./pages/reports/ReportsPage";
@@ -47,6 +48,7 @@ function MainLayout() {
                   path="/document-types"
                   element={<ListDocumentTypesPage />}
                 />
+                <Route path="/contabilidade" element={<AccountingPage />} />
               </>
             )}
             <Route path="/dashboard" element={<DashboardPage />} />
