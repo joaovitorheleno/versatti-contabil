@@ -17,6 +17,7 @@ import { TicketModule } from './modules/ticket/ticket.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { PrivacyModule } from './modules/privacy/privacy.module';
 import { EmailLogModule } from './modules/email-log/email-log.module';
+import { AccountingModule } from './modules/accounting/accounting.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -38,6 +39,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuditModule,
     PrivacyModule,
     EmailLogModule,
+    AccountingModule,
   ],
   controllers: [HealthController],
   providers: [

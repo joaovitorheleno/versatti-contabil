@@ -64,12 +64,32 @@ const getDocumentStatus = (document: DocumentListItem): DocumentStatus => {
 
 type PortalTab = "ALL" | "GUIAS" | "FOLHA" | "RELATORIOS" | "NOTAS" | "EMPRESA";
 
-const portalTabs: { value: PortalTab; label: string; categories?: DocumentCategoryEnum[] }[] = [
+const portalTabs: {
+  value: PortalTab;
+  label: string;
+  categories?: DocumentCategoryEnum[];
+}[] = [
   { value: "ALL", label: "Todos" },
-  { value: "GUIAS", label: "Guias de impostos", categories: [DocumentCategoryEnum.GUIAS] },
-  { value: "FOLHA", label: "Folha de pagamento", categories: [DocumentCategoryEnum.TRABALHISTA] },
-  { value: "RELATORIOS", label: "Relatórios contábeis", categories: [DocumentCategoryEnum.CONTABIL] },
-  { value: "NOTAS", label: "Notas fiscais", categories: [DocumentCategoryEnum.FISCAL] },
+  {
+    value: "GUIAS",
+    label: "Guias de impostos",
+    categories: [DocumentCategoryEnum.GUIAS],
+  },
+  {
+    value: "FOLHA",
+    label: "Folha de pagamento",
+    categories: [DocumentCategoryEnum.TRABALHISTA],
+  },
+  {
+    value: "RELATORIOS",
+    label: "Relatórios contábeis",
+    categories: [DocumentCategoryEnum.CONTABIL],
+  },
+  {
+    value: "NOTAS",
+    label: "Notas fiscais",
+    categories: [DocumentCategoryEnum.FISCAL],
+  },
   {
     value: "EMPRESA",
     label: "Documentos da empresa",
@@ -147,9 +167,7 @@ const ListDocumentsPage = () => {
     [documents],
   );
 
-  const getActionMenuItems = (
-    record: DocumentListItem,
-  ): MenuProps["items"] =>
+  const getActionMenuItems = (record: DocumentListItem): MenuProps["items"] =>
     record.isXml
       ? [
           {
@@ -253,6 +271,7 @@ const ListDocumentsPage = () => {
       render: (date: string | null) => (
         <Text type="secondary">{formatDate(date)}</Text>
       ),
+      width: 120,
     },
     {
       title: "Vencimento",
