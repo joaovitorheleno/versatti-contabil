@@ -1,13 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  Length,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { TaxRegimeEnum } from 'src/enum/tax-regime.enum';
 
 export class EditClientDto {
@@ -17,7 +10,7 @@ export class EditClientDto {
     description: 'Razão Social do Cliente/Empresa',
     example: 'Empresa Teste LTDA',
   })
-  name?: string;
+  readonly name?: string;
 
   @IsString({ message: 'O nome fantasia deve ser uma string' })
   @IsOptional()
@@ -25,7 +18,7 @@ export class EditClientDto {
     description: 'Nome Fantasia do Cliente/Empresa',
     example: 'Tech Solutions',
   })
-  tradeName?: string;
+  readonly tradeName?: string;
 
   @IsString({ message: 'O CNPJ deve ser uma string' })
   @IsOptional()
@@ -37,7 +30,7 @@ export class EditClientDto {
     description: 'CNPJ do Cliente/Empresa (somente números)',
     example: '12345678000190',
   })
-  cnpj?: string;
+  readonly cnpj?: string;
 
   @IsEnum(TaxRegimeEnum, { message: 'Regime tributário inválido' })
   @IsOptional()
@@ -46,7 +39,7 @@ export class EditClientDto {
     enum: TaxRegimeEnum,
     example: TaxRegimeEnum.SIMPLES_NACIONAL,
   })
-  taxRegime?: TaxRegimeEnum;
+  readonly taxRegime?: TaxRegimeEnum;
 
   @IsString({ message: 'A inscrição estadual deve ser uma string' })
   @IsOptional()
@@ -54,7 +47,7 @@ export class EditClientDto {
     description: 'Inscrição Estadual (ou ISENTO)',
     example: '123456789',
   })
-  stateRegistration?: string | undefined;
+  readonly stateRegistration?: string;
 
   @IsString({ message: 'A inscrição municipal deve ser uma string' })
   @IsOptional()
@@ -62,12 +55,12 @@ export class EditClientDto {
     description: 'Inscrição Municipal (para serviços)',
     example: '987654',
   })
-  municipalRegistration?: string;
+  readonly municipalRegistration?: string;
 
   @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEmail({}, { message: 'E-mail fiscal inválido' })
   @IsOptional()
-  nfeEmail?: string | undefined;
+  nfeEmail?: string;
 
   @Transform(({ value }) => (value === '' ? null : value))
   @IsEmail({}, { message: 'E-mail do responsável inválido' })
@@ -77,7 +70,7 @@ export class EditClientDto {
       'E-mail do responsável pela empresa. Recebe os documentos enviados pelo escritório',
     example: 'responsavel@empresateste.com.br',
   })
-  responsibleEmail?: string | null;
+  readonly responsibleEmail?: string;
 
   @IsString({ message: 'O telefone deve ser uma string' })
   @IsOptional()
@@ -85,7 +78,7 @@ export class EditClientDto {
     description: 'Telefone de contato',
     example: '31999998888',
   })
-  phone?: string | undefined;
+  readonly phone?: string;
 
   @IsString({ message: 'O nome do contato deve ser uma string' })
   @IsOptional()
@@ -93,5 +86,5 @@ export class EditClientDto {
     description: 'Nome do responsável ou ponto de contato',
     example: 'João Silva',
   })
-  contactPerson?: string | undefined;
+  readonly contactPerson?: string;
 }
