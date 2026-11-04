@@ -11,9 +11,3 @@ export type AuthResponse = {
     name: string;
   };
 }
-
-export type SendPasswordResetParams = {
-  toEmail: string;
-  toName: string;
-  resetLink: string;
-}
