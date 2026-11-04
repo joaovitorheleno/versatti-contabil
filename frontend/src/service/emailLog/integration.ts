@@ -18,6 +18,7 @@ export type EmailCategory =
   | "TICKET"
   | "LEGAL_PROCESS"
   | "BOUNCE_ALERT"
+  | "PASSWORD_RESET"
   | "OTHER";
 
 export const emailStatusConfig: Record<
@@ -40,6 +41,7 @@ export const emailCategoryLabels: Record<EmailCategory, string> = {
   TICKET: "Atendimento",
   LEGAL_PROCESS: "Processos",
   BOUNCE_ALERT: "Aviso de e-mail recusado",
+  PASSWORD_RESET: "Recuperação de senha",
   OTHER: "Outros",
 };
 

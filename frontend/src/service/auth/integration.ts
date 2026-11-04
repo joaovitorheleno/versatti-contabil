@@ -1,12 +1,7 @@
 import axios from "axios";
 import { getToken } from "../../config/token/getToken";
 import { BASE_URL } from "../../config/url/baseUrl";
-import type { AuthResponse, LoginType, SendPasswordResetParams } from "./types";
-import emailjs from "@emailjs/browser";
-
-const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+import type { AuthResponse, LoginType } from "./types";
 
 export const loginUser = async (
   credentials: LoginType,
@@ -78,31 +73,6 @@ export const createPassword = async (cpf: string, password: string) => {
   } catch (error: any) {
     const message = error.response?.data?.message || "CPF inválido.";
     throw new Error(message);
-  }
-};
-
-export const sendPasswordResetEmail = async ({
-  toEmail,
-  toName,
-  resetLink,
-}: SendPasswordResetParams) => {
-  try {
-    const response = await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID,
-      {
-        to_email: toEmail,
-        to_name: toName,
-        reset_link: resetLink,
-      },
-      EMAILJS_PUBLIC_KEY,
-    );
-    return response;
-  } catch (error) {
-    console.error(error);
-    throw new Error(
-      "Não foi possível enviar o e-mail de recuperação via EmailJS.",
-    );
   }
 };
 

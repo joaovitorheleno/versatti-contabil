@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { openSuccessNotification } from "../../components/notification/success";
 import { openErrorNotification } from "../../components/notification/error";
-import {
-  recoverPassword,
-  sendPasswordResetEmail,
-} from "../../service/auth/integration";
+import { recoverPassword } from "../../service/auth/integration";
 
 export const useRecoverPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -12,25 +9,12 @@ export const useRecoverPassword = () => {
   const handleForgotPassword = async (emailRecover: string) => {
     setLoading(true);
     try {
-      const response = await recoverPassword(emailRecover);
-
-      const { email, name, resetToken } = response;
-
-      const resetLink = `${window.location.origin}/resetPassword?token=${resetToken}`;
-
-      if (!email) {
-        throw new Error("O e-mail retornado pela API está vazio.");
-      }
-
-      await sendPasswordResetEmail({
-        toEmail: email,
-        toName: name || "Usuário",
-        resetLink,
-      });
+      await recoverPassword(emailRecover);
 
       openSuccessNotification({
-        title: "E-mail enviado!",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        title: "Solicitação recebida",
+        description:
+          "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha em instantes.",
       });
     } catch (error: any) {
       openErrorNotification({
