@@ -15,6 +15,7 @@ import {
 @Entity('email_logs')
 @Index(['createdAt'])
 @Index(['providerId'])
+@Index('IDX_email_logs_batch_id', ['batchId'])
 export class EmailLogEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -45,6 +46,10 @@ export class EmailLogEntity extends BaseEntity {
 
   @Column({ name: 'sent_by', type: 'varchar', nullable: true })
   sentBy!: string | null;
+
+  /** Liga os e-mails de um mesmo envio de documentos ao comprovante dele. */
+  @Column({ name: 'batch_id', type: 'uuid', nullable: true })
+  batchId!: string | null;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   error!: string | null;
