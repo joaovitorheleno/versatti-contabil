@@ -58,6 +58,8 @@ export type EmailLog = {
   tracked: boolean;
   sentBy: { id: string; name: string | null } | null;
   client: { id: string; name: string | null } | null;
+  /** Só nos comprovantes: para quem o usuário enviou os documentos. */
+  recipients: { email: string; status: EmailStatus; client: string | null }[];
 };
 
 export type EmailLogFilters = {

@@ -19,6 +19,9 @@ import { MailService } from '../mail/mail.service';
 import { ListEmailLogQueryDto } from './dto/list-email-log-query.dto';
 
 const MAX_RESULTS = 1000;
+// Comprovantes anteriores ao batch_id não guardam a ligação com os envios: para
+// eles, buscam-se os envios do mesmo usuário nesta janela antes do comprovante.
+const RECEIPT_WINDOW_MS = 30 * 60 * 1000;
 const SIGNATURE_TOLERANCE_SECONDS = 5 * 60;
 
 const STATUS_RANK: Record<EmailStatusEnum, number> = {
@@ -75,9 +78,17 @@ export class EmailLogService {
     if (query.clientId) qb.andWhere('log.clientId = :clientId', { clientId: query.clientId });
 
     const logs = await qb.getMany();
+    const receiptRecipients = await this.receiptRecipients(logs);
 
     const userIds = [...new Set(logs.map((l) => l.sentBy).filter(Boolean))] as string[];
-    const clientIds = [...new Set(logs.map((l) => l.clientId).filter(Boolean))] as string[];
+    const clientIds = [
+      ...new Set(
+        [
+          ...logs.map((l) => l.clientId),
+          ...[...receiptRecipients.values()].flat().map((r) => r.clientId),
+        ].filter(Boolean),
+      ),
+    ] as string[];
 
     const [users, clients] = await Promise.all([
       userIds.length
@@ -110,7 +121,80 @@ export class EmailLogService {
       tracked: !!log.providerId,
       sentBy: log.sentBy ? { id: log.sentBy, name: userName.get(log.sentBy) ?? null } : null,
       client: log.clientId ? { id: log.clientId, name: clientName.get(log.clientId) ?? null } : null,
+      recipients: (receiptRecipients.get(log.id) ?? []).map((r) => ({
+        email: r.toEmail,
+        status: r.status,
+        client: r.clientId ? clientName.get(r.clientId) ?? null : null,
+      })),
     }));
+  }
+
+  private async receiptRecipients(logs: EmailLogEntity[]) {
+    const result = new Map<string, EmailLogEntity[]>();
+    const receipts = logs.filter((l) => l.category === EmailCategoryEnum.RECEIPT);
+
+    const batchIds = [...new Set(receipts.map((r) => r.batchId).filter(Boolean))] as string[];
+    if (batchIds.length) {
+      const batchLogs = await EmailLogEntity.createQueryBuilder('log')
+        .where('log.batchId IN (:...batchIds)', { batchIds })
+        .andWhere('log.category = :category', { category: EmailCategoryEnum.DOCUMENT })
+        .orderBy('log.createdAt', 'ASC')
+        .getMany();
+      receipts
+        .filter((r) => r.batchId)
+        .forEach((r) => result.set(r.id, batchLogs.filter((l) => l.batchId === r.batchId)));
+    }
+
+    const legacy = receipts.filter((r) => !r.batchId && r.sentBy);
+    if (legacy.length) await this.legacyReceiptRecipients(legacy, result);
+    return result;
+  }
+
+  private async legacyReceiptRecipients(
+    receipts: EmailLogEntity[],
+    result: Map<string, EmailLogEntity[]>,
+  ) {
+    const senders = [...new Set(receipts.map((r) => r.sentBy!))];
+    const times = receipts.map((r) => r.createdAt.getTime());
+    const from = new Date(Math.min(...times) - RECEIPT_WINDOW_MS);
+    const to = new Date(Math.max(...times));
+
+    const related = await EmailLogEntity.createQueryBuilder('log')
+      .where('log.sentBy IN (:...senders)', { senders })
+      .andWhere('log.category IN (:...categories)', {
+        categories: [EmailCategoryEnum.DOCUMENT, EmailCategoryEnum.RECEIPT],
+      })
+      .andWhere('log.createdAt BETWEEN :from AND :to', { from, to })
+      .orderBy('log.createdAt', 'ASC')
+      .getMany();
+
+    receipts.forEach((receipt) => {
+      const at = receipt.createdAt.getTime();
+      const previousReceipt = related
+        .filter(
+          (l) =>
+            l.category === EmailCategoryEnum.RECEIPT &&
+            l.sentBy === receipt.sentBy &&
+            l.createdAt.getTime() < at,
+        )
+        .pop();
+      const start = Math.max(
+        at - RECEIPT_WINDOW_MS,
+        previousReceipt?.createdAt.getTime() ?? 0,
+      );
+
+      result.set(
+        receipt.id,
+        related.filter(
+          (l) =>
+            l.category === EmailCategoryEnum.DOCUMENT &&
+            !l.batchId &&
+            l.sentBy === receipt.sentBy &&
+            l.createdAt.getTime() > start &&
+            l.createdAt.getTime() <= at,
+        ),
+      );
+    });
   }
 
   public verifySignature(headers: Record<string, any>, rawBody: Buffer | undefined) {

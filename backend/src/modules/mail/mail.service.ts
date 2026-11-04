@@ -18,10 +18,12 @@ export interface MailLogInfo {
   category?: EmailCategoryEnum;
   clientId?: string | null;
   sentBy?: string | null;
+  batchId?: string | null;
 }
 
 export interface SendMailParams {
   to: string;
+  bcc?: string;
   subject: string;
   html: string;
   replyTo?: string;
@@ -126,6 +128,7 @@ export class MailService {
         status,
         clientId: params.log?.clientId ?? null,
         sentBy: params.log?.sentBy ?? null,
+        batchId: params.log?.batchId ?? null,
         error: error?.slice(0, 500) ?? null,
       }).save();
     } catch (e: any) {
@@ -146,6 +149,7 @@ export class MailService {
       from: this.from,
       replyTo: params.replyTo ?? this.replyTo,
       to: params.to,
+      bcc: params.bcc,
       subject: params.subject,
       html: params.html,
       attachments: params.attachments,
@@ -155,7 +159,7 @@ export class MailService {
 
   private async sendWithResend(
     apiKey: string,
-    { to, subject, html, replyTo, attachments }: SendMailParams,
+    { to, bcc, subject, html, replyTo, attachments }: SendMailParams,
   ): Promise<string | null> {
     const files = attachments?.length
       ? await Promise.all(
@@ -175,6 +179,7 @@ export class MailService {
       body: JSON.stringify({
         from: this.from,
         to: [to],
+        bcc: bcc ? [bcc] : undefined,
         reply_to: replyTo ?? this.replyTo,
         subject,
         html,

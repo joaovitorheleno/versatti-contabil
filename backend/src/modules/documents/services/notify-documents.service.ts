@@ -3,6 +3,7 @@ import {
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { existsSync, statSync } from 'fs';
 import { In } from 'typeorm';
 import { ClientEntity } from '../../../entities/client.entity';
@@ -105,6 +106,7 @@ export class NotifyDocumentsService {
     };
     const deliveries: Delivery[] = [];
     const messages: SentMessage[] = [];
+    const batchId = randomUUID();
 
     for (const { client, documents: clientDocuments } of byClient.values()) {
       const visibleDocuments = clientDocuments.filter((d) => d.visibleToClient);
@@ -165,6 +167,12 @@ export class NotifyDocumentsService {
         try {
           await this.mailService.send({
             to: email,
+            // Cópia oculta: quem enviou recebe o mesmo e-mail e vê o cliente no "para"
+            bcc:
+              sender?.email &&
+              sender.email.trim().toLowerCase() !== email.toLowerCase()
+                ? sender.email
+                : undefined,
             subject,
             html,
             attachments,
@@ -173,6 +181,7 @@ export class NotifyDocumentsService {
               category: EmailCategoryEnum.DOCUMENT,
               clientId: client.id,
               sentBy: sender?.id ?? null,
+              batchId,
             },
           });
           anySent = true;
@@ -214,7 +223,11 @@ export class NotifyDocumentsService {
           subject: `Comprovante de envio - ${deliveries.filter((d) => !d.error).length} e-mail(s) enviado(s)`,
           html: this.buildReceiptHtml(sender.name, deliveries, messages),
           attachments: this.receiptAttachments(messages),
-          log: { category: EmailCategoryEnum.RECEIPT, sentBy: sender.id },
+          log: {
+            category: EmailCategoryEnum.RECEIPT,
+            sentBy: sender.id,
+            batchId,
+          },
         })
         .catch((e) =>
           this.logger.error(

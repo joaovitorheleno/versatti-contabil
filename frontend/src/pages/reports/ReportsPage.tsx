@@ -982,7 +982,14 @@ const EmailLogReport = ({
       rows,
       columns: [
         { header: "Enviado em", value: (r) => formatDateTime(r.createdAt), width: 18 },
-        { header: "Destinatário", value: (r) => r.toEmail, width: 32 },
+        {
+          header: "Destinatário",
+          value: (r) =>
+            r.recipients.length
+              ? r.recipients.map((x) => x.email).join(", ")
+              : r.toEmail,
+          width: 32,
+        },
         { header: "Assunto", value: (r) => r.subject, width: 40 },
         { header: "Empresa", value: (r) => r.client?.name ?? "-", width: 30 },
         { header: "Enviado por", value: (r) => r.sentBy?.name ?? "Sistema", width: 20 },
@@ -1004,8 +1011,27 @@ const EmailLogReport = ({
     },
     {
       title: "Destinatário",
-      dataIndex: "toEmail",
       key: "toEmail",
+      render: (_, record) =>
+        record.recipients.length ? (
+          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.35 }}>
+            {record.recipients.map((recipient, index) => (
+              <span key={`${recipient.email}-${index}`}>
+                {recipient.email}
+                {recipient.client && (
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {` · ${recipient.client}`}
+                  </Text>
+                )}
+              </span>
+            ))}
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Comprovante enviado para {record.toEmail}
+            </Text>
+          </div>
+        ) : (
+          record.toEmail
+        ),
     },
     {
       title: "Assunto",
