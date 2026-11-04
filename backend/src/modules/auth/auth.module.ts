@@ -6,12 +6,14 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RedisModule } from '../redis/redis.module';
+import { MailModule } from '../mail/mail.module';
 import { ValidateCpfService, AuthService, CreatePasswordService, RecoverPasswordService, ChangePasswordService } from './services';
 
 @Module({
   imports: [
     PassportModule,
     RedisModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

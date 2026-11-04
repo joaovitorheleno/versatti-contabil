@@ -1,29 +1,35 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { UserEntity } from "src/entities/user.entity";
 import * as bcrypt from "bcrypt";
+import { PASSWORD_RESET_PURPOSE, passwordResetSecret } from "./recover-password.service";
 
 @Injectable()
 export class ChangePasswordService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
+  ) {}
 
   public async execute(token: string, newPassword: string) {
-    let payload: { sub: string; email: string };
-
-    if(newPassword.length < 6) {
-        throw new BadRequestException('Senha precisa ter pelo menos 6 caracteres.')
+    if (typeof newPassword !== "string" || newPassword.length < 6) {
+      throw new BadRequestException('Senha precisa ter pelo menos 6 caracteres.')
     }
+
+    const invalid = new UnauthorizedException("Link inválido ou expirado. Solicite uma nova recuperação de senha.");
+    const decoded = typeof token === "string" ? this.jwtService.decode(token) : null;
+    if (!decoded?.sub || decoded.purpose !== PASSWORD_RESET_PURPOSE) throw invalid;
+
+    const existingUser = await UserEntity.findOne({ where: { id: decoded.sub } });
+    if (!existingUser?.password) throw invalid;
 
     try {
-      payload = await this.jwtService.verifyAsync(token);
+      await this.jwtService.verifyAsync(token, {
+        secret: passwordResetSecret(this.config.get<string>("JWT_SECRET")!, existingUser.password),
+      });
     } catch {
-      throw new UnauthorizedException("Token inválido ou expirado.");
-    }
-
-    const existingUser = await UserEntity.findOne({ where: { id: payload.sub } });
-
-    if (!existingUser) {
-      throw new NotFoundException("Usuário não encontrado.");
+      throw invalid;
     }
 
     const saltRounds = 10;
