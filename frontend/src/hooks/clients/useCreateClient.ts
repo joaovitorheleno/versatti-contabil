@@ -56,7 +56,7 @@ const useCreateClient = () => {
         } else {
           message.warning(
             lookup.status === "not_found"
-              ? "CNPJ não encontrado na Receita Federal."
+              ? "CNPJ ainda não consta na base pública da Receita (empresas abertas recentemente podem levar algumas semanas). Preencha os dados manualmente."
               : "Consulta de CNPJ indisponível no momento. Preencha os dados manualmente.",
           );
         }

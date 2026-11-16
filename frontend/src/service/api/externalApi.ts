@@ -35,26 +35,56 @@ const fromCnpjWs = async (cnpj: string): Promise<CnpjLookupResult> => {
   };
 };
 
+const fromOpenCnpj = async (cnpj: string): Promise<CnpjLookupResult> => {
+  const { data } = await axios.get(`https://api.opencnpj.org/${cnpj}`, {
+    timeout: LOOKUP_TIMEOUT_MS,
+  });
+  const phone = data?.telefones?.find((t: any) => !t?.is_fax) ?? data?.telefones?.[0];
+
+  return {
+    status: "found",
+    data: {
+      razao_social: data?.razao_social,
+      nome_fantasia: data?.nome_fantasia || undefined,
+      logradouro: [data?.tipo_logradouro, data?.logradouro].filter(Boolean).join(" ") || undefined,
+      numero: data?.numero || undefined,
+      complemento: data?.complemento || undefined,
+      bairro: data?.bairro || undefined,
+      municipio: data?.municipio || undefined,
+      uf: data?.uf || undefined,
+      cep: data?.cep || undefined,
+      ddd_telefone_1: phone?.ddd && phone?.numero ? `${phone.ddd}${phone.numero}` : undefined,
+      email: data?.email || undefined,
+    },
+  };
+};
+
 const isNotFound = (error: any) => error?.response?.status === 404;
+
+const providers = [
+  { name: "BrasilAPI", fetch: fromBrasilApi },
+  { name: "OpenCNPJ", fetch: fromOpenCnpj },
+  { name: "CNPJ.ws", fetch: fromCnpjWs },
+];
 
 export const fetchCnpjData = async (cnpj: string): Promise<CnpjLookupResult> => {
   const cleanCnpj = cnpj.replace(/\D/g, "");
   if (cleanCnpj.length !== 14) return { status: "not_found" };
 
-  try {
-    return await fromBrasilApi(cleanCnpj);
-  } catch (error) {
-    if (isNotFound(error)) return { status: "not_found" };
-    console.warn("BrasilAPI indisponível, tentando CNPJ.ws", error);
+  let notFoundCount = 0;
+  for (const provider of providers) {
+    try {
+      const result = await provider.fetch(cleanCnpj);
+      if (result.status === "found" && result.data?.razao_social) return result;
+    } catch (error) {
+      if (isNotFound(error)) notFoundCount += 1;
+      else console.warn(`${provider.name} indisponível`, error);
+    }
   }
 
-  try {
-    return await fromCnpjWs(cleanCnpj);
-  } catch (error) {
-    if (isNotFound(error)) return { status: "not_found" };
-    console.warn("CNPJ.ws indisponível", error);
-    return { status: "unavailable" };
-  }
+  return notFoundCount === providers.length
+    ? { status: "not_found" }
+    : { status: "unavailable" };
 };
 
 export const fetchCepData = async (
