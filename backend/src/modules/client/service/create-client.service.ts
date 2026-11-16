@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
+import { isValidCnpj } from 'src/common/utils/cnpj';
 import { ClientEntity } from 'src/entities/client.entity';
 import { CreateClientDto } from '../dto/create-client.dto';
 
@@ -56,6 +57,10 @@ export class CreateClientService {
       throw new BadRequestException('CNPJ inválido. Deve conter 14 dígitos.');
     }
 
+    if (!isValidCnpj(cleanCnpj)) {
+      throw new BadRequestException('CNPJ inválido. Confira os números digitados.');
+    }
+
     const existingClient = await ClientEntity.createQueryBuilder('client')
       .where('client.cnpj = :cnpj', { cnpj: cleanCnpj })
       .getOne();
@@ -74,11 +79,6 @@ export class CreateClientService {
       );
       companyData = response.data;
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        throw new BadRequestException(
-          'CNPJ não encontrado na Receita Federal.',
-        );
-      }
       this.logger.warn(
         `BrasilAPI indisponível ao consultar o CNPJ ${cleanCnpj} (status ${
           error.response?.status ?? error.code ?? 'desconhecido'
@@ -110,6 +110,12 @@ export class CreateClientService {
 
     if (!clientData.municipalRegistration) {
       throw new BadRequestException('Registro municipal não pode ficar vazio.');
+    }
+
+    if (!clientData.name && !companyData?.razao_social) {
+      throw new BadRequestException(
+        'CNPJ não encontrado na base pública da Receita. Preencha a razão social manualmente.',
+      );
     }
 
     const client = new ClientEntity();
