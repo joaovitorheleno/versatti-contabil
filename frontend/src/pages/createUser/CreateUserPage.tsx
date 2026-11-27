@@ -71,7 +71,9 @@ const CreateUserPage = () => {
           <S.FieldRow>
             <FormItemComponent<FormItemType>
               name="cpf"
-              rules={[{ required: true, message: "Preencha o CPF do usuário" }]}
+              rules={[
+                { required: false, message: "Preencha o CPF do usuário" },
+              ]}
               getValueFromEvent={(e) => maskCPF(e.target.value)}
               normalize={(value) => maskCPF(value)}
               layout="vertical"

@@ -8,7 +8,7 @@ import type { FieldType } from "../../common/types/field-input-type";
 import useLogin from "../../hooks/auth/useLogin";
 import { Link } from "react-router-dom";
 import InputComponent from "../../components/input/InputComponent";
-import { maskCPF } from "../../functions/maskCpf";
+import { maskLogin, normalizeLogin } from "../../functions/maskLogin";
 import { versattiIcon } from "../../assets";
 
 const LoginPage = () => {
@@ -18,8 +18,7 @@ const LoginPage = () => {
   } = useLogin();
 
   const onFinish = (values: { username: string; password: string }) => {
-    const rawCpf = values.username.replace(/\D/g, '');
-    handleLogin(rawCpf, values.password);
+    handleLogin(normalizeLogin(values.username), values.password);
   };
 
   return (
@@ -46,13 +45,13 @@ const LoginPage = () => {
           >
             <FormItemComponent<FieldType>
               name="username"
-              rules={[{ required: true, message: 'Por favor digite seu CPF!' }]}
-              getValueFromEvent={(e) => maskCPF(e.target.value)}
-              normalize={(value) => maskCPF(value)}
+              rules={[{ required: true, message: 'Por favor digite seu CPF ou e-mail!' }]}
+              getValueFromEvent={(e) => maskLogin(e.target.value)}
+              normalize={(value) => maskLogin(value)}
             >
               <InputComponent
                 prefix={<UserOutlined />}
-                placeholder="000.000.000-00"
+                placeholder="CPF ou e-mail"
               />
             </FormItemComponent>
 

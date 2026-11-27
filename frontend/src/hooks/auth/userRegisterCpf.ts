@@ -13,13 +13,13 @@ const useRegisterCpf = () => {
       const response = await validateCpf(cpf);
 
       if (response) {
-        navigate('/register', { state: { cpf: response.info, userId: response.id } });
+        navigate('/register', { state: { cpf, userId: response.id } });
       }
     } catch (error: any) {
       if (typeof openErrorNotification === 'function') {
         openErrorNotification({
-          title: 'Erro ao validar CPF',
-          description: error.message || "CPF inválido ou já cadastrado.",
+          title: 'Erro ao validar o acesso',
+          description: error.message || "CPF ou e-mail não encontrado, ou usuário já cadastrado.",
           showProgress: true,
           pauseOnHover: true,
         });

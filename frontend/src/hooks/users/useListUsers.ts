@@ -8,12 +8,13 @@ import {
   listUsers,
 } from "../../service/user/integration";
 import { openSuccessNotification } from "../../components/notification/success";
+import type { CreateUserType } from "../../service/user/types";
 
 export interface UsersResponse {
   id: string;
   name: string;
   email: string;
-  cpf: string;
+  cpf: string | null;
   phone: string;
 }
 
@@ -50,7 +51,7 @@ const useListUsers = () => {
   );
 
   const fetchEditUser = useCallback(
-    async (userId: string, userData: Partial<UsersResponse>) => {
+    async (userId: string, userData: Partial<CreateUserType>) => {
       try {
         const response = await editUser(userId, userData);
         return response;

@@ -52,7 +52,7 @@ const useDashboard = () => {
         openSuccessNotification({
           title: "Nenhum alerta pendente",
           description:
-            "Não há documentos vencendo que ainda não tenham sido avisados nos últimos 7 dias.",
+            "Todos os documentos perto do vencimento já foram avisados. Cada documento recebe um único aviso.",
         });
         return;
       }

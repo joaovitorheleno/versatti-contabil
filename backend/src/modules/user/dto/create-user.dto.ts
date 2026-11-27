@@ -26,12 +26,13 @@ export class CreateUserDto {
   email!: string;
 
   @IsString({ message: 'O CPF deve ser uma string' })
-  @IsNotEmpty({ message: 'O CPF é obrigatório' })
+  @IsOptional({ message: 'O CPF é opcional' })
   @ApiProperty({
     description: 'Cpf do usuário',
+    required: false,
     example: '123.456.789-00',
   })
-  cpf!: string;
+  cpf?: string;
 
   @IsString({ message: 'O telefone deve ser uma string' })
   @IsOptional({ message: 'O telefone é opcional' })

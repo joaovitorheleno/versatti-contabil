@@ -22,8 +22,7 @@ import {
 } from '../mail/mail-layout';
 import { MailService } from '../mail/mail.service';
 
-const REMINDER_INTERVAL_DAYS = 7;
-const STOP_AFTER_EXPIRED_DAYS = 30;
+const MISSED_RUN_GRACE_DAYS = 3;
 const LOCK_TTL_SECONDS = 23 * 60 * 60;
 
 export interface ExpirationAlertsResult {
@@ -166,7 +165,7 @@ export class ExpirationAlertsService {
       .andWhere('client.isActive = :clientActive', { clientActive: true })
       .andWhere('document.expirationDate IS NOT NULL')
       .andWhere('document.expirationDate >= :oldest', {
-        oldest: addDays(today, -STOP_AFTER_EXPIRED_DAYS),
+        oldest: addDays(today, -MISSED_RUN_GRACE_DAYS),
       })
       .getMany();
 
@@ -181,18 +180,13 @@ export class ExpirationAlertsService {
 
     return [...latest.values()]
       .filter((document) => {
+        if (document.lastAlertAt) return false;
         const status = getDocumentStatus(
           document.expirationDate,
           document.alertDays,
           today,
         );
-        if (status !== 'EXPIRING' && status !== 'EXPIRED') return false;
-        if (!document.lastAlertAt) return true;
-        if (document.expirationDate === today && document.lastAlertAt < today)
-          return true;
-        return (
-          daysBetween(document.lastAlertAt, today) >= REMINDER_INTERVAL_DAYS
-        );
+        return status === 'EXPIRING' || status === 'EXPIRED';
       })
       .sort((a, b) => a.expirationDate!.localeCompare(b.expirationDate!));
   }

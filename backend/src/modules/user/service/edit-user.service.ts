@@ -91,8 +91,8 @@ export class EditUserService {
 
     if (name !== undefined) user.name = name;
     if (email !== undefined) user.email = email.trim().toLowerCase();
-    if (cpf !== undefined) user.cpf = cpf.replace(/\D/g, '');
-    if (phone !== undefined) user.phone = phone.replace(/\D/g, '');
+    if (cpf !== undefined) user.cpf = cpf.replace(/\D/g, '') || null;
+    if (phone !== undefined) user.phone = phone.replace(/\D/g, '') || null;
 
     return await UserEntity.getRepository().manager.transaction(
       async (manager) => {
