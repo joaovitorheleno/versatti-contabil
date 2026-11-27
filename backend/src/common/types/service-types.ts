@@ -4,9 +4,9 @@ export type ValidateCpfResponse = {
   id: string;
   info: {
     name: string;
-    cpf: string;
+    cpf: string | null;
     email: string;
-    phone: string | undefined;
+    phone: string | null | undefined;
     role: UserRole;
   };
 };

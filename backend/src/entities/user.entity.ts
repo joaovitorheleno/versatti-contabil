@@ -12,11 +12,11 @@ export class UserEntity extends CrudEntity {
   @Column('varchar', { nullable: false, unique: true })
   email!: string;
 
-  @Column('varchar', { nullable: false, unique: true })
-  cpf!: string;
+  @Column('varchar', { nullable: true, unique: true })
+  cpf!: string | null;
 
   @Column('varchar', { nullable: true, unique: true })
-  phone?: string;
+  phone!: string | null;
 
   @Column('varchar', { nullable: true })
   password?: string | undefined;

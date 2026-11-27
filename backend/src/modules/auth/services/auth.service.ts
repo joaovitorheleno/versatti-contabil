@@ -3,20 +3,20 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ValidateCpfResponse } from 'src/common/types/service-types';
 import { ClientEntity } from 'src/entities/client.entity';
-import { UserEntity } from 'src/entities/user.entity';
+import { findUserByLogin } from 'src/common/utils/find-user-by-login';
 
 @Injectable()
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-    public async validateUser(cpf: string, password: string): Promise<ValidateCpfResponse> {
-        const usuarioExistente = await UserEntity.findOne({ where: { cpf } });
+    public async validateUser(login: string, password: string): Promise<ValidateCpfResponse> {
+        const usuarioExistente = await findUserByLogin(login);
 
         const hashParaComparar = usuarioExistente?.password ?? '$2b$10$invalidHashInvalidHashInvalidHas';
         const senhaValida = await bcrypt.compare(password, hashParaComparar);
 
         if (!usuarioExistente || !senhaValida) {
-            throw new UnauthorizedException('Cpf ou senha inválidos');
+            throw new UnauthorizedException('CPF/e-mail ou senha inválidos');
         }
 
         return { 

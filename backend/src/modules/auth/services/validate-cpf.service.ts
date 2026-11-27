@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ValidateCpfResponse } from 'src/common/types/service-types';
-import { UserEntity } from 'src/entities/user.entity';
+import { findUserByLogin } from 'src/common/utils/find-user-by-login';
 
 @Injectable()
 export class ValidateCpfService {
@@ -8,19 +8,17 @@ export class ValidateCpfService {
     const cpfString = typeof cpfInput === 'object' ? cpfInput?.cpf : cpfInput;
 
     if (!cpfString || typeof cpfString !== 'string') {
-      throw new BadRequestException('CPF não fornecido ou inválido.');
+      throw new BadRequestException('CPF ou e-mail não fornecido.');
     }
 
-    const cleanCpf = cpfString.replace(/\D/g, '');
-
-    const usuarioExistente = await UserEntity.findOne({ where: { cpf: cleanCpf } });
+    const usuarioExistente = await findUserByLogin(cpfString);
 
     if (!usuarioExistente) {
-      throw new BadRequestException('CPF inválido');
+      throw new BadRequestException('CPF ou e-mail não encontrado');
     }
 
     if (usuarioExistente.password !== null) {
-      throw new BadRequestException('CPF já cadastrado');
+      throw new BadRequestException('Este usuário já tem senha cadastrada. Faça login.');
     }
 
     return { 

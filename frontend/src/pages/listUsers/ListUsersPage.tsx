@@ -39,7 +39,7 @@ interface UserTableData {
   id: string;
   name: string;
   email: string;
-  cpf: string;
+  cpf: string | null;
   phone: string;
 }
 
@@ -50,7 +50,7 @@ interface UserDetails extends UserTableData {
 interface EditUserFormValues {
   name: string;
   email: string;
-  cpf: string;
+  cpf: string | null;
   phone: string;
   clients: string[];
 }
@@ -163,7 +163,7 @@ const ListUsersPage = () => {
       await fetchEditUser(editingUser.id, {
         name: values.name.trim(),
         email: values.email.trim().toLowerCase(),
-        cpf: values.cpf.replace(/\D/g, ""),
+        cpf: (values.cpf ?? "").replace(/\D/g, ""),
         phone: values.phone.replace(/\D/g, ""),
         clientIds: values.clients ?? [],
       } as any);
@@ -258,8 +258,9 @@ const ListUsersPage = () => {
       dataIndex: "cpf",
       key: "cpf",
       width: 160,
-      sorter: (a, b) => a.cpf.localeCompare(b.cpf),
-      render: (cpf: string) => <Text>{maskCPF(cpf)}</Text>,
+      sorter: (a, b) => (a.cpf ?? "").localeCompare(b.cpf ?? ""),
+      render: (cpf: string | null) =>
+        cpf ? <Text>{maskCPF(cpf)}</Text> : <Text type="secondary">-</Text>,
     },
     {
       title: "Telefone",
@@ -476,7 +477,6 @@ const ListUsersPage = () => {
                 getValueFromEvent={(e) => maskCPF(e.target.value)}
                 normalize={(value) => maskCPF(value)}
                 rules={[
-                  { required: true, message: "Insira o CPF" },
                   {
                     validator: (_, value) =>
                       !value || value.replace(/\D/g, "").length === 11

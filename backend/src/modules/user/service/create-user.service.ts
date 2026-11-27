@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { In } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -12,6 +13,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class CreateUserService {
+  private readonly logger = new Logger(CreateUserService.name);
+
   public async execute(userData: CreateUserDto, currentUserId: string) {
     const {
       name,
@@ -22,20 +25,20 @@ export class CreateUserService {
       clientIds = [],
     } = userData;
 
-    const cleanCpf = cpf.replace(/\D/g, '');
+    const cleanCpf = cpf?.replace(/\D/g, '');
     const cleanEmail = email?.trim().toLowerCase();
     const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
 
     const existingUser = await UserEntity.findOne({
       where: [
-        { cpf: cleanCpf },
+        ...(cleanCpf ? [{ cpf: cleanCpf }] : []),
         { email: cleanEmail },
         ...(cleanPhone ? [{ phone: cleanPhone }] : []),
       ],
     });
 
     if (existingUser) {
-      if (existingUser.cpf === cleanCpf)
+      if (cleanCpf && existingUser.cpf === cleanCpf)
         throw new ConflictException('CPF já cadastrado');
       if (existingUser.email === cleanEmail)
         throw new ConflictException('Email já cadastrado');
@@ -60,8 +63,8 @@ export class CreateUserService {
       const user = new UserEntity();
       user.name = name;
       user.email = cleanEmail;
-      user.cpf = cleanCpf;
-      user.phone = cleanPhone;
+      user.cpf = cleanCpf || null;
+      user.phone = cleanPhone || null;
 
       if (password) {
         const saltRounds = 10;
@@ -88,7 +91,14 @@ export class CreateUserService {
       savedUser.createdBy = currentUserId;
 
       return savedUser;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === '23505') {
+        const detail = String(error.detail ?? '');
+        if (detail.includes('(cpf)')) throw new ConflictException('CPF já cadastrado');
+        if (detail.includes('(email)')) throw new ConflictException('Email já cadastrado');
+        if (detail.includes('(phone)')) throw new ConflictException('Telefone já cadastrado');
+      }
+      this.logger.error(`Falha ao criar usuário: ${error?.message ?? error}`);
       throw new BadRequestException('Erro ao criar usuário.');
     }
   }

@@ -106,7 +106,7 @@ const AppLayout = () => {
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
             <S.UserArea>
-              {!isMobile && <p>Bem vindo ao painel admnistrativo, </p>}
+              {!isMobile && <p>Bem vindo ao painel administrativo, </p>}
               <Text strong>{userName}</Text>
             </S.UserArea>
           </Dropdown>

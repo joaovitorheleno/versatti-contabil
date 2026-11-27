@@ -6,7 +6,7 @@ import FormComponent from "../../components/form/FormComponent";
 import FormItemComponent from "../../components/form/FormItemComponent";
 import type { FieldType } from "../../common/types/field-input-type";
 import { useNavigate, Link } from "react-router-dom";
-import { maskCPF } from "../../functions/maskCpf";
+import { maskLogin, normalizeLogin } from "../../functions/maskLogin";
 import useRegisterCpf from "../../hooks/auth/userRegisterCpf";
 
 const RegisterCpfPage = () => {
@@ -14,15 +14,14 @@ const RegisterCpfPage = () => {
   const { handleRegisterCpf, loading } = useRegisterCpf();
 
   const onFinish = (values: { username: string }) => {
-    const rawCpf = values.username.replace(/\D/g, '');
-    handleRegisterCpf(rawCpf);
+    handleRegisterCpf(normalizeLogin(values.username));
   };
 
   return (
     <S.RegisterCpfPageWrapper>
       <S.RegisterCpfCardContainer>
         <LeftOutlined onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
-        <S.RegisterCpfSubtitle>Confirme o CPF</S.RegisterCpfSubtitle>
+        <S.RegisterCpfSubtitle>Confirme o CPF ou e-mail</S.RegisterCpfSubtitle>
 
         <FormComponent
           name="confirmCpf"
@@ -32,20 +31,21 @@ const RegisterCpfPage = () => {
         >
           <FormItemComponent<FieldType>
             name="username"
-            getValueFromEvent={(e) => maskCPF(e.target.value)}
-            normalize={(value) => maskCPF(value)}
+            getValueFromEvent={(e) => maskLogin(e.target.value)}
+            normalize={(value) => maskLogin(value)}
             rules={[
-              { required: true, message: 'Por favor insira seu CPF!' },
-              { 
-                pattern: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 
-                message: 'Informe um CPF válido contendo 11 dígitos.' 
-              }
+              { required: true, message: 'Por favor insira seu CPF ou e-mail!' },
+              {
+                validator: (_, value) =>
+                  !value || /@/.test(value) || /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(value)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('Informe um CPF com 11 dígitos ou um e-mail válido.')),
+              },
             ]}
           >
             <Input 
               prefix={<UserOutlined />} 
-              placeholder="000.000.000-00" 
-              maxLength={14}
+              placeholder="CPF ou e-mail"
             />
           </FormItemComponent>
 
